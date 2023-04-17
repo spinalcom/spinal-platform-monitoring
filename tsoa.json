@@ -1,0 +1,46 @@
+{
+  "entryFile": "src/server.ts",
+  "noImplicitAdditionalProperties": "throw-on-extras",
+  "controllerPathGlobs": [
+    "src/**/*Controller.ts"
+  ],
+  "spec": {
+    "outputDirectory": "./dist",
+    "host": "localhost:3000",
+    "basePath": "/v1",
+    "securityDefinitions": {
+      "api_key": {
+        "type": "apiKey",
+        "name": "access_token",
+        "in": "query"
+      },
+      "tsoa_auth": {
+        "type": "oauth2",
+        "authorizationUrl": "http://swagger.io/api/oauth/dialog",
+        "flow": "implicit",
+        "scopes": {
+          "write:pets": "modify things",
+          "read:pets": "read things"
+        }
+      },
+      "jwt": {
+        "type": "jwt"
+      }
+    },
+    "yaml": true,
+    "specVersion": 3
+  },
+  "swagger": {
+    "outputDirectory": "./dist",
+    "entryFile": "./src/services/server.ts",
+    "host": "localhost:5000",
+    "basePath": "/v1"
+  },
+  "routes": {
+    "authenticationModule": "./src/authUser/authentication.ts",
+    "basePath": "",
+    "entryFile": "./src/services/server.ts",
+    "middleware": "express",
+    "routesDir": "./src"
+  }
+}
