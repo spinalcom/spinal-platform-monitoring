@@ -1,6 +1,5 @@
-"use strict";
 /*
- * Copyright 2021 SpinalCom - www.spinalcom.com
+ * Copyright 2022 SpinalCom - www.spinalcom.com
  *
  * This file is part of SpinalCore.
  *
@@ -22,12 +21,30 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.IUserType = void 0;
-var IUserType;
-(function (IUserType) {
-    IUserType["authAdmin"] = "authAdmin";
-    IUserType["Super User"] = "Super User";
-    IUserType["Simple User"] = "Simple User";
-})(IUserType = exports.IUserType || (exports.IUserType = {}));
-//# sourceMappingURL=user.model.js.map
+
+import {
+  SpinalGraphService,
+  SpinalGraph,
+} from 'spinal-env-viewer-graph-service';
+
+import {
+  IPlateformCreationParams,
+  IPlatform,
+} from '../platform/platform.model';
+import { PlatformService } from '../platform/platformServices';
+import SpinalMiddleware from '../spinalMiddleware';
+
+interface IRegisterParams {
+  platformCreationParms: IPlateformCreationParams;
+  registerKey: string;
+}
+
+export class RegisterService {
+  public spinalMiddleware: SpinalMiddleware = SpinalMiddleware.getInstance();
+  public graph: SpinalGraph<any>;
+  constructor() {
+    this.spinalMiddleware.init();
+    this.graph = this.spinalMiddleware.getGraph();
+  }
+
+}

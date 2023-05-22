@@ -16,7 +16,6 @@ export declare class PlatformService {
     getPlateforms(): Promise<IPlatform[]>;
     updatePlateform(id: string, requestBody: IPlatformUpdateParams): Promise<IPlatform>;
     deletePlatform(id: string): Promise<void>;
-    createAuthPlateform(): Promise<IPlatform>;
     createRegisterKeyNode(): Promise<IRegisterKeyObject>;
     generateRegisterKey(): any;
     updateRegisterKeyNode(): Promise<IRegisterKeyObject>;

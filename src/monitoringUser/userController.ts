@@ -40,22 +40,20 @@ import {
   IUserCreationParams,
   IUserUpdateParams,
   IUserLoginParams,
-  IAuthAdminUpdateParams,
   IUserLogs
 } from './user.model';
 import { UserService } from './userService';
-import { expressAuthentication } from './authentication';
 import { IUserToken } from '../tokens/token.model';
 
 @Route('users')
 export class UsersController extends Controller {
-  @Security('jwt')
+  // @Security('jwt')
   @SuccessResponse('201', 'Created') // Custom success response
   @Post()
   public async createUser(
     @Body() requestBody: IUserCreationParams
   ): Promise<IUser> {
-    //return Promise.resolve();
+    console.log("controller", requestBody);
     let user = new UserService().createUser(requestBody);
     this.setStatus(201); // set return status 201rt
     return user;
@@ -92,16 +90,16 @@ export class UsersController extends Controller {
 
   @Security('jwt')
   @Put()
-  public async updateAuthAdmin(
-    @Body() requestBody: IAuthAdminUpdateParams
+  public async updateMonitoringAdmin(
+    @Body() requestBody: IUserUpdateParams
   ): Promise<IUser> {
-    return new UserService().updateAuthAdmin(requestBody);
+    return new UserService().updateMonitoringAdmin(requestBody);
   }
 
   // @Security('jwt')
-  @Post('/getAuthAdmin')
-  public async getAuthAdmin(): Promise<IUser> {
-    return new UserService().getAuthAdmin();
+  @Post('/getMonitoringAdmin')
+  public async getMonitoringAdmin(): Promise<IUser> {
+    return new UserService().getMonitoringAdmin();
   }
 
   @Security('jwt')
@@ -119,12 +117,12 @@ export class UsersController extends Controller {
     return new UserService().login(requestBody);
   }
 
-  @Post('/loginAuthAdmin')
-  public async loginAuthAdmin(
+  @Post('/loginMonitoringAdmin')
+  public async loginMonitoringAdmin(
     @Body() requestBody: IUserLoginParams
   ): Promise<IUserToken> {
     this.setStatus(201); // set return status 201
-    return new UserService().loginAuthAdmin(requestBody);
+    return new UserService().loginMonitoringAdmin(requestBody);
   }
 
   // @Security("jwt")

@@ -30,74 +30,36 @@ export interface IUser {
   id: string | number;
   type: string;
   name: string; //nom du noeud du graph
-  userName: string;
+  email: string;
   password: string;
-  email?: string;
-  telephone?: string;
-  info?: string; // champs libre optionnel
-  userType: IUserType;
-  platformList?: {
-    platformId: string;
-    userProfile: {
-      name: string;
-      userProfileId: string;
-    };
-  }[];
+  userType: string;
 }
-
 export enum IUserType {
-  'authAdmin' = 'authAdmin',
-  'Super User' = 'Super User',
-  'Simple User' = 'Simple User',
+  'MonitoringAdmin' = 'MonitoringAdmin',
+  'User' = 'User',
 }
 /**
  * @export
  * @interface IUserCreationParams
  */
 export interface IUserCreationParams {
-  userName: string;
+  email: string;
+  userType: string;
   password: string;
-  email?: string;
-  telephone?: string;
-  info?: string; // champs libre optionnel
-  userType: IUserType;
-  platformList?: {
-    platformId: string;
-    userProfile: {
-      name: string;
-      userProfileId: string;
-    };
-  }[];
 }
 
 export interface IUserUpdateParams {
-  userName?: string;
-  password?: string;
+  name?: string;
   email?: string;
-  telephone?: string;
-  info?: string; // champs libre optionnel
-  userType?: IUserType;
-  platformList?: {
-    platformId: string;
-    platformName: string;
-    userProfile: {
-      userProfileAdminId: string;
-      userProfileBosConfigId: string;
-      userProfileName: string;
-    };
-  }[];
-}
-export interface IAuthAdminUpdateParams {
-  userName: string;
   oldPassword?: string;
   newPassword?: string;
-  email?: string;
-  telephone?: string;
-  info?: string; // champs libre optionnel
+  password?: string;
+  userType?: string;
 }
 
+
 export interface IUserLoginParams {
-  userName: string;
+  email: string;
   password: string;
 }
 export interface IUserLogs {

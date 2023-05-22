@@ -74,10 +74,8 @@ Most of the configuration updates performed by the Gateway Manager are "replacem
 
 ### Branches
 
-- **master** - latest production ready version
-- **release-\*** - release version candidates
-- **dev** - code in development stage
-- **dev-** - specific features, bugs, enhancements branches
+- **main** - latest production ready version
+- **dev** - code in development stage (specific features, bugs, enhancements branches)
 
 ### Testing
 

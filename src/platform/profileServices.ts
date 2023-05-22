@@ -23,10 +23,10 @@
  */
 import {
   USER_PROFILE_TYPE,
-  AUTH_SERVICE_RELATION_TYPE_PTR_LST,
+  MONITORING_SERVICE_RELATION_TYPE_PTR_LST,
   APP_PROFILE_TYPE,
-  AUTH_SERVICE_USER_PROFILE_RELATION_NAME,
-  AUTH_SERVICE_APP_PROFILE_RELATION_NAME,
+  MONITORING_SERVICE_USER_PROFILE_RELATION_NAME,
+  MONITORING_SERVICE_APP_PROFILE_RELATION_NAME,
 } from '../constant';
 import {
   SpinalGraphService,
@@ -80,8 +80,8 @@ export class ProfileServices {
           platform.getId().get(),
           nodeUserId,
           platformContext.getId().get(),
-          AUTH_SERVICE_USER_PROFILE_RELATION_NAME,
-          AUTH_SERVICE_RELATION_TYPE_PTR_LST
+          MONITORING_SERVICE_USER_PROFILE_RELATION_NAME,
+          MONITORING_SERVICE_RELATION_TYPE_PTR_LST
         );
       }
     }
@@ -120,8 +120,8 @@ export class ProfileServices {
           platform.getId().get(),
           nodeAppId,
           platformContext.getId().get(),
-          AUTH_SERVICE_APP_PROFILE_RELATION_NAME,
-          AUTH_SERVICE_RELATION_TYPE_PTR_LST
+          MONITORING_SERVICE_APP_PROFILE_RELATION_NAME,
+          MONITORING_SERVICE_RELATION_TYPE_PTR_LST
         );
       }
     }

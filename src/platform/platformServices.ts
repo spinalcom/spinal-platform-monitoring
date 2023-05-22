@@ -24,13 +24,13 @@
 
 import {
   PLATFORM_LIST,
-  AUTH_SERVICE_PLATFORM_RELATION_NAME,
+  MONITORING_SERVICE_PLATFORM_RELATION_NAME,
   PLATFORM_TYPE,
-  AUTH_SERVICE_RELATION_TYPE_PTR_LST,
-  AUTH_SERVICE_ORGAN_RELATION_NAME,
+  MONITORING_SERVICE_RELATION_TYPE_PTR_LST,
+  MONITORING_SERVICE_ORGAN_RELATION_NAME,
   REGISTER_KEY_TYPE,
   INFO_ADMIN_TYPE,
-  AUTH_SERVICE_INFO_ADMIN_RELATION_NAME,
+  MONITORING_SERVICE_INFO_ADMIN_RELATION_NAME,
   INFO_ADMIN,
 } from '../constant';
 import {
@@ -80,12 +80,22 @@ export class PlatformService {
         const platformObject: IPlateformCreationParams = {
           type: PLATFORM_TYPE,
           name: platformCreationParms.name,
-          url: platformCreationParms.url,
           statusPlatform: platformCreationParms.statusPlatform,
-          address: platformCreationParms.address,
-          TokenBosAdmin: this.generateTokenBosAdmin(platformCreationParms.name),
-          TokenAdminBos: '',
-          idPlatformOfAdmin: '',
+          TokenBosRegister: this.generateTokenBosAdmin(platformCreationParms.name),
+          infoHub: {
+            ip: platformCreationParms.infoHub.ip,
+            port: platformCreationParms.infoHub.port,
+            url: platformCreationParms.infoHub.url,
+            login: platformCreationParms.infoHub.login,
+            password: platformCreationParms.infoHub.password,
+          },
+          infoWall: {
+            ip: platformCreationParms.infoWall.ip,
+            port: platformCreationParms.infoWall.port,
+            url: platformCreationParms.infoWall.url,
+            login: platformCreationParms.infoWall.login,
+            password: platformCreationParms.infoWall.password,
+          }
         };
         const PlatformId = SpinalGraphService.createNode(
           platformObject,
@@ -95,8 +105,8 @@ export class PlatformService {
           context.getId().get(),
           PlatformId,
           context.getId().get(),
-          AUTH_SERVICE_PLATFORM_RELATION_NAME,
-          AUTH_SERVICE_RELATION_TYPE_PTR_LST
+          MONITORING_SERVICE_PLATFORM_RELATION_NAME,
+          MONITORING_SERVICE_RELATION_TYPE_PTR_LST
         );
         // @ts-ignore
         SpinalGraphService._addNode(res);
@@ -111,9 +121,21 @@ export class PlatformService {
             type: res.getType().get(),
             name: res.getName().get(),
             statusPlatform: res.info.statusPlatform.get(),
-            url: res.info.url.get(),
-            address: res.info.address.get(),
-            TokenBosAdmin: res.info.TokenBosAdmin.get(),
+            TokenBosRegister: res.info.TokenBosRegister,
+            infoHub: {
+              ip: res.info.infoHub.ip,
+              port: res.info.infoHub.port,
+              url: res.info.infoHub.url,
+              login: res.info.infoHub.login,
+              password: res.info.infoHub.password,
+            },
+            infoWall: {
+              ip: res.info.infoWall.ip,
+              port: res.info.infoWall.port,
+              url: res.info.infoWall.url,
+              login: res.info.infoWall.login,
+              password: res.info.infoWall.password,
+            }
           };
         }
       }
@@ -126,7 +148,7 @@ export class PlatformService {
     for (const context of contexts) {
       if (context.getName().get() === PLATFORM_LIST) {
         const platforms = await context.getChildren(
-          AUTH_SERVICE_PLATFORM_RELATION_NAME
+          MONITORING_SERVICE_PLATFORM_RELATION_NAME
         );
         for (const platform of platforms) {
           if (platform.getId().get() === id) {
@@ -135,11 +157,21 @@ export class PlatformService {
               type: platform.getType().get(),
               name: platform.getName().get(),
               statusPlatform: platform.info.statusPlatform.get(),
-              url: platform.info.url.get(),
-              address: platform.info.address?.get(),
-              TokenBosAdmin: platform.info.TokenBosAdmin?.get(),
-              TokenAdminBos: platform.info.TokenAdminBos?.get(),
-              idPlatformOfAdmin: platform.info.idPlatformOfAdmin?.get(),
+              TokenBosRegister: platform.info.TokenBosRegister,
+              infoHub: {
+                ip: platform.info.infoHub.ip,
+                port: platform.info.infoHub.port,
+                url: platform.info.infoHub.url,
+                login: platform.info.infoHub.login,
+                password: platform.info.infoHub.password,
+              },
+              infoWall: {
+                ip: platform.info.infoWall.ip,
+                port: platform.info.infoWall.port,
+                url: platform.info.infoWall.url,
+                login: platform.info.infoWall.login,
+                password: platform.info.infoWall.password,
+              }
             };
           }
         }
@@ -160,7 +192,7 @@ export class PlatformService {
       for (const context of contexts) {
         if (context.getName().get() === PLATFORM_LIST) {
           const platforms = await context.getChildren(
-            AUTH_SERVICE_PLATFORM_RELATION_NAME
+            MONITORING_SERVICE_PLATFORM_RELATION_NAME
           );
 
           for (const platform of platforms) {
@@ -168,12 +200,22 @@ export class PlatformService {
               id: platform.getId().get(),
               type: platform.getType().get(),
               name: platform.getName().get(),
-              statusPlatform: platform.info.statusPlatform?.get(),
-              url: platform.info.url?.get(),
-              address: platform.info.address?.get(),
-              TokenBosAdmin: platform.info.TokenBosAdmin?.get(),
-              TokenAdminBos: platform.info.TokenAdminBos?.get(),
-              idPlatformOfAdmin: platform.info.idPlatformOfAdmin?.get(),
+              statusPlatform: platform.info.statusPlatform.get(),
+              TokenBosRegister: platform.info.TokenBosRegister,
+              infoHub: {
+                ip: platform.info.infoHub.ip,
+                port: platform.info.infoHub.port,
+                url: platform.info.infoHub.url,
+                login: platform.info.infoHub.login,
+                password: platform.info.infoHub.password,
+              },
+              infoWall: {
+                ip: platform.info.infoWall.ip,
+                port: platform.info.infoWall.port,
+                url: platform.info.infoWall.url,
+                login: platform.info.infoWall.login,
+                password: platform.info.infoWall.password,
+              }
             };
             platformObjectList.push(PlatformObject);
           }
@@ -192,37 +234,69 @@ export class PlatformService {
     for (const context of contexts) {
       if (context.getName().get() === PLATFORM_LIST) {
         const platforms = await context.getChildren(
-          AUTH_SERVICE_PLATFORM_RELATION_NAME
+          MONITORING_SERVICE_PLATFORM_RELATION_NAME
         );
         for (const platform of platforms) {
           if (platform.getId().get() === id) {
-
             if (requestBody.name !== undefined) {
               platform.info.name.set(requestBody.name);
             }
             if (requestBody.statusPlatform !== undefined) {
               platform.info.statusPlatform.set(requestBody.statusPlatform);
             }
-            if (requestBody.url !== undefined) {
-              platform.info.url.set(requestBody.url);
+
+            if (requestBody.infoHub.ip !== undefined) {
+              platform.info.infoHub.ip.set(requestBody.infoHub.ip);
             }
-            if (requestBody.address !== undefined) {
-              platform.info.address?.set(requestBody.address);
+            if (requestBody.infoHub.port !== undefined) {
+              platform.info.infoHub.port.set(requestBody.infoHub.port);
             }
-            if (requestBody.TokenBosAdmin !== undefined) {
-              platform.info.TokenBosAdmin?.set(requestBody.TokenBosAdmin);
+            if (requestBody.infoHub.url !== undefined) {
+              platform.info.infoHub.url.set(requestBody.infoHub.url);
             }
+            if (requestBody.infoHub.login !== undefined) {
+              platform.info.infoHub.login.set(requestBody.infoHub.login);
+            }
+            if (requestBody.infoHub.password !== undefined) {
+              platform.info.infoHub.password.set(requestBody.infoHub.password);
+            }
+            if (requestBody.infoWall.ip !== undefined) {
+              platform.info.infoWall.ip.set(requestBody.infoWall.ip);
+            }
+            if (requestBody.infoWall.port !== undefined) {
+              platform.info.infoWall.port.set(requestBody.infoWall.port);
+            }
+            if (requestBody.infoWall.url !== undefined) {
+              platform.info.infoWall.url.set(requestBody.infoWall.url);
+            }
+            if (requestBody.infoWall.login !== undefined) {
+              platform.info.infoWall.login.set(requestBody.infoWall.login);
+            }
+            if (requestBody.infoWall.password !== undefined) {
+              platform.info.infoWall.password.set(requestBody.infoWall.password);
+            }
+
             // await this.logService.createLog(platform, 'PlatformLogs', 'Edit', 'Edit Valid', "Edit Valid");
             return {
               id: platform.getId().get(),
               type: platform.getType().get(),
               name: platform.getName().get(),
               statusPlatform: platform.info.statusPlatform.get(),
-              url: platform.info.url.get(),
-              address: platform.info.address?.get(),
-              TokenBosAdmin: platform.info.TokenBosAdmin?.get(),
-              TokenAdminBos: platform.info.TokenAdminBos?.get(),
-              idPlatformOfAdmin: platform.info.idPlatformOfAdmin?.get(),
+              TokenBosRegister: platform.info.TokenBosRegister,
+              infoHub: {
+                ip: platform.info.infoHub.ip,
+                port: platform.info.infoHub.port,
+                url: platform.info.infoHub.url,
+                login: platform.info.infoHub.login,
+                password: platform.info.infoHub.password,
+              },
+              infoWall: {
+                ip: platform.info.infoWall.ip,
+                port: platform.info.infoWall.port,
+                url: platform.info.infoWall.url,
+                login: platform.info.infoWall.login,
+                password: platform.info.infoWall.password,
+              }
             };
           }
         }
@@ -235,7 +309,7 @@ export class PlatformService {
     for (const context of contexts) {
       if (context.getName().get() === PLATFORM_LIST) {
         const platforms = await context.getChildren(
-          AUTH_SERVICE_PLATFORM_RELATION_NAME
+          MONITORING_SERVICE_PLATFORM_RELATION_NAME
         );
         var platformFound: SpinalNode<any>
         for (const platform of platforms) {
@@ -256,51 +330,51 @@ export class PlatformService {
 
   }
 
-  public async createAuthPlateform(): Promise<IPlatform> {
-    const contexts = await this.graph.getChildren('hasContext');
-    for (const context of contexts) {
-      if (context.getName().get() === PLATFORM_LIST) {
-        // @ts-ignore
-        SpinalGraphService._addNode(context);
-        const platformObject: IPlateformCreationParams = {
-          name: 'authenticationPlatform',
-          type: PLATFORM_TYPE,
-          statusPlatform: statusPlatform.online,
-          url: process.env.SPINALHUB_URL,
-          TokenBosAdmin: this.generateTokenBosAdmin('authenticationPlatform'),
-          address: '',
-          TokenAdminBos: '',
-          idPlatformOfAdmin: '',
-        };
-        const PlatformId = SpinalGraphService.createNode(
-          platformObject,
-          undefined
-        );
-        const res = await SpinalGraphService.addChildInContext(
-          context.getId().get(),
-          PlatformId,
-          context.getId().get(),
-          AUTH_SERVICE_PLATFORM_RELATION_NAME,
-          AUTH_SERVICE_RELATION_TYPE_PTR_LST
-        );
-        if (res === undefined) {
-          // await this.logService.createLog(undefined, 'PlatformLogs', 'Register', 'Register Not Valid', "Register Not Valid");
-          throw new OperationError('NOT_CREATED', HttpStatusCode.BAD_REQUEST);
+  // public async createAuthPlateform(): Promise<IPlatform> {
+  //   const contexts = await this.graph.getChildren('hasContext');
+  //   for (const context of contexts) {
+  //     if (context.getName().get() === PLATFORM_LIST) {
+  //       // @ts-ignore
+  //       SpinalGraphService._addNode(context);
+  //       const platformObject: IPlateformCreationParams = {
+  //         name: 'authenticationPlatform',
+  //         type: PLATFORM_TYPE,
+  //         statusPlatform: statusPlatform.online,
+  //         url: process.env.SPINALHUB_URL,
+  //         TokenBosAdmin: this.generateTokenBosAdmin('authenticationPlatform'),
+  //         address: '',
+  //         TokenAdminBos: '',
+  //         idPlatformOfAdmin: '',
+  //       };
+  //       const PlatformId = SpinalGraphService.createNode(
+  //         platformObject,
+  //         undefined
+  //       );
+  //       const res = await SpinalGraphService.addChildInContext(
+  //         context.getId().get(),
+  //         PlatformId,
+  //         context.getId().get(),
+  //         MONITORING_SERVICE_PLATFORM_RELATION_NAME,
+  //         MONITORING_SERVICE_RELATION_TYPE_PTR_LST
+  //       );
+  //       if (res === undefined) {
+  //         // await this.logService.createLog(undefined, 'PlatformLogs', 'Register', 'Register Not Valid', "Register Not Valid");
+  //         throw new OperationError('NOT_CREATED', HttpStatusCode.BAD_REQUEST);
 
-        } else {
-          // await this.logService.createLog(res, 'PlatformLogs', 'Register', 'Register Valid', "Register Valid AuthPlatform created");
-          return {
-            id: res.getId().get(),
-            type: res.getType().get(),
-            name: res.getName().get(),
-            statusPlatform: res.info.statusPlatform.get(),
-            url: res.info.url?.get(),
-          };
-        }
+  //       } else {
+  //         // await this.logService.createLog(res, 'PlatformLogs', 'Register', 'Register Valid', "Register Valid AuthPlatform created");
+  //         return {
+  //           id: res.getId().get(),
+  //           type: res.getType().get(),
+  //           name: res.getName().get(),
+  //           statusPlatform: res.info.statusPlatform.get(),
+  //           url: res.info.url?.get(),
+  //         };
+  //       }
 
-      }
-    }
-  }
+  //     }
+  //   }
+  // }
 
   public async createRegisterKeyNode(): Promise<IRegisterKeyObject> {
     const contexts = await this.graph.getChildren('hasContext');
@@ -321,8 +395,8 @@ export class PlatformService {
           context.getId().get(),
           regesterKeyId,
           context.getId().get(),
-          AUTH_SERVICE_INFO_ADMIN_RELATION_NAME,
-          AUTH_SERVICE_RELATION_TYPE_PTR_LST
+          MONITORING_SERVICE_INFO_ADMIN_RELATION_NAME,
+          MONITORING_SERVICE_RELATION_TYPE_PTR_LST
         );
         return {
           id: res.getId().get(),
@@ -349,7 +423,7 @@ export class PlatformService {
         // @ts-ignore
         SpinalGraphService._addNode(context);
         const childrens = await context.getChildren(
-          AUTH_SERVICE_INFO_ADMIN_RELATION_NAME
+          MONITORING_SERVICE_INFO_ADMIN_RELATION_NAME
         );
         for (const child of childrens) {
           if (child.getName().get() === 'registerKey') {
@@ -373,7 +447,7 @@ export class PlatformService {
         // @ts-ignore
         SpinalGraphService._addNode(context);
         const childrens = await context.getChildren(
-          AUTH_SERVICE_INFO_ADMIN_RELATION_NAME
+          MONITORING_SERVICE_INFO_ADMIN_RELATION_NAME
         );
         for (const child of childrens) {
           if (child.getName().get() === 'registerKey') {
@@ -411,7 +485,7 @@ export class PlatformService {
     for (const context of contexts) {
       if (context.getName().get() === INFO_ADMIN) {
         const childrens = await context.getChildren(
-          AUTH_SERVICE_INFO_ADMIN_RELATION_NAME
+          MONITORING_SERVICE_INFO_ADMIN_RELATION_NAME
         );
         registerKey = childrens[0].info.value.get();
       }
@@ -473,7 +547,7 @@ export class PlatformService {
     for (const context of contexts) {
       if (context.getName().get() === PLATFORM_LIST) {
         const platforms = await context.getChildren(
-          AUTH_SERVICE_PLATFORM_RELATION_NAME
+          MONITORING_SERVICE_PLATFORM_RELATION_NAME
         );
         for (const platform of platforms) {
           if (platform.getId().get() === id) {

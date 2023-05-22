@@ -30,12 +30,12 @@ import {
 } from 'spinal-core-connectorjs_type';
 import {
   TOKEN_TYPE,
-  AUTH_SERVICE_TOKEN_RELATION_NAME,
+  MONITORING_SERVICE_TOKEN_RELATION_NAME,
   TOKEN_LIST,
-  AUTH_SERVICE_RELATION_TYPE_PTR_LST,
+  MONITORING_SERVICE_RELATION_TYPE_PTR_LST,
   USER_TOKEN_CATEGORY_TYPE,
   APPLICATION_TOKEN_CATEGORY_TYPE,
-  AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME,
+  MONITORING_SERVICE_TOKEN_CATEGORY_RELATION_NAME,
 } from '../constant';
 import { SPINAL_RELATION_PTR_LST_TYPE } from 'spinal-env-viewer-graph-service';
 import {
@@ -82,15 +82,15 @@ export class TokensService {
       context.getId().get(),
       userTokenCategoryId,
       context.getId().get(),
-      AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME,
-      AUTH_SERVICE_RELATION_TYPE_PTR_LST
+      MONITORING_SERVICE_TOKEN_CATEGORY_RELATION_NAME,
+      MONITORING_SERVICE_RELATION_TYPE_PTR_LST
     );
     await SpinalGraphService.addChildInContext(
       context.getId().get(),
       applicationTokenCategoryId,
       context.getId().get(),
-      AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME,
-      AUTH_SERVICE_RELATION_TYPE_PTR_LST
+      MONITORING_SERVICE_TOKEN_CATEGORY_RELATION_NAME,
+      MONITORING_SERVICE_RELATION_TYPE_PTR_LST
     );
   }
 

@@ -23,7 +23,6 @@
  */
 import * as express from 'express';
 import * as fileUpload from 'express-fileupload';
-import * as bodyParser from 'body-parser';
 import * as cors from 'cors';
 import * as morgan from 'morgan';
 import * as _ from 'lodash';
@@ -61,16 +60,16 @@ function Server(): express.Express {
   // app.use(methodOverride());
   app.use(history())
 
-  // app.use('/static', express.static(path.join(__dirname, 'public')));
+  app.use('/static', express.static(path.join(__dirname, 'public')));
 
-  //app.use('/docs', express.static(__dirname + '/swagger-ui'));
+  app.use('/docs', express.static(__dirname + '/swagger-ui'));
 
-  //app.use('/api-docs', swaggerUi.serve);
-  //app.get('/api-docs', swaggerUi.setup(jsonFile));
-  //
-  //app.use('/swagger.json', (req, res) => {
-  //    res.sendFile(__dirname + '/swagger.json');
-  //});
+  app.use('/api-docs', swaggerUi.serve);
+  app.get('/api-docs', swaggerUi.setup(jsonFile));
+
+  app.use('/swagger.json', (req, res) => {
+    res.sendFile(__dirname + '/swagger.json');
+  });
   RegisterRoutes(app);
   app.use(express.static(path.resolve(__dirname, '../vue-client/dist')));
   app.get('/', function (req, res) {

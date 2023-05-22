@@ -1,19 +1,19 @@
 /*
- * Copyright 2021 SpinalCom - www.spinalcom.com
- *
+ * Copyright 2023 SpinalCom - www.spinalcom.com
+ * 
  * This file is part of SpinalCore.
- *
+ * 
  * Please read all of the following terms and conditions
  * of the Free Software license Agreement ("Agreement")
  * carefully.
- *
+ * 
  * This Agreement is a legally binding contract between
  * the Licensee (as defined below) and SpinalCom that
  * sets forth the terms and conditions that govern your
  * use of the Program. By installing and/or using the
  * Program, you agree to abide by all the terms and
  * conditions stated or referenced herein.
- *
+ * 
  * If you do not agree to abide by these terms and
  * conditions, do not demonstrate your acceptance and do
  * not install or use the Program.
@@ -22,55 +22,57 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-// Type
-export const AUTH_SERVICE_RELATION_TYPE_PTR_LST = 'PtrLst';
-export const AUTH_SERVICE_RELATION_TYPE_LST_PTR = 'LstPtr';
-export const USER_TYPE = 'AuthServiceUser';
-export const NOTIFICATION_TYPE = 'AuthServiceNotification';
-export const USER_TOKEN_CATEGORY_TYPE = 'AuthServiceUserCategory';
-export const APPLICATION_TYPE = 'AuthServiceApplication';
-export const APPLICATION_TOKEN_CATEGORY_TYPE = 'AuthServiceApplicationCategory';
-export const PLATFORM_TYPE = 'AuthServicePlatform';
-export const ORGAN_TYPE = 'AuthServiceOrgan';
-export const USER_PROFILE_TYPE = 'AuthServiceUserProfile';
-export const APP_PROFILE_TYPE = 'AuthServiceAPPProfile';
-export const TOKEN_TYPE = 'AuthServiceToken';
-export const INFO_ADMIN_TYPE = 'AuthServiceInfoAdmin';
-export const REGISTER_KEY_TYPE = 'AuthServiceRegisterKey';
-export const LOG_TYPE = 'AuthServiceLogs'
-export const USER_LOG_CATEGORY_TYPE = 'AuthServiceUserLogCategory'
-export const APPLICATION_LOG_CATEGORY_TYPE = 'AuthServiceApplicationLogCategory'
-export const PLATFORM_LOG_CATEGORY_TYPE = 'AuthServicePlatformLogCategory'
-export const ADMIN_LOG_CATEGORY_TYPE = 'AuthServiceAdminLogCategory'
-export const USER_LOG_EVENT_TYPE = 'AuthServiceUserEvent'
-export const APPLICATION_LOG_EVENT_TYPE = 'AuthServiceApplicationEvent'
-export const PLATFORM_LOG_EVENT_TYPE = 'AuthServicePlatformEvent'
-export const ADMIN_LOG_EVENT_TYPE = 'AuthServiceAdminEvent'
-export const USER_REQUEST_EVENT_LOG_TYPE = 'AuthServiceUserRequestEventLog'
-export const APPLICATION_REQUEST_EVENT_LOG_TYPE = 'AuthServiceApplicationRequestEventLog'
-export const PLATFORM_REQUEST_EVENT_LOG_TYPE = 'AuthServicePlatformRequestEventLog'
-export const ADMIN_REQUEST_EVENT_LOG_TYPE = 'AuthServiceAdminRequestEventLog'
 
-export const USER_LOG_TYPE = 'AuthServiceUserLog'
+
+// Type
+export const MONITORING_SERVICE_RELATION_TYPE_PTR_LST = 'PtrLst';
+export const MONITORING_SERVICE_RELATION_TYPE_LST_PTR = 'LstPtr';
+export const USER_TYPE = 'MonitoringServiceUser';
+export const NOTIFICATION_TYPE = 'MonitoringServiceNotification';
+export const USER_TOKEN_CATEGORY_TYPE = 'MonitoringServiceUserCategory';
+export const APPLICATION_TYPE = 'MonitoringServiceApplication';
+export const APPLICATION_TOKEN_CATEGORY_TYPE = 'MonitoringServiceApplicationCategory';
+export const PLATFORM_TYPE = 'MonitoringServicePlatform';
+export const ORGAN_TYPE = 'MonitoringServiceOrgan';
+export const USER_PROFILE_TYPE = 'MonitoringServiceUserProfile';
+export const APP_PROFILE_TYPE = 'MonitoringServiceAPPProfile';
+export const TOKEN_TYPE = 'MonitoringServiceToken';
+export const INFO_ADMIN_TYPE = 'MonitoringServiceInfoAdmin';
+export const REGISTER_KEY_TYPE = 'MonitoringServiceRegisterKey';
+export const LOG_TYPE = 'MonitoringServiceLogs'
+export const USER_LOG_CATEGORY_TYPE = 'MonitoringServiceUserLogCategory'
+export const APPLICATION_LOG_CATEGORY_TYPE = 'MonitoringServiceApplicationLogCategory'
+export const PLATFORM_LOG_CATEGORY_TYPE = 'MonitoringServicePlatformLogCategory'
+export const ADMIN_LOG_CATEGORY_TYPE = 'MonitoringServiceAdminLogCategory'
+export const USER_LOG_EVENT_TYPE = 'MonitoringServiceUserEvent'
+export const APPLICATION_LOG_EVENT_TYPE = 'MonitoringServiceApplicationEvent'
+export const PLATFORM_LOG_EVENT_TYPE = 'MonitoringServicePlatformEvent'
+export const ADMIN_LOG_EVENT_TYPE = 'MonitoringServiceAdminEvent'
+export const USER_REQUEST_EVENT_LOG_TYPE = 'MonitoringServiceUserRequestEventLog'
+export const APPLICATION_REQUEST_EVENT_LOG_TYPE = 'MonitoringServiceApplicationRequestEventLog'
+export const PLATFORM_REQUEST_EVENT_LOG_TYPE = 'MonitoringServicePlatformRequestEventLog'
+export const ADMIN_REQUEST_EVENT_LOG_TYPE = 'MonitoringServiceAdminRequestEventLog'
+
+export const USER_LOG_TYPE = 'MonitoringServiceUserLog'
 
 // RelationName
-export const AUTH_SERVICE_PLATFORM_RELATION_NAME = 'HasPlatform';
-export const AUTH_SERVICE_NOTIFICATION_RELATION_NAME = 'HasNotification';
-export const AUTH_SERVICE_ORGAN_RELATION_NAME = 'HasOrgan';
-export const AUTH_SERVICE_USER_PROFILE_RELATION_NAME = 'HasUserProfile';
-export const AUTH_SERVICE_APP_PROFILE_RELATION_NAME = 'HasAppProfile';
-export const AUTH_SERVICE_USER_RELATION_NAME = 'HasUser';
-export const AUTH_SERVICE_APPLICATION_RELATION_NAME = 'HasApplication';
-export const AUTH_SERVICE_TOKEN_RELATION_NAME = 'HasToken';
-export const AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME = 'HasCategoryToken';
-export const AUTH_SERVICE_INFO_ADMIN_RELATION_NAME = 'HasRegisterKey';
-export const AUTH_SERVICE_LOG_RELATION_NAME = 'HasLog';
-export const AUTH_SERVICE_LOG_CATEGORY_RELATION_NAME = 'HasCategoryLog';
-export const AUTH_SERVICE_LOG_USER_EVENT_RELATION_NAME = 'HasEventLog';
-export const AUTH_SERVICE_LOG_APPLICATION_EVENT_RELATION_NAME = 'HasEventLog';
-export const AUTH_SERVICE_LOG_PLATFORM_EVENT_RELATION_NAME = 'HasEventLog';
-export const AUTH_SERVICE_LOG_ADMIN_EVENT_RELATION_NAME = 'HasEventLog';
-export const AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME = 'HasRequestEventLog'
+export const MONITORING_SERVICE_PLATFORM_RELATION_NAME = 'HasPlatform';
+export const MONITORING_SERVICE_NOTIFICATION_RELATION_NAME = 'HasNotification';
+export const MONITORING_SERVICE_ORGAN_RELATION_NAME = 'HasOrgan';
+export const MONITORING_SERVICE_USER_PROFILE_RELATION_NAME = 'HasUserProfile';
+export const MONITORING_SERVICE_APP_PROFILE_RELATION_NAME = 'HasAppProfile';
+export const MONITORING_SERVICE_USER_RELATION_NAME = 'HasUser';
+export const MONITORING_SERVICE_APPLICATION_RELATION_NAME = 'HasApplication';
+export const MONITORING_SERVICE_TOKEN_RELATION_NAME = 'HasToken';
+export const MONITORING_SERVICE_TOKEN_CATEGORY_RELATION_NAME = 'HasCategoryToken';
+export const MONITORING_SERVICE_INFO_ADMIN_RELATION_NAME = 'HasRegisterKey';
+export const MONITORING_SERVICE_LOG_RELATION_NAME = 'HasLog';
+export const MONITORING_SERVICE_LOG_CATEGORY_RELATION_NAME = 'HasCategoryLog';
+export const MONITORING_SERVICE_LOG_USER_EVENT_RELATION_NAME = 'HasEventLog';
+export const MONITORING_SERVICE_LOG_APPLICATION_EVENT_RELATION_NAME = 'HasEventLog';
+export const MONITORING_SERVICE_LOG_PLATFORM_EVENT_RELATION_NAME = 'HasEventLog';
+export const MONITORING_SERVICE_LOG_ADMIN_EVENT_RELATION_NAME = 'HasEventLog';
+export const MONITORING_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME = 'HasRequestEventLog'
 
 
 

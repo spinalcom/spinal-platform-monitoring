@@ -54,26 +54,6 @@ class UserService {
         this.graph = this.spinalMiddleware.getGraph();
         // this.logService = new LogsService();
     }
-    getProfile(platformId, profileIdBosConfig) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const contexts = yield this.graph.getChildren('hasContext');
-            for (const context of contexts) {
-                if (context.getName().get() === 'platformList') {
-                    const platforms = yield context.getChildren('HasPlatform');
-                    for (const platform of platforms) {
-                        if (platform.getId().get() === platformId) {
-                            const userProfiles = yield platform.getChildren('HasUserProfile');
-                            for (const profile of userProfiles) {
-                                if (profile.info.userProfileId.get() === profileIdBosConfig) {
-                                    return profile;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
     createUser(userCreationParams) {
         return __awaiter(this, void 0, void 0, function* () {
             const contexts = yield this.graph.getChildren('hasContext');
@@ -81,41 +61,32 @@ class UserService {
                 if (context.getName().get() === constant_1.USER_LIST) {
                     const users = yield context.getChildren('HasUser');
                     for (const user of users) {
-                        if (user.info.userName.get() === userCreationParams.userName) {
+                        if (user.info.email.get() === userCreationParams.email) {
                             // await this.logService.createLog(user, 'UserLogs', 'Create', 'Create Not Valid', "create a new user with this userName");
-                            throw new operation_error_1.OperationError('USERNAME_IS_ALREADY_USED', http_status_code_1.HttpStatusCode.FORBIDDEN);
+                            throw new operation_error_1.OperationError('EMAIL_IN_USE', http_status_code_1.HttpStatusCode.FORBIDDEN);
                         }
                     }
+                    console.log("service", userCreationParams);
                     var userNode = bcrypt
                         .hash(userCreationParams.password, 10)
                         .then((hash) => __awaiter(this, void 0, void 0, function* () {
                         const userObject = {
                             type: constant_1.USER_TYPE,
-                            name: userCreationParams.userName,
-                            userType: userCreationParams.userType,
-                            userName: userCreationParams.userName,
+                            name: userCreationParams.email,
                             email: userCreationParams.email,
-                            telephone: userCreationParams.telephone,
-                            info: userCreationParams.info,
+                            userType: userCreationParams.userType,
                             password: hash,
                         };
-                        if (userObject.userType !== 'authAdmin' &&
-                            userObject.userName !== 'authAdmin') {
+                        if (userObject.userType !== 'MonitoringAdmin') {
                             const UserId = spinal_env_viewer_graph_service_1.SpinalGraphService.createNode(userObject, undefined);
-                            const res = yield spinal_env_viewer_graph_service_1.SpinalGraphService.addChildInContext(context.getId().get(), UserId, context.getId().get(), constant_1.AUTH_SERVICE_USER_RELATION_NAME, constant_1.AUTH_SERVICE_RELATION_TYPE_PTR_LST);
-                            for (const platform of userCreationParams.platformList) {
-                                const pro = yield this.getProfile(platform.platformId, platform.userProfile.userProfileId);
-                                // @ts-ignore
-                                spinal_env_viewer_graph_service_1.SpinalGraphService._addNode(pro);
-                                yield spinal_env_viewer_graph_service_1.SpinalGraphService.addChild(res.getId().get(), pro.getId().get(), 'HasUserProfile', constant_1.AUTH_SERVICE_RELATION_TYPE_PTR_LST);
-                            }
+                            const res = yield spinal_env_viewer_graph_service_1.SpinalGraphService.addChildInContext(context.getId().get(), UserId, context.getId().get(), constant_1.MONITORING_SERVICE_USER_RELATION_NAME, constant_1.MONITORING_SERVICE_RELATION_TYPE_PTR_LST);
                             return res;
                         }
                         else {
                             return undefined;
                         }
                     }));
-                    const userCreated = yield userNode;
+                    const userCreated = userNode;
                     if (userCreated === undefined) {
                         // await this.logService.createLog(userCreated, 'UserLogs', 'Create', 'Create Not Valid', "Create Not Valid");
                         throw new operation_error_1.OperationError('NOT_CREATED', http_status_code_1.HttpStatusCode.BAD_REQUEST);
@@ -126,13 +97,9 @@ class UserService {
                             id: userCreated.getId().get(),
                             type: userCreated.getType().get(),
                             name: userCreated.getName().get(),
-                            userName: userCreated.info.userName.get(),
-                            password: userCreated.info.password.get(),
                             email: userCreated.info.email.get(),
-                            telephone: userCreated.info.telephone.get(),
-                            info: userCreated.info.info.get(),
+                            password: userCreated.info.password.get(),
                             userType: userCreated.info.userType.get(),
-                            // platformList: res.info.platformList.get(),
                         };
                         ;
                     }
@@ -146,19 +113,18 @@ class UserService {
             const contexts = yield this.graph.getChildren('hasContext');
             for (const context of contexts) {
                 if (context.getName().get() === constant_1.USER_LIST) {
-                    const users = yield context.getChildren(constant_1.AUTH_SERVICE_USER_RELATION_NAME);
+                    const users = yield context.getChildren(constant_1.MONITORING_SERVICE_USER_RELATION_NAME);
                     for (const user of users) {
-                        if (userLoginParams.userName === user.info.userName.get()) {
+                        if (userLoginParams.email === user.info.email.get()) {
                             return bcrypt
                                 .compare(userLoginParams.password, user.info.password.get())
                                 .then((valid) => __awaiter(this, void 0, void 0, function* () {
-                                var _a;
                                 if (!valid) {
                                     // await this.logService.createLog(user, 'UserLogs', 'Connection', 'User Valid Unknown Password', "User Valid Unknown Password");
                                     throw new operation_error_1.OperationError('NOT_FOUND', http_status_code_1.HttpStatusCode.NOT_FOUND);
                                 }
                                 else {
-                                    let token = jwt.sign({ userId: user.getId().get() }, 'RANDOM_TOKEN_SECRET', { expiresIn: '24h' });
+                                    let token = jwt.sign({ userId: user.getId().get() }, 'RANDOM_TOKEN_SECRET', { expiresIn: '1h' });
                                     let decodedToken = (0, jwt_decode_1.default)(token);
                                     const tokenContext = spinal_env_viewer_graph_service_1.SpinalGraphService.getContext(constant_1.TOKEN_LIST);
                                     const categoryTokenUserList = yield tokenContext.getChildren('HasCategoryToken');
@@ -166,28 +132,28 @@ class UserService {
                                         // @ts-ignore
                                         spinal_env_viewer_graph_service_1.SpinalGraphService._addNode(categoryTokenUser);
                                         if (categoryTokenUser.getType().get() ===
-                                            'AuthServiceUserCategory') {
-                                            var platformList = [];
-                                            const userProfiles = yield user.getChildren('HasUserProfile');
-                                            for (const userProfile of userProfiles) {
-                                                const platformParents = yield userProfile.getParents('HasUserProfile');
-                                                for (const platformParent of platformParents) {
-                                                    if (platformParent !== undefined) {
-                                                        if (platformParent.getType().get() === "AuthServicePlatform") {
-                                                            platformList.push({
-                                                                platformId: platformParent.getId().get(),
-                                                                platformName: platformParent.getName().get(),
-                                                                idPlatformOfAdmin: (_a = platformParent.info.idPlatformOfAdmin) === null || _a === void 0 ? void 0 : _a.get(),
-                                                                userProfile: {
-                                                                    userProfileAdminId: userProfile.getId().get(),
-                                                                    userProfileBosConfigId: userProfile.info.userProfileId.get(),
-                                                                    userProfileName: userProfile.getName().get()
-                                                                }
-                                                            });
-                                                        }
-                                                    }
-                                                }
-                                            }
+                                            'MonitoringServiceUserCategory') {
+                                            // var platformList = [];
+                                            // const userProfiles = await user.getChildren('HasUserProfile');
+                                            // for (const userProfile of userProfiles) {
+                                            //   const platformParents = await userProfile.getParents('HasUserProfile')
+                                            //   for (const platformParent of platformParents) {
+                                            //     if (platformParent !== undefined) {
+                                            //       if (platformParent.getType().get() === "MonitoringServicePlatform") {
+                                            //         platformList.push({
+                                            //           platformId: platformParent.getId().get(),
+                                            //           platformName: platformParent.getName().get(),
+                                            //           idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
+                                            //           userProfile: {
+                                            //             userProfileAdminId: userProfile.getId().get(),
+                                            //             userProfileBosConfigId: userProfile.info.userProfileId.get(),
+                                            //             userProfileName: userProfile.getName().get()
+                                            //           }
+                                            //         })
+                                            //       }
+                                            //     }
+                                            //   }
+                                            // }
                                             const TokenId = spinal_env_viewer_graph_service_1.SpinalGraphService.createNode({
                                                 name: 'token_' + user.getName().get(),
                                                 type: constant_1.TOKEN_TYPE,
@@ -197,9 +163,8 @@ class UserService {
                                                 // @ts-ignore
                                                 expieredToken: decodedToken.exp,
                                                 userId: user.getId().get(),
-                                                platformList: platformList,
                                             }, undefined);
-                                            const res = yield spinal_env_viewer_graph_service_1.SpinalGraphService.addChildInContext(categoryTokenUser.getId().get(), TokenId, tokenContext.getId().get(), constant_1.AUTH_SERVICE_TOKEN_RELATION_NAME, constant_1.AUTH_SERVICE_RELATION_TYPE_PTR_LST);
+                                            const res = yield spinal_env_viewer_graph_service_1.SpinalGraphService.addChildInContext(categoryTokenUser.getId().get(), TokenId, tokenContext.getId().get(), constant_1.MONITORING_SERVICE_TOKEN_RELATION_NAME, constant_1.MONITORING_SERVICE_RELATION_TYPE_PTR_LST);
                                             let tokenObj = {
                                                 name: res.getName().get(),
                                                 token: token,
@@ -208,7 +173,6 @@ class UserService {
                                                 // @ts-ignore
                                                 expieredToken: decodedToken.exp,
                                                 userId: user.getId().get(),
-                                                platformList: platformList,
                                             };
                                             // await this.logService.createLog(user, 'UserLogs', 'Connection', 'Login Valid', "Login Valid");
                                             return tokenObj;
@@ -224,14 +188,14 @@ class UserService {
             }
         });
     }
-    loginAuthAdmin(userLoginParams) {
+    loginMonitoringAdmin(userLoginParams) {
         return __awaiter(this, void 0, void 0, function* () {
             const contexts = yield this.graph.getChildren('hasContext');
             for (const context of contexts) {
                 if (context.getName().get() === constant_1.USER_LIST) {
-                    const users = yield context.getChildren(constant_1.AUTH_SERVICE_USER_RELATION_NAME);
+                    const users = yield context.getChildren(constant_1.MONITORING_SERVICE_USER_RELATION_NAME);
                     for (const user of users) {
-                        if (userLoginParams.userName === 'authAdmin') {
+                        if (userLoginParams.email === user.info.email.get() && user.info.userType.get() === "MonitoringAdmin") {
                             return bcrypt
                                 .compare(userLoginParams.password, user.info.password.get())
                                 .then((valid) => __awaiter(this, void 0, void 0, function* () {
@@ -248,7 +212,7 @@ class UserService {
                                         // @ts-ignore
                                         spinal_env_viewer_graph_service_1.SpinalGraphService._addNode(categoryTokenUser);
                                         if (categoryTokenUser.getType().get() ===
-                                            'AuthServiceUserCategory') {
+                                            'MonitoringServiceUserCategory') {
                                             const TokenId = spinal_env_viewer_graph_service_1.SpinalGraphService.createNode({
                                                 name: 'token_' + user.getName().get(),
                                                 type: constant_1.TOKEN_TYPE,
@@ -259,9 +223,8 @@ class UserService {
                                                 expieredToken: decodedToken.exp,
                                                 userId: user.getId().get(),
                                                 userType: user.info.userType.get(),
-                                                // platformList: user.info.platformList.get(),
                                             }, undefined);
-                                            const res = yield spinal_env_viewer_graph_service_1.SpinalGraphService.addChildInContext(categoryTokenUser.getId().get(), TokenId, tokenContext.getId().get(), constant_1.AUTH_SERVICE_TOKEN_RELATION_NAME, constant_1.AUTH_SERVICE_RELATION_TYPE_PTR_LST);
+                                            const res = yield spinal_env_viewer_graph_service_1.SpinalGraphService.addChildInContext(categoryTokenUser.getId().get(), TokenId, tokenContext.getId().get(), constant_1.MONITORING_SERVICE_TOKEN_RELATION_NAME, constant_1.MONITORING_SERVICE_RELATION_TYPE_PTR_LST);
                                             let tokenObj = {
                                                 name: res.getName().get(),
                                                 type: res.getType().get(),
@@ -289,45 +252,40 @@ class UserService {
         });
     }
     getUsers() {
-        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 var usersObjectList = [];
                 const context = spinal_env_viewer_graph_service_1.SpinalGraphService.getContext(constant_1.USER_LIST);
                 const users = yield context.getChildren('HasUser');
                 for (const user of users) {
-                    var platformList = [];
-                    const userProfiles = yield user.getChildren('HasUserProfile');
-                    for (const userProfile of userProfiles) {
-                        const platformParents = yield userProfile.getParents('HasUserProfile');
-                        for (const platformParent of platformParents) {
-                            if (platformParent !== undefined) {
-                                if (platformParent.getType().get() === "AuthServicePlatform") {
-                                    platformList.push({
-                                        platformId: platformParent.getId().get(),
-                                        platformName: platformParent.getName().get(),
-                                        idPlatformOfAdmin: (_a = platformParent.info.idPlatformOfAdmin) === null || _a === void 0 ? void 0 : _a.get(),
-                                        userProfile: {
-                                            userProfileAdminId: userProfile.getId().get(),
-                                            userProfileBosConfigId: userProfile.info.userProfileId.get(),
-                                            userProfileName: userProfile.getName().get()
-                                        }
-                                    });
-                                }
-                            }
-                        }
-                    }
+                    // var platformList = [];
+                    // const userProfiles = await user.getChildren('HasUserProfile');
+                    // for (const userProfile of userProfiles) {
+                    //   const platformParents = await userProfile.getParents('HasUserProfile')
+                    //   for (const platformParent of platformParents) {
+                    //     if (platformParent !== undefined) {
+                    //       if (platformParent.getType().get() === "MonitoringServicePlatform") {
+                    //         platformList.push({
+                    //           platformId: platformParent.getId().get(),
+                    //           platformName: platformParent.getName().get(),
+                    //           idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
+                    //           userProfile: {
+                    //             userProfileAdminId: userProfile.getId().get(),
+                    //             userProfileBosConfigId: userProfile.info.userProfileId.get(),
+                    //             userProfileName: userProfile.getName().get()
+                    //           }
+                    //         })
+                    //       }
+                    //     }
+                    //   }
+                    // }
                     var userObject = {
                         id: user.getId().get(),
                         type: user.getType().get(),
                         name: user.getName().get(),
-                        userName: user.info.userName.get(),
                         password: user.info.password.get(),
                         email: user.info.email.get(),
-                        telephone: user.info.telephone.get(),
-                        info: user.info.info.get(),
                         userType: user.info.userType.get(),
-                        platformList: platformList,
                     };
                     usersObjectList.push(userObject);
                 }
@@ -344,46 +302,41 @@ class UserService {
         });
     }
     getUser(id) {
-        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             const contexts = yield this.graph.getChildren('hasContext');
             for (const context of contexts) {
                 if (context.getName().get() === constant_1.USER_LIST) {
-                    const users = yield context.getChildren(constant_1.AUTH_SERVICE_USER_RELATION_NAME);
+                    const users = yield context.getChildren(constant_1.MONITORING_SERVICE_USER_RELATION_NAME);
                     for (const user of users) {
                         if (user.getId().get() === id) {
-                            var platformList = [];
-                            const userProfiles = yield user.getChildren('HasUserProfile');
-                            for (const userProfile of userProfiles) {
-                                const platformParents = yield userProfile.getParents('HasUserProfile');
-                                for (const platformParent of platformParents) {
-                                    if (platformParent !== undefined) {
-                                        if (platformParent.getType().get() === "AuthServicePlatform") {
-                                            platformList.push({
-                                                platformId: platformParent.getId().get(),
-                                                platformName: platformParent.getName().get(),
-                                                idPlatformOfAdmin: (_a = platformParent.info.idPlatformOfAdmin) === null || _a === void 0 ? void 0 : _a.get(),
-                                                userProfile: {
-                                                    userProfileAdminId: userProfile.getId().get(),
-                                                    userProfileBosConfigId: userProfile.info.userProfileId.get(),
-                                                    userProfileName: userProfile.getName().get()
-                                                }
-                                            });
-                                        }
-                                    }
-                                }
-                            }
+                            // var platformList = [];
+                            // const userProfiles = await user.getChildren('HasUserProfile');
+                            // for (const userProfile of userProfiles) {
+                            //   const platformParents = await userProfile.getParents('HasUserProfile')
+                            //   for (const platformParent of platformParents) {
+                            //     if (platformParent !== undefined) {
+                            //       if (platformParent.getType().get() === "MonitoringServicePlatform") {
+                            //         platformList.push({
+                            //           platformId: platformParent.getId().get(),
+                            //           platformName: platformParent.getName().get(),
+                            //           idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
+                            //           userProfile: {
+                            //             userProfileAdminId: userProfile.getId().get(),
+                            //             userProfileBosConfigId: userProfile.info.userProfileId.get(),
+                            //             userProfileName: userProfile.getName().get()
+                            //           }
+                            //         })
+                            //       }
+                            //     }
+                            //   }
+                            // }
                             var userObject = {
                                 id: user.getId().get(),
                                 type: user.getType().get(),
                                 name: user.getName().get(),
-                                userName: user.info.userName.get(),
                                 password: user.info.password.get(),
                                 email: user.info.email.get(),
-                                telephone: user.info.telephone.get(),
-                                info: user.info.info.get(),
                                 userType: user.info.userType.get(),
-                                platformList: platformList,
                             };
                         }
                     }
@@ -398,27 +351,26 @@ class UserService {
         });
     }
     updateUser(userId, requestBody) {
-        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             const context = yield spinal_env_viewer_graph_service_1.SpinalGraphService.getContext(constant_1.USER_LIST);
-            const users = yield context.getChildren(constant_1.AUTH_SERVICE_USER_RELATION_NAME);
+            const users = yield context.getChildren(constant_1.MONITORING_SERVICE_USER_RELATION_NAME);
             var userObject;
             for (const user of users) {
                 if (userId !== user.getId().get())
-                    if (requestBody.userName === user.info.userName.get()) {
+                    if (requestBody.email === user.info.email.get()) {
                         // await this.logService.createLog(user, 'UserLogs', 'Edit', 'Edit Not Valid', "modify this user with a username that already exists");
-                        throw new operation_error_1.OperationError('USERNAME_IS_ALREADY_USED', http_status_code_1.HttpStatusCode.FORBIDDEN);
+                        throw new operation_error_1.OperationError('EMAIL_IN_USE', http_status_code_1.HttpStatusCode.FORBIDDEN);
                     }
             }
             for (const user of users) {
                 if (user.getId().get() === userId) {
-                    if (requestBody.userName === "authAdmin") {
-                        // await this.logService.createLog(user, 'UserLogs', 'Edit', 'Edit Not Valid', "modify this user with a username that is not authorized");
-                        throw new operation_error_1.OperationError('UNAUTHORIZED ROLE', http_status_code_1.HttpStatusCode.FORBIDDEN);
-                    }
-                    if (requestBody.userName !== undefined) {
-                        user.info.userName.set(requestBody.userName);
-                        user.info.name.set(requestBody.userName);
+                    // if (user.info.userType.get() === "Admin") {
+                    //   // await this.logService.createLog(user, 'UserLogs', 'Edit', 'Edit Not Valid', "modify this user with a username that is not authorized");
+                    //   throw new OperationError('UNAUTHORIZED ROLE', HttpStatusCode.FORBIDDEN);
+                    // }
+                    if (requestBody.email !== undefined) {
+                        user.info.email.set(requestBody.email);
+                        user.info.name.set(requestBody.email);
                     }
                     if (user.info.password !== undefined || user.info.password !== "") {
                         bcrypt
@@ -427,45 +379,38 @@ class UserService {
                             user.info.password.set(hash);
                         }));
                     }
-                    if (requestBody.userType !== undefined &&
-                        user.info.userType !== 'authAdmin') {
-                        user.info.userType.set(requestBody.userType);
-                    }
-                    const oldUserProfileList = yield user.getChildren('HasUserProfile');
-                    const newUserPlatformList = requestBody.platformList;
-                    yield updateUserProfileList(oldUserProfileList, newUserPlatformList, user, this.graph);
-                    var platformList = [];
-                    const userProfiles = yield user.getChildren('HasUserProfile');
-                    for (const userProfile of userProfiles) {
-                        const platformParents = yield userProfile.getParents('HasUserProfile');
-                        for (const platformParent of platformParents) {
-                            if (platformParent !== undefined) {
-                                if (platformParent.getType().get() === "AuthServicePlatform") {
-                                    platformList.push({
-                                        platformId: platformParent.getId().get(),
-                                        platformName: platformParent.getName().get(),
-                                        idPlatformOfAdmin: (_a = platformParent.info.idPlatformOfAdmin) === null || _a === void 0 ? void 0 : _a.get(),
-                                        userProfile: {
-                                            userProfileAdminId: userProfile.getId().get(),
-                                            userProfileBosConfigId: userProfile.info.userProfileId.get(),
-                                            userProfileName: userProfile.getName().get()
-                                        }
-                                    });
-                                }
-                            }
-                        }
-                    }
+                    // const oldUserProfileList = await user.getChildren('HasUserProfile');
+                    // const newUserPlatformList = requestBody.platformList;
+                    // await updateUserProfileList(oldUserProfileList, newUserPlatformList, user, this.graph);
+                    // var platformList = [];
+                    // const userProfiles = await user.getChildren('HasUserProfile');
+                    // for (const userProfile of userProfiles) {
+                    //   const platformParents = await userProfile.getParents('HasUserProfile')
+                    //   for (const platformParent of platformParents) {
+                    //     if (platformParent !== undefined) {
+                    //       if (platformParent.getType().get() === "MonitoringServicePlatform") {
+                    //         platformList.push({
+                    //           platformId: platformParent.getId().get(),
+                    //           platformName: platformParent.getName().get(),
+                    //           idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
+                    //           userProfile: {
+                    //             userProfileAdminId: userProfile.getId().get(),
+                    //             userProfileBosConfigId: userProfile.info.userProfileId.get(),
+                    //             userProfileName: userProfile.getName().get()
+                    //           }
+                    //         })
+                    //       }
+                    //     }
+                    //   }
+                    // }
                     userObject = {
                         id: user.getId().get(),
                         type: user.getType().get(),
                         name: user.getName().get(),
-                        userName: user.info.userName.get(),
                         password: user.info.password.get(),
                         email: user.info.email.get(),
-                        telephone: user.info.telephone.get(),
-                        info: user.info.info.get(),
                         userType: user.info.userType.get(),
-                        platformList: platformList,
+                        // platformList: platformList,
                     };
                     if (userObject === undefined) {
                         // await this.logService.createLog(user, 'UserLogs', 'Edit', 'Edit Not Valid', "Edit Not Valid");
@@ -484,7 +429,7 @@ class UserService {
             const contexts = yield this.graph.getChildren('hasContext');
             for (const context of contexts) {
                 if (context.getName().get() === constant_1.USER_LIST) {
-                    const users = yield context.getChildren(constant_1.AUTH_SERVICE_USER_RELATION_NAME);
+                    const users = yield context.getChildren(constant_1.MONITORING_SERVICE_USER_RELATION_NAME);
                     var userFound;
                     for (const user of users) {
                         if (user.getId().get() === userId) {
@@ -503,16 +448,13 @@ class UserService {
             }
         });
     }
-    createAuthAdmin() {
+    createMonitoringAdmin() {
         return __awaiter(this, void 0, void 0, function* () {
             let userCreationParams = {
-                userName: 'authAdmin',
-                password: process.env.AUTH_ADMIN_PASSWORD,
-                email: '',
-                telephone: '',
-                info: '',
-                userType: user_model_1.IUserType.authAdmin,
-                platformList: [],
+                password: process.env.MONITORING_ADMIN_PASSWORD,
+                email: process.env.MONITORING_ADMIN_EMAIL,
+                userType: user_model_1.IUserType.MonitoringAdmin,
+                // platformList: [],
             };
             const contexts = yield this.graph.getChildren('hasContext');
             for (const context of contexts) {
@@ -522,18 +464,14 @@ class UserService {
                         .then((hash) => __awaiter(this, void 0, void 0, function* () {
                         const userObject = {
                             type: constant_1.USER_TYPE,
-                            name: userCreationParams.userName,
-                            userName: userCreationParams.userName,
+                            name: userCreationParams.email,
                             password: hash,
                             email: userCreationParams.email,
-                            telephone: userCreationParams.telephone,
-                            info: '',
                             userType: userCreationParams.userType,
                         };
-                        if (userObject.userType === 'authAdmin' &&
-                            userObject.userName === 'authAdmin') {
+                        if (userObject.userType === 'MonitoringAdmin') {
                             const UserId = spinal_env_viewer_graph_service_1.SpinalGraphService.createNode(userObject, undefined);
-                            const res = yield spinal_env_viewer_graph_service_1.SpinalGraphService.addChildInContext(context.getId().get(), UserId, context.getId().get(), constant_1.AUTH_SERVICE_USER_RELATION_NAME, constant_1.AUTH_SERVICE_RELATION_TYPE_PTR_LST);
+                            const res = yield spinal_env_viewer_graph_service_1.SpinalGraphService.addChildInContext(context.getId().get(), UserId, context.getId().get(), constant_1.MONITORING_SERVICE_USER_RELATION_NAME, constant_1.MONITORING_SERVICE_RELATION_TYPE_PTR_LST);
                             return res;
                         }
                         else {
@@ -549,10 +487,8 @@ class UserService {
                             id: userCreated.getId().get(),
                             type: userCreated.getType().get(),
                             name: userCreated.getName().get(),
-                            userName: userCreated.info.userName.get(),
+                            email: userCreated.info.email.get(),
                             password: userCreated.info.password.get(),
-                            telephone: userCreated.info.telephone.get(),
-                            info: userCreated.info.info.get(),
                             userType: userCreated.info.userType.get(),
                         };
                         // await this.logService.createLog(userCreated, 'AdminLogs', 'Create', 'Create Valid', "create Valid");
@@ -562,13 +498,13 @@ class UserService {
             }
         });
     }
-    updateAuthAdmin(requestBody) {
+    updateMonitoringAdmin(requestBody) {
         return __awaiter(this, void 0, void 0, function* () {
             const context = yield spinal_env_viewer_graph_service_1.SpinalGraphService.getContext(constant_1.USER_LIST);
-            const users = yield context.getChildren(constant_1.AUTH_SERVICE_USER_RELATION_NAME);
+            const users = yield context.getChildren(constant_1.MONITORING_SERVICE_USER_RELATION_NAME);
             var userObject;
             for (const user of users) {
-                if (user.getName().get() === requestBody.userName) {
+                if (user.info.userType.get() === requestBody.userType) {
                     if (requestBody.oldPassword !== undefined) {
                         return bcrypt
                             .compare(requestBody.oldPassword, user.info.password.get())
@@ -584,21 +520,12 @@ class UserService {
                                 if (requestBody.email !== undefined) {
                                     user.info.email.set(requestBody.email);
                                 }
-                                if (requestBody.telephone !== undefined) {
-                                    user.info.telephone.set(requestBody.telephone);
-                                }
-                                if (requestBody.info !== undefined) {
-                                    user.info.info.set(requestBody.info);
-                                }
                                 userObject = {
                                     id: user.getId().get(),
                                     type: user.getType().get(),
                                     name: user.getName().get(),
-                                    userName: user.info.userName.get(),
                                     password: user.info.password.get(),
                                     email: user.info.email.get(),
-                                    telephone: user.info.telephone.get(),
-                                    info: user.info.info.get(),
                                     userType: user.info.userType.get(),
                                 };
                                 if (userObject === undefined) {
@@ -617,23 +544,20 @@ class UserService {
             throw new operation_error_1.OperationError('NOT_FOUND', http_status_code_1.HttpStatusCode.NOT_FOUND);
         });
     }
-    getAuthAdmin() {
+    getMonitoringAdmin() {
         return __awaiter(this, void 0, void 0, function* () {
             const contexts = yield this.graph.getChildren('hasContext');
             for (const context of contexts) {
                 if (context.getName().get() === constant_1.USER_LIST) {
-                    const users = yield context.getChildren(constant_1.AUTH_SERVICE_USER_RELATION_NAME);
+                    const users = yield context.getChildren(constant_1.MONITORING_SERVICE_USER_RELATION_NAME);
                     for (const user of users) {
-                        if (user.getName().get() === 'authAdmin') {
+                        if (user.getName().get() === 'MonitoringAdmin') {
                             var userObject = {
                                 id: user.getId().get(),
                                 type: user.getType().get(),
                                 name: user.getName().get(),
-                                userName: user.info.userName.get(),
                                 password: user.info.password.get(),
                                 email: user.info.email.get(),
-                                telephone: user.info.telephone.get(),
-                                info: user.info.info.get(),
                                 userType: user.info.userType.get(),
                             };
                         }
@@ -653,7 +577,7 @@ class UserService {
             const contexts = yield this.graph.getChildren('hasContext');
             for (const context of contexts) {
                 if (context.getName().get() === constant_1.TOKEN_LIST) {
-                    let tokens = yield context.getChildren(constant_1.AUTH_SERVICE_TOKEN_RELATION_NAME);
+                    let tokens = yield context.getChildren(constant_1.MONITORING_SERVICE_TOKEN_RELATION_NAME);
                     for (const token of tokens) {
                         if (token.info.token.get() === tokenParam) {
                             return {
@@ -679,7 +603,7 @@ class UserService {
     }
     getRoles() {
         return __awaiter(this, void 0, void 0, function* () {
-            return [{ name: 'Super User' }, { name: 'Simple User' }];
+            return [{ name: 'MonitoringAdmin' }, { name: 'User' }];
         });
     }
     getUserLogs(id) {
@@ -689,7 +613,7 @@ class UserService {
             const contexts = yield this.graph.getChildren('hasContext');
             for (const context of contexts) {
                 if (context.getName().get() === constant_1.USER_LIST) {
-                    const platforms = yield context.getChildren(constant_1.AUTH_SERVICE_USER_RELATION_NAME);
+                    const platforms = yield context.getChildren(constant_1.MONITORING_SERVICE_USER_RELATION_NAME);
                     for (const platform of platforms) {
                         if (platform.getId().get() === id) {
                             found = true;
@@ -743,11 +667,11 @@ function updateUserProfileList(oldUserProfileList, newUserPlatformList, user, gr
             }
         }
         for (const arrdlt of arrayDelete) {
-            yield user.removeChild(arrdlt, 'HasUserProfile', constant_1.AUTH_SERVICE_RELATION_TYPE_PTR_LST);
+            yield user.removeChild(arrdlt, 'HasUserProfile', constant_1.MONITORING_SERVICE_RELATION_TYPE_PTR_LST);
         }
         for (const arrcrt of arrayCreate) {
             const realNode = yield getrealNodeProfile(arrcrt.userProfile.userProfileAdminId, arrcrt.platformId, graph);
-            yield user.addChild(realNode, 'HasUserProfile', constant_1.AUTH_SERVICE_RELATION_TYPE_PTR_LST);
+            yield user.addChild(realNode, 'HasUserProfile', constant_1.MONITORING_SERVICE_RELATION_TYPE_PTR_LST);
         }
     });
 }

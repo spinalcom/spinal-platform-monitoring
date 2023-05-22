@@ -2,7 +2,7 @@
   "entryFile": "src/server.ts",
   "noImplicitAdditionalProperties": "throw-on-extras",
   "controllerPathGlobs": [
-    "src/**/*Controller.ts"
+    "src/monitoringUser/userController.ts"
   ],
   "spec": {
     "outputDirectory": "./dist",
@@ -32,14 +32,14 @@
   },
   "swagger": {
     "outputDirectory": "./dist",
-    "entryFile": "./src/services/server.ts",
+    "entryFile": "./src/server.ts",
     "host": "localhost:5000",
     "basePath": "/v1"
   },
   "routes": {
-    "authenticationModule": "./src/authUser/authentication.ts",
+    "authenticationModule": "./src/monitoringUser/authentication.ts",
     "basePath": "",
-    "entryFile": "./src/services/server.ts",
+    "entryFile": "./src/server.ts",
     "middleware": "express",
     "routesDir": "./src"
   }

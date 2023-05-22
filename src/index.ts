@@ -30,7 +30,7 @@ import { PlatformService } from './platform/platformServices';
 // import { LogsService } from './logs/logService'
 import Server from './server';
 import SpinalMiddleware from './spinalMiddleware';
-import { LOG_LIST, AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME, AUTH_SERVICE_USER_RELATION_NAME, AUTH_SERVICE_INFO_ADMIN_RELATION_NAME, AUTH_SERVICE_LOG_CATEGORY_RELATION_NAME } from './constant'
+import { LOG_LIST, MONITORING_SERVICE_TOKEN_CATEGORY_RELATION_NAME, MONITORING_SERVICE_USER_RELATION_NAME, MONITORING_SERVICE_INFO_ADMIN_RELATION_NAME, MONITORING_SERVICE_LOG_CATEGORY_RELATION_NAME } from './constant'
 import { AuthGraphService } from './services/authGraphService';
 
 async function main() {
@@ -47,7 +47,7 @@ async function main() {
   //   if (context.getName().get() === 'tokenList') {
   //     // @ts-ignore
   //     SpinalGraphService._addNode(context);
-  //     const childsContext = await context.getChildren(AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME);
+  //     const childsContext = await context.getChildren(MONITORING_SERVICE_TOKEN_CATEGORY_RELATION_NAME);
   //     if (childsContext.length === 0) {
   //       await tokensService.createTokenTree();
   //     }
@@ -62,7 +62,7 @@ async function main() {
   //     // @ts-ignore
   //     SpinalGraphService._addNode(context);
   //     // await context.removeFromGraph();
-  //     const childsContext = await context.getChildren(AUTH_SERVICE_LOG_CATEGORY_RELATION_NAME);
+  //     const childsContext = await context.getChildren(MONITORING_SERVICE_LOG_CATEGORY_RELATION_NAME);
   //     if (childsContext.length === 0) {
   //       await logsService.createLogTree();
   //       await logsService.createSubGraph(context);
@@ -76,7 +76,7 @@ async function main() {
   //   if (context.getName().get() === 'userList') {
   //     // @ts-ignore
   //     SpinalGraphService._addNode(context);
-  //     const childsContext = await context.getChildren(AUTH_SERVICE_USER_RELATION_NAME);
+  //     const childsContext = await context.getChildren(MONITORING_SERVICE_USER_RELATION_NAME);
   //     if (childsContext.length === 0) {
   //       const userService = new UserService();
   //       let res = await userService.createAuthAdmin();
@@ -88,19 +88,19 @@ async function main() {
   // }
 
   // start organ with platform config
-  var plateformsService = new PlatformService();
-  var plateforms = await plateformsService.getPlateforms();
-  if (plateforms.length === 0) {
-    let res = await plateformsService.createAuthPlateform();
-    if (res !== undefined) {
-      console.log('Auth Plateform created ...');
-    }
-  }
+  // var plateformsService = new PlatformService();
+  // var plateforms = await plateformsService.getPlateforms();
+  // if (plateforms.length === 0) {
+  //   let res = await plateformsService.createAuthPlateform();
+  //   if (res !== undefined) {
+  //     console.log('Auth Plateform created ...');
+  //   }
+  // }
 
   // // start organ with register key config
   // for (const context of contexts) {
   //   if (context.getName().get() === 'infoAdmin') {
-  //     let nodes = await context.getChildren(AUTH_SERVICE_INFO_ADMIN_RELATION_NAME);
+  //     let nodes = await context.getChildren(MONITORING_SERVICE_INFO_ADMIN_RELATION_NAME);
   //     if (nodes.length === 0) {
   //       let res = await plateformsService.createRegisterKeyNode();
   //       if (res !== undefined) {

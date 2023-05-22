@@ -1,0 +1,1 @@
+{"version":3,"file":"registerService.js","sourceRoot":"","sources":["../../src/register/registerService.ts"],"names":[],"mappings":";AAAA;;;;;;;;;;;;;;;;;;;;;;GAsBG;;;AAYH,0DAAmD;AAOnD,MAAa,eAAe;IAG1B;QAFO,qBAAgB,GAAqB,0BAAgB,CAAC,WAAW,EAAE,CAAC;QAGzE,IAAI,CAAC,gBAAgB,CAAC,IAAI,EAAE,CAAC;QAC7B,IAAI,CAAC,KAAK,GAAG,IAAI,CAAC,gBAAgB,CAAC,QAAQ,EAAE,CAAC;IAChD,CAAC;CAEF;AARD,0CAQC"}

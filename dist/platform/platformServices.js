@@ -37,7 +37,6 @@ const constant_1 = require("../constant");
 const spinal_env_viewer_graph_service_1 = require("spinal-env-viewer-graph-service");
 const operation_error_1 = require("../utilities/operation-error");
 const http_status_code_1 = require("../utilities/http-status-code");
-const platform_model_1 = require("./platform.model");
 const spinalMiddleware_1 = require("../spinalMiddleware");
 const profileServices_1 = require("./profileServices");
 const jwt = require("jsonwebtoken");
@@ -63,15 +62,25 @@ class PlatformService {
                     const platformObject = {
                         type: constant_1.PLATFORM_TYPE,
                         name: platformCreationParms.name,
-                        url: platformCreationParms.url,
                         statusPlatform: platformCreationParms.statusPlatform,
-                        address: platformCreationParms.address,
-                        TokenBosAdmin: this.generateTokenBosAdmin(platformCreationParms.name),
-                        TokenAdminBos: '',
-                        idPlatformOfAdmin: '',
+                        TokenBosRegister: this.generateTokenBosAdmin(platformCreationParms.name),
+                        infoHub: {
+                            ip: platformCreationParms.infoHub.ip,
+                            port: platformCreationParms.infoHub.port,
+                            url: platformCreationParms.infoHub.url,
+                            login: platformCreationParms.infoHub.login,
+                            password: platformCreationParms.infoHub.password,
+                        },
+                        infoWall: {
+                            ip: platformCreationParms.infoWall.ip,
+                            port: platformCreationParms.infoWall.port,
+                            url: platformCreationParms.infoWall.url,
+                            login: platformCreationParms.infoWall.login,
+                            password: platformCreationParms.infoWall.password,
+                        }
                     };
                     const PlatformId = spinal_env_viewer_graph_service_1.SpinalGraphService.createNode(platformObject, undefined);
-                    const res = yield spinal_env_viewer_graph_service_1.SpinalGraphService.addChildInContext(context.getId().get(), PlatformId, context.getId().get(), constant_1.AUTH_SERVICE_PLATFORM_RELATION_NAME, constant_1.AUTH_SERVICE_RELATION_TYPE_PTR_LST);
+                    const res = yield spinal_env_viewer_graph_service_1.SpinalGraphService.addChildInContext(context.getId().get(), PlatformId, context.getId().get(), constant_1.MONITORING_SERVICE_PLATFORM_RELATION_NAME, constant_1.MONITORING_SERVICE_RELATION_TYPE_PTR_LST);
                     // @ts-ignore
                     spinal_env_viewer_graph_service_1.SpinalGraphService._addNode(res);
                     if (res === undefined) {
@@ -85,9 +94,21 @@ class PlatformService {
                             type: res.getType().get(),
                             name: res.getName().get(),
                             statusPlatform: res.info.statusPlatform.get(),
-                            url: res.info.url.get(),
-                            address: res.info.address.get(),
-                            TokenBosAdmin: res.info.TokenBosAdmin.get(),
+                            TokenBosRegister: res.info.TokenBosRegister,
+                            infoHub: {
+                                ip: res.info.infoHub.ip,
+                                port: res.info.infoHub.port,
+                                url: res.info.infoHub.url,
+                                login: res.info.infoHub.login,
+                                password: res.info.infoHub.password,
+                            },
+                            infoWall: {
+                                ip: res.info.infoWall.ip,
+                                port: res.info.infoWall.port,
+                                url: res.info.infoWall.url,
+                                login: res.info.infoWall.login,
+                                password: res.info.infoWall.password,
+                            }
                         };
                     }
                 }
@@ -95,12 +116,11 @@ class PlatformService {
         });
     }
     getPlateform(id) {
-        var _a, _b, _c, _d;
         return __awaiter(this, void 0, void 0, function* () {
             const contexts = yield this.graph.getChildren('hasContext');
             for (const context of contexts) {
                 if (context.getName().get() === constant_1.PLATFORM_LIST) {
-                    const platforms = yield context.getChildren(constant_1.AUTH_SERVICE_PLATFORM_RELATION_NAME);
+                    const platforms = yield context.getChildren(constant_1.MONITORING_SERVICE_PLATFORM_RELATION_NAME);
                     for (const platform of platforms) {
                         if (platform.getId().get() === id) {
                             var PlatformObject = {
@@ -108,11 +128,21 @@ class PlatformService {
                                 type: platform.getType().get(),
                                 name: platform.getName().get(),
                                 statusPlatform: platform.info.statusPlatform.get(),
-                                url: platform.info.url.get(),
-                                address: (_a = platform.info.address) === null || _a === void 0 ? void 0 : _a.get(),
-                                TokenBosAdmin: (_b = platform.info.TokenBosAdmin) === null || _b === void 0 ? void 0 : _b.get(),
-                                TokenAdminBos: (_c = platform.info.TokenAdminBos) === null || _c === void 0 ? void 0 : _c.get(),
-                                idPlatformOfAdmin: (_d = platform.info.idPlatformOfAdmin) === null || _d === void 0 ? void 0 : _d.get(),
+                                TokenBosRegister: platform.info.TokenBosRegister,
+                                infoHub: {
+                                    ip: platform.info.infoHub.ip,
+                                    port: platform.info.infoHub.port,
+                                    url: platform.info.infoHub.url,
+                                    login: platform.info.infoHub.login,
+                                    password: platform.info.infoHub.password,
+                                },
+                                infoWall: {
+                                    ip: platform.info.infoWall.ip,
+                                    port: platform.info.infoWall.port,
+                                    url: platform.info.infoWall.url,
+                                    login: platform.info.infoWall.login,
+                                    password: platform.info.infoWall.password,
+                                }
                             };
                         }
                     }
@@ -127,25 +157,34 @@ class PlatformService {
         });
     }
     getPlateforms() {
-        var _a, _b, _c, _d, _e, _f;
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 var platformObjectList = [];
                 const contexts = yield this.graph.getChildren('hasContext');
                 for (const context of contexts) {
                     if (context.getName().get() === constant_1.PLATFORM_LIST) {
-                        const platforms = yield context.getChildren(constant_1.AUTH_SERVICE_PLATFORM_RELATION_NAME);
+                        const platforms = yield context.getChildren(constant_1.MONITORING_SERVICE_PLATFORM_RELATION_NAME);
                         for (const platform of platforms) {
                             var PlatformObject = {
                                 id: platform.getId().get(),
                                 type: platform.getType().get(),
                                 name: platform.getName().get(),
-                                statusPlatform: (_a = platform.info.statusPlatform) === null || _a === void 0 ? void 0 : _a.get(),
-                                url: (_b = platform.info.url) === null || _b === void 0 ? void 0 : _b.get(),
-                                address: (_c = platform.info.address) === null || _c === void 0 ? void 0 : _c.get(),
-                                TokenBosAdmin: (_d = platform.info.TokenBosAdmin) === null || _d === void 0 ? void 0 : _d.get(),
-                                TokenAdminBos: (_e = platform.info.TokenAdminBos) === null || _e === void 0 ? void 0 : _e.get(),
-                                idPlatformOfAdmin: (_f = platform.info.idPlatformOfAdmin) === null || _f === void 0 ? void 0 : _f.get(),
+                                statusPlatform: platform.info.statusPlatform.get(),
+                                TokenBosRegister: platform.info.TokenBosRegister,
+                                infoHub: {
+                                    ip: platform.info.infoHub.ip,
+                                    port: platform.info.infoHub.port,
+                                    url: platform.info.infoHub.url,
+                                    login: platform.info.infoHub.login,
+                                    password: platform.info.infoHub.password,
+                                },
+                                infoWall: {
+                                    ip: platform.info.infoWall.ip,
+                                    port: platform.info.infoWall.port,
+                                    url: platform.info.infoWall.url,
+                                    login: platform.info.infoWall.login,
+                                    password: platform.info.infoWall.password,
+                                }
                             };
                             platformObjectList.push(PlatformObject);
                         }
@@ -159,12 +198,11 @@ class PlatformService {
         });
     }
     updatePlateform(id, requestBody) {
-        var _a, _b, _c, _d, _e, _f;
         return __awaiter(this, void 0, void 0, function* () {
             const contexts = yield this.graph.getChildren('hasContext');
             for (const context of contexts) {
                 if (context.getName().get() === constant_1.PLATFORM_LIST) {
-                    const platforms = yield context.getChildren(constant_1.AUTH_SERVICE_PLATFORM_RELATION_NAME);
+                    const platforms = yield context.getChildren(constant_1.MONITORING_SERVICE_PLATFORM_RELATION_NAME);
                     for (const platform of platforms) {
                         if (platform.getId().get() === id) {
                             if (requestBody.name !== undefined) {
@@ -173,14 +211,35 @@ class PlatformService {
                             if (requestBody.statusPlatform !== undefined) {
                                 platform.info.statusPlatform.set(requestBody.statusPlatform);
                             }
-                            if (requestBody.url !== undefined) {
-                                platform.info.url.set(requestBody.url);
+                            if (requestBody.infoHub.ip !== undefined) {
+                                platform.info.infoHub.ip.set(requestBody.infoHub.ip);
                             }
-                            if (requestBody.address !== undefined) {
-                                (_a = platform.info.address) === null || _a === void 0 ? void 0 : _a.set(requestBody.address);
+                            if (requestBody.infoHub.port !== undefined) {
+                                platform.info.infoHub.port.set(requestBody.infoHub.port);
                             }
-                            if (requestBody.TokenBosAdmin !== undefined) {
-                                (_b = platform.info.TokenBosAdmin) === null || _b === void 0 ? void 0 : _b.set(requestBody.TokenBosAdmin);
+                            if (requestBody.infoHub.url !== undefined) {
+                                platform.info.infoHub.url.set(requestBody.infoHub.url);
+                            }
+                            if (requestBody.infoHub.login !== undefined) {
+                                platform.info.infoHub.login.set(requestBody.infoHub.login);
+                            }
+                            if (requestBody.infoHub.password !== undefined) {
+                                platform.info.infoHub.password.set(requestBody.infoHub.password);
+                            }
+                            if (requestBody.infoWall.ip !== undefined) {
+                                platform.info.infoWall.ip.set(requestBody.infoWall.ip);
+                            }
+                            if (requestBody.infoWall.port !== undefined) {
+                                platform.info.infoWall.port.set(requestBody.infoWall.port);
+                            }
+                            if (requestBody.infoWall.url !== undefined) {
+                                platform.info.infoWall.url.set(requestBody.infoWall.url);
+                            }
+                            if (requestBody.infoWall.login !== undefined) {
+                                platform.info.infoWall.login.set(requestBody.infoWall.login);
+                            }
+                            if (requestBody.infoWall.password !== undefined) {
+                                platform.info.infoWall.password.set(requestBody.infoWall.password);
                             }
                             // await this.logService.createLog(platform, 'PlatformLogs', 'Edit', 'Edit Valid', "Edit Valid");
                             return {
@@ -188,11 +247,21 @@ class PlatformService {
                                 type: platform.getType().get(),
                                 name: platform.getName().get(),
                                 statusPlatform: platform.info.statusPlatform.get(),
-                                url: platform.info.url.get(),
-                                address: (_c = platform.info.address) === null || _c === void 0 ? void 0 : _c.get(),
-                                TokenBosAdmin: (_d = platform.info.TokenBosAdmin) === null || _d === void 0 ? void 0 : _d.get(),
-                                TokenAdminBos: (_e = platform.info.TokenAdminBos) === null || _e === void 0 ? void 0 : _e.get(),
-                                idPlatformOfAdmin: (_f = platform.info.idPlatformOfAdmin) === null || _f === void 0 ? void 0 : _f.get(),
+                                TokenBosRegister: platform.info.TokenBosRegister,
+                                infoHub: {
+                                    ip: platform.info.infoHub.ip,
+                                    port: platform.info.infoHub.port,
+                                    url: platform.info.infoHub.url,
+                                    login: platform.info.infoHub.login,
+                                    password: platform.info.infoHub.password,
+                                },
+                                infoWall: {
+                                    ip: platform.info.infoWall.ip,
+                                    port: platform.info.infoWall.port,
+                                    url: platform.info.infoWall.url,
+                                    login: platform.info.infoWall.login,
+                                    password: platform.info.infoWall.password,
+                                }
                             };
                         }
                     }
@@ -205,7 +274,7 @@ class PlatformService {
             const contexts = yield this.graph.getChildren('hasContext');
             for (const context of contexts) {
                 if (context.getName().get() === constant_1.PLATFORM_LIST) {
-                    const platforms = yield context.getChildren(constant_1.AUTH_SERVICE_PLATFORM_RELATION_NAME);
+                    const platforms = yield context.getChildren(constant_1.MONITORING_SERVICE_PLATFORM_RELATION_NAME);
                     var platformFound;
                     for (const platform of platforms) {
                         if (platform.getId().get() === id) {
@@ -224,44 +293,49 @@ class PlatformService {
             }
         });
     }
-    createAuthPlateform() {
-        var _a;
-        return __awaiter(this, void 0, void 0, function* () {
-            const contexts = yield this.graph.getChildren('hasContext');
-            for (const context of contexts) {
-                if (context.getName().get() === constant_1.PLATFORM_LIST) {
-                    // @ts-ignore
-                    spinal_env_viewer_graph_service_1.SpinalGraphService._addNode(context);
-                    const platformObject = {
-                        name: 'authenticationPlatform',
-                        type: constant_1.PLATFORM_TYPE,
-                        statusPlatform: platform_model_1.statusPlatform.online,
-                        url: process.env.SPINALHUB_URL,
-                        TokenBosAdmin: this.generateTokenBosAdmin('authenticationPlatform'),
-                        address: '',
-                        TokenAdminBos: '',
-                        idPlatformOfAdmin: '',
-                    };
-                    const PlatformId = spinal_env_viewer_graph_service_1.SpinalGraphService.createNode(platformObject, undefined);
-                    const res = yield spinal_env_viewer_graph_service_1.SpinalGraphService.addChildInContext(context.getId().get(), PlatformId, context.getId().get(), constant_1.AUTH_SERVICE_PLATFORM_RELATION_NAME, constant_1.AUTH_SERVICE_RELATION_TYPE_PTR_LST);
-                    if (res === undefined) {
-                        // await this.logService.createLog(undefined, 'PlatformLogs', 'Register', 'Register Not Valid', "Register Not Valid");
-                        throw new operation_error_1.OperationError('NOT_CREATED', http_status_code_1.HttpStatusCode.BAD_REQUEST);
-                    }
-                    else {
-                        // await this.logService.createLog(res, 'PlatformLogs', 'Register', 'Register Valid', "Register Valid AuthPlatform created");
-                        return {
-                            id: res.getId().get(),
-                            type: res.getType().get(),
-                            name: res.getName().get(),
-                            statusPlatform: res.info.statusPlatform.get(),
-                            url: (_a = res.info.url) === null || _a === void 0 ? void 0 : _a.get(),
-                        };
-                    }
-                }
-            }
-        });
-    }
+    // public async createAuthPlateform(): Promise<IPlatform> {
+    //   const contexts = await this.graph.getChildren('hasContext');
+    //   for (const context of contexts) {
+    //     if (context.getName().get() === PLATFORM_LIST) {
+    //       // @ts-ignore
+    //       SpinalGraphService._addNode(context);
+    //       const platformObject: IPlateformCreationParams = {
+    //         name: 'authenticationPlatform',
+    //         type: PLATFORM_TYPE,
+    //         statusPlatform: statusPlatform.online,
+    //         url: process.env.SPINALHUB_URL,
+    //         TokenBosAdmin: this.generateTokenBosAdmin('authenticationPlatform'),
+    //         address: '',
+    //         TokenAdminBos: '',
+    //         idPlatformOfAdmin: '',
+    //       };
+    //       const PlatformId = SpinalGraphService.createNode(
+    //         platformObject,
+    //         undefined
+    //       );
+    //       const res = await SpinalGraphService.addChildInContext(
+    //         context.getId().get(),
+    //         PlatformId,
+    //         context.getId().get(),
+    //         MONITORING_SERVICE_PLATFORM_RELATION_NAME,
+    //         MONITORING_SERVICE_RELATION_TYPE_PTR_LST
+    //       );
+    //       if (res === undefined) {
+    //         // await this.logService.createLog(undefined, 'PlatformLogs', 'Register', 'Register Not Valid', "Register Not Valid");
+    //         throw new OperationError('NOT_CREATED', HttpStatusCode.BAD_REQUEST);
+    //       } else {
+    //         // await this.logService.createLog(res, 'PlatformLogs', 'Register', 'Register Valid', "Register Valid AuthPlatform created");
+    //         return {
+    //           id: res.getId().get(),
+    //           type: res.getType().get(),
+    //           name: res.getName().get(),
+    //           statusPlatform: res.info.statusPlatform.get(),
+    //           url: res.info.url?.get(),
+    //         };
+    //       }
+    //     }
+    //   }
+    // }
     createRegisterKeyNode() {
         return __awaiter(this, void 0, void 0, function* () {
             const contexts = yield this.graph.getChildren('hasContext');
@@ -275,7 +349,7 @@ class PlatformService {
                         value: this.generateRegisterKey(),
                     };
                     const regesterKeyId = spinal_env_viewer_graph_service_1.SpinalGraphService.createNode(registerKeyObject, undefined);
-                    const res = yield spinal_env_viewer_graph_service_1.SpinalGraphService.addChildInContext(context.getId().get(), regesterKeyId, context.getId().get(), constant_1.AUTH_SERVICE_INFO_ADMIN_RELATION_NAME, constant_1.AUTH_SERVICE_RELATION_TYPE_PTR_LST);
+                    const res = yield spinal_env_viewer_graph_service_1.SpinalGraphService.addChildInContext(context.getId().get(), regesterKeyId, context.getId().get(), constant_1.MONITORING_SERVICE_INFO_ADMIN_RELATION_NAME, constant_1.MONITORING_SERVICE_RELATION_TYPE_PTR_LST);
                     return {
                         id: res.getId().get(),
                         type: res.getType().get(),
@@ -301,7 +375,7 @@ class PlatformService {
                 if (context.getName().get() === constant_1.INFO_ADMIN) {
                     // @ts-ignore
                     spinal_env_viewer_graph_service_1.SpinalGraphService._addNode(context);
-                    const childrens = yield context.getChildren(constant_1.AUTH_SERVICE_INFO_ADMIN_RELATION_NAME);
+                    const childrens = yield context.getChildren(constant_1.MONITORING_SERVICE_INFO_ADMIN_RELATION_NAME);
                     for (const child of childrens) {
                         if (child.getName().get() === 'registerKey') {
                             child.info.value.set(this.generateRegisterKey());
@@ -324,7 +398,7 @@ class PlatformService {
                 if (context.getName().get() === constant_1.INFO_ADMIN) {
                     // @ts-ignore
                     spinal_env_viewer_graph_service_1.SpinalGraphService._addNode(context);
-                    const childrens = yield context.getChildren(constant_1.AUTH_SERVICE_INFO_ADMIN_RELATION_NAME);
+                    const childrens = yield context.getChildren(constant_1.MONITORING_SERVICE_INFO_ADMIN_RELATION_NAME);
                     for (const child of childrens) {
                         if (child.getName().get() === 'registerKey') {
                             return {
@@ -354,7 +428,7 @@ class PlatformService {
             var registerKey;
             for (const context of contexts) {
                 if (context.getName().get() === constant_1.INFO_ADMIN) {
-                    const childrens = yield context.getChildren(constant_1.AUTH_SERVICE_INFO_ADMIN_RELATION_NAME);
+                    const childrens = yield context.getChildren(constant_1.MONITORING_SERVICE_INFO_ADMIN_RELATION_NAME);
                     registerKey = childrens[0].info.value.get();
                 }
             }
@@ -411,7 +485,7 @@ class PlatformService {
             const contexts = yield this.graph.getChildren('hasContext');
             for (const context of contexts) {
                 if (context.getName().get() === constant_1.PLATFORM_LIST) {
-                    const platforms = yield context.getChildren(constant_1.AUTH_SERVICE_PLATFORM_RELATION_NAME);
+                    const platforms = yield context.getChildren(constant_1.MONITORING_SERVICE_PLATFORM_RELATION_NAME);
                     for (const platform of platforms) {
                         if (platform.getId().get() === id) {
                             found = true;

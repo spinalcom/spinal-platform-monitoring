@@ -3,28 +3,59 @@ export interface IPlatform {
     name: string;
     type: string;
     statusPlatform: statusPlatform;
-    url: string;
-    address?: string;
-    TokenBosAdmin?: string;
-    TokenAdminBos?: string;
-    idPlatformOfAdmin?: string;
+    TokenBosRegister?: string;
+    infoHub: {
+        ip: string;
+        port: number;
+        url: string;
+        login: string;
+        password: string;
+    };
+    infoWall: {
+        ip: string;
+        port: number;
+        url: string;
+        login: string;
+        password: string;
+    };
 }
 export interface IPlateformCreationParams {
     name: string;
     type?: string;
-    url: string;
     statusPlatform?: statusPlatform;
-    address: string;
-    TokenBosAdmin?: string;
-    TokenAdminBos?: string;
-    idPlatformOfAdmin?: string;
+    TokenBosRegister?: string;
+    infoHub: {
+        ip: string;
+        port: number;
+        url: string;
+        login: string;
+        password: string;
+    };
+    infoWall: {
+        ip: string;
+        port: number;
+        url: string;
+        login: string;
+        password: string;
+    };
 }
 export interface IPlatformUpdateParams {
-    name: string;
+    name?: string;
     statusPlatform?: statusPlatform;
-    url?: string;
-    address?: string;
-    TokenBosAdmin?: string;
+    infoHub: {
+        ip?: string;
+        port?: number;
+        url?: string;
+        login?: string;
+        password?: string;
+    };
+    infoWall: {
+        ip?: string;
+        port?: number;
+        url?: string;
+        login?: string;
+        password?: string;
+    };
 }
 export interface IRegisterParams {
     platformCreationParms: IPlateformCreationParams;

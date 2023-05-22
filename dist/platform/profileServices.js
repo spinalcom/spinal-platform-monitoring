@@ -57,7 +57,7 @@ class ProfileServices {
                 if (platform.getId().get() === userProfileObject.platformId) {
                     //@ts-ignore
                     spinal_env_viewer_graph_service_1.SpinalGraphService._addNode(platform);
-                    var res = yield spinal_env_viewer_graph_service_1.SpinalGraphService.addChildInContext(platform.getId().get(), nodeUserId, platformContext.getId().get(), constant_1.AUTH_SERVICE_USER_PROFILE_RELATION_NAME, constant_1.AUTH_SERVICE_RELATION_TYPE_PTR_LST);
+                    var res = yield spinal_env_viewer_graph_service_1.SpinalGraphService.addChildInContext(platform.getId().get(), nodeUserId, platformContext.getId().get(), constant_1.MONITORING_SERVICE_USER_PROFILE_RELATION_NAME, constant_1.MONITORING_SERVICE_RELATION_TYPE_PTR_LST);
                 }
             }
             if (res !== undefined) {
@@ -86,7 +86,7 @@ class ProfileServices {
                 if (platform.getId().get() === appProfileObject.platformId) {
                     //@ts-ignore
                     spinal_env_viewer_graph_service_1.SpinalGraphService._addNode(platform);
-                    var res = yield spinal_env_viewer_graph_service_1.SpinalGraphService.addChildInContext(platform.getId().get(), nodeAppId, platformContext.getId().get(), constant_1.AUTH_SERVICE_APP_PROFILE_RELATION_NAME, constant_1.AUTH_SERVICE_RELATION_TYPE_PTR_LST);
+                    var res = yield spinal_env_viewer_graph_service_1.SpinalGraphService.addChildInContext(platform.getId().get(), nodeAppId, platformContext.getId().get(), constant_1.MONITORING_SERVICE_APP_PROFILE_RELATION_NAME, constant_1.MONITORING_SERVICE_RELATION_TYPE_PTR_LST);
                 }
             }
             if (res !== undefined) {

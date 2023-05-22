@@ -30,6 +30,7 @@ const morgan = require("morgan");
 const config_1 = require("./config");
 const path = require("path");
 const routes_1 = require("./routes");
+const swaggerUi = require("swagger-ui-express");
 const jsonFile = require('../build/swagger.json');
 var history = require('connect-history-api-fallback');
 /**
@@ -52,14 +53,13 @@ function Server() {
     }));
     // app.use(methodOverride());
     app.use(history());
-    // app.use('/static', express.static(path.join(__dirname, 'public')));
-    //app.use('/docs', express.static(__dirname + '/swagger-ui'));
-    //app.use('/api-docs', swaggerUi.serve);
-    //app.get('/api-docs', swaggerUi.setup(jsonFile));
-    //
-    //app.use('/swagger.json', (req, res) => {
-    //    res.sendFile(__dirname + '/swagger.json');
-    //});
+    app.use('/static', express.static(path.join(__dirname, 'public')));
+    app.use('/docs', express.static(__dirname + '/swagger-ui'));
+    app.use('/api-docs', swaggerUi.serve);
+    app.get('/api-docs', swaggerUi.setup(jsonFile));
+    app.use('/swagger.json', (req, res) => {
+        res.sendFile(__dirname + '/swagger.json');
+    });
     (0, routes_1.RegisterRoutes)(app);
     app.use(express.static(path.resolve(__dirname, '../vue-client/dist')));
     app.get('/', function (req, res) {

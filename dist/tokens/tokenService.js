@@ -60,8 +60,8 @@ class TokensService {
             };
             const userTokenCategoryId = spinal_env_viewer_graph_service_1.SpinalGraphService.createNode(userTokenGroupObject, undefined);
             const applicationTokenCategoryId = spinal_env_viewer_graph_service_1.SpinalGraphService.createNode(applicationTokenGroupObject, undefined);
-            yield spinal_env_viewer_graph_service_1.SpinalGraphService.addChildInContext(context.getId().get(), userTokenCategoryId, context.getId().get(), constant_1.AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME, constant_1.AUTH_SERVICE_RELATION_TYPE_PTR_LST);
-            yield spinal_env_viewer_graph_service_1.SpinalGraphService.addChildInContext(context.getId().get(), applicationTokenCategoryId, context.getId().get(), constant_1.AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME, constant_1.AUTH_SERVICE_RELATION_TYPE_PTR_LST);
+            yield spinal_env_viewer_graph_service_1.SpinalGraphService.addChildInContext(context.getId().get(), userTokenCategoryId, context.getId().get(), constant_1.MONITORING_SERVICE_TOKEN_CATEGORY_RELATION_NAME, constant_1.MONITORING_SERVICE_RELATION_TYPE_PTR_LST);
+            yield spinal_env_viewer_graph_service_1.SpinalGraphService.addChildInContext(context.getId().get(), applicationTokenCategoryId, context.getId().get(), constant_1.MONITORING_SERVICE_TOKEN_CATEGORY_RELATION_NAME, constant_1.MONITORING_SERVICE_RELATION_TYPE_PTR_LST);
         });
     }
     verify() {
