@@ -2,7 +2,7 @@
   "entryFile": "src/server.ts",
   "noImplicitAdditionalProperties": "throw-on-extras",
   "controllerPathGlobs": [
-    "src/monitoringUser/userController.ts"
+    "src/**/*Controller.ts"
   ],
   "spec": {
     "outputDirectory": "./dist",

@@ -23,7 +23,7 @@
  */
 
 const dotenv = require('dotenv');
-const { getEnvValue, setEnvValue } = require('./whriteToenvFile');
+const { getEnvValue, setEnvValue } = require('./writeToenvFile');
 const generator = require('generate-password');
 var password = generator.generate({
   length: 10,

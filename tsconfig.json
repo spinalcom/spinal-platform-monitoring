@@ -11,7 +11,6 @@
   },
   "include": [
     "src/**/*.ts",
-    "public/whriteEnvFile.ts",
   ],
   "exclude": [
     "node_modules",
