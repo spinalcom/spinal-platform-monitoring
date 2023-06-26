@@ -3,13 +3,14 @@
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
+  "types": "declarations",
   "scripts": {
     "dev": "node --enable-source-maps index.js",
     "build": "npm run clean && npm run swagger-gen && npm run routes-gen && tsc && npm run copy-swagger-ui",
     "clean": "rimraf dist",
-    "swagger-gen": "tsoa swagger --swaggerDir=./dist --entryFile=./src/server.ts",
+    "swagger-gen": "tsoa spec --swaggerDir=./dist --entryFile=./src/server.ts",
     "routes-gen": "tsoa routes --entryFile=./src/server.ts --routesDir=./src",
-    "copy-swagger-ui": "cp -r ./src/swagger-ui ./dist/swagger-ui && cp ./build/swagger.json ./dist/swagger.json",
+    "copy-swagger-ui": "cp -r ./src/swagger-ui ./dist/swagger-ui",
     "tsoa": "tsoa"
   },
   "repository": {

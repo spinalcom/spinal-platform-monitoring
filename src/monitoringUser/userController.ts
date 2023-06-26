@@ -40,13 +40,22 @@ import {
   IUserCreationParams,
   IUserUpdateParams,
   IUserLoginParams,
-  IUserLogs
+  IUserLogs,
 } from './user.model';
 import { UserService } from './userService';
 import { IUserToken } from '../tokens/token.model';
 
 @Route('users')
 export class UsersController extends Controller {
+  @Security('jwt')
+  @Get('/')
+  public async getUsers(): Promise<IUser[]> {
+    console.log('controller');
+
+    this.setStatus(201); // set return status 201
+    return new UserService().getUsers();
+  }
+
   @Security('jwt')
   @SuccessResponse('201', 'Created') // Custom success response
   @Post()
@@ -57,16 +66,6 @@ export class UsersController extends Controller {
     this.setStatus(201); // set return status 201rt
     return user;
   }
-
-  @Security('jwt')
-  @Get("/hello")
-  public async getUsers(): Promise<IUser[]> {
-    console.log("controller");
-
-    this.setStatus(201); // set return status 201
-    return new UserService().getUsers();
-  }
-
   @Security('jwt')
   @Get('{userId}')
   public async getUser(@Path() userId: string): Promise<IUser> {
@@ -141,9 +140,7 @@ export class UsersController extends Controller {
   }
   @Security('jwt')
   @Get('{userId}/userLogs')
-  public async getUserLogs(
-    @Path() userId: string
-  ): Promise<IUserLogs[]> {
+  public async getUserLogs(@Path() userId: string): Promise<IUserLogs[]> {
     return new UserService().getUserLogs(userId);
   }
 }

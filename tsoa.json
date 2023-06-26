@@ -6,8 +6,7 @@
   ],
   "spec": {
     "outputDirectory": "./dist",
-    "host": "localhost:3000",
-    "basePath": "/v1",
+    "host": "localhost:5050",
     "securityDefinitions": {
       "api_key": {
         "type": "apiKey",
@@ -27,14 +26,13 @@
         "type": "jwt"
       }
     },
-    "yaml": true,
+    "yaml": false,
     "specVersion": 3
   },
   "swagger": {
     "outputDirectory": "./dist",
     "entryFile": "./src/server.ts",
-    "host": "localhost:5000",
-    "basePath": "/v1"
+    "host": "localhost:5050"
   },
   "routes": {
     "authenticationModule": "./src/monitoringUser/authentication.ts",

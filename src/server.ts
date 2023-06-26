@@ -27,11 +27,11 @@ import * as cors from 'cors';
 import * as morgan from 'morgan';
 import config from './config';
 import path = require('path');
-import * as methodOverride from 'method-override';
+// import * as methodOverride from 'method-override';
 import { RegisterRoutes } from './routes';
-import { Response as ExResponse, Request as ExRequest } from 'express';
+// import { Response as ExResponse, Request as ExRequest } from 'express';
 import * as swaggerUi from 'swagger-ui-express';
-const jsonFile = require('../build/swagger.json');
+const jsonFile = require('../dist/swagger.json');
 var history = require('connect-history-api-fallback');
 /**
  *
@@ -57,7 +57,6 @@ function Server(): express.Express {
     })
   );
   // app.use(methodOverride());
-  app.use(history())
 
   app.use('/static', express.static(path.join(__dirname, 'public')));
 
@@ -70,15 +69,15 @@ function Server(): express.Express {
     res.sendFile(__dirname + '/swagger.json');
   });
   RegisterRoutes(app);
+  app.use(history());
   app.use(express.static(path.resolve(__dirname, '../vue-client/dist')));
   app.get('/', function (req, res) {
-    res.sendFile(path.resolve(__dirname, '../vue-client/dist', "index.html"));
+    res.sendFile(path.resolve(__dirname, '../vue-client/dist', 'index.html'));
   });
 
   app.listen(config.api.port, () =>
     console.log(`app listening at http://localhost:${config.api.port} ....`)
   );
-
 
   return;
 }
