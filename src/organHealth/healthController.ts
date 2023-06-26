@@ -1,4 +1,3 @@
-"use strict";
 /*
  * Copyright 2021 SpinalCom - www.spinalcom.com
  *
@@ -22,12 +21,34 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.statusPlatform = void 0;
-var statusPlatform;
-(function (statusPlatform) {
-    statusPlatform["online"] = "online";
-    statusPlatform["fail"] = "fail";
-    statusPlatform["stop"] = "stop";
-})(statusPlatform || (exports.statusPlatform = statusPlatform = {}));
-//# sourceMappingURL=platform.model.js.map
+
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Path,
+  Post,
+  Put,
+  Query,
+  Route,
+  Security,
+  SuccessResponse,
+} from 'tsoa';
+import { HealthService } from './healthService';
+import { IHealth } from './health.model';
+
+@Route('health')
+export class HealthController extends Controller {
+  // @Security('jwt')
+  @SuccessResponse('201', 'Created') // Custom success response
+  @Post()
+  public async createHealth(
+    @Body() requestBody: any[]
+  ): Promise<IHealth> {
+    console.log(requestBody);
+    let health = new HealthService().createHealth(requestBody)
+    this.setStatus(201); // set return status 201rt
+    return health;
+  }
+}

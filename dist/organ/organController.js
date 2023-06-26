@@ -44,46 +44,47 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.OrgansController = void 0;
 const tsoa_1 = require("tsoa");
 const organService_1 = require("./organService");
-let OrgansController = class OrgansController extends tsoa_1.Controller {
-    createOrgan(requestBody) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let organ = new organService_1.OrganService().createOrgan(requestBody);
-            this.setStatus(201); // set return status 201rt
-            return organ;
-        });
-    }
-    getOrgans(platformId) {
+let OrgansController = exports.OrgansController = class OrgansController extends tsoa_1.Controller {
+    // @Security('jwt')
+    // @SuccessResponse('201', 'Created') // Custom success response
+    // @Post()
+    // public async createOrgan(
+    //   @Body() requestBody: any
+    // ): Promise<IOrgan> {
+    //   let organ = new OrganService().createOrgan(requestBody);
+    //   this.setStatus(201); // set return status 201rt
+    //   return organ;
+    // }
+    getOrgans() {
         return __awaiter(this, void 0, void 0, function* () {
             this.setStatus(201); // set return status 201
-            return new organService_1.OrganService().getOrgans(platformId);
+            return new organService_1.OrganService().getOrgans();
         });
     }
-    updatePlateform(organId, requestBody) {
+    // @Security('jwt')
+    // @Put('{organId}')
+    // public async updatePlateform(
+    //   @Path() organId: string,
+    //   @Body() requestBody: IOrganUpdateParams
+    // ): Promise<IOrgan> {
+    //   return new OrganService().updateOrgan(organId, requestBody);
+    // }
+    updatePlateform(organId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return new organService_1.OrganService().updateOrgan(organId, requestBody);
+            return new organService_1.OrganService().deleteOrgan(organId);
         });
     }
 };
 __decorate([
     (0, tsoa_1.Security)('jwt'),
-    (0, tsoa_1.SuccessResponse)('201', 'Created') // Custom success response
-    ,
-    (0, tsoa_1.Post)('{platformId}'),
-    __param(0, (0, tsoa_1.Body)())
-], OrgansController.prototype, "createOrgan", null);
-__decorate([
-    (0, tsoa_1.Security)('jwt'),
-    (0, tsoa_1.Get)('{platformId}'),
-    __param(0, (0, tsoa_1.Path)())
+    (0, tsoa_1.Post)()
 ], OrgansController.prototype, "getOrgans", null);
 __decorate([
     (0, tsoa_1.Security)('jwt'),
-    (0, tsoa_1.Put)('{organId}'),
-    __param(0, (0, tsoa_1.Path)()),
-    __param(1, (0, tsoa_1.Body)())
+    (0, tsoa_1.Delete)('{organId}'),
+    __param(0, (0, tsoa_1.Path)())
 ], OrgansController.prototype, "updatePlateform", null);
-OrgansController = __decorate([
+exports.OrgansController = OrgansController = __decorate([
     (0, tsoa_1.Route)('organs')
 ], OrgansController);
-exports.OrgansController = OrgansController;
 //# sourceMappingURL=organController.js.map

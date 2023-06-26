@@ -342,5 +342,5 @@ var HttpStatusCode;
      * to require agreement to Terms of Service before granting full Internet access via a Wi-Fi hotspot).
      */
     HttpStatusCode[HttpStatusCode["NETWORK_AUTHENTICATION_REQUIRED"] = 511] = "NETWORK_AUTHENTICATION_REQUIRED";
-})(HttpStatusCode = exports.HttpStatusCode || (exports.HttpStatusCode = {}));
+})(HttpStatusCode || (exports.HttpStatusCode = HttpStatusCode = {}));
 //# sourceMappingURL=http-status-code.js.map

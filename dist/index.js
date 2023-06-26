@@ -32,10 +32,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-// import { TokensService } from './tokens/tokenService';
+const spinal_env_viewer_graph_service_1 = require("spinal-env-viewer-graph-service");
+// import { AuthGraphService } from './services/authGraphService';
+const userService_1 = require("./monitoringUser/userService");
+const platformServices_1 = require("./platform/platformServices");
+const tokenService_1 = require("./tokens/tokenService");
 // import { LogsService } from './logs/logService'
 const server_1 = require("./server");
 const spinalMiddleware_1 = require("./spinalMiddleware");
+const constant_1 = require("./constant");
 const authGraphService_1 = require("./services/authGraphService");
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -45,70 +50,55 @@ function main() {
         const authGraphService = new authGraphService_1.AuthGraphService(spinalMiddleware.getGraph());
         yield authGraphService.init();
         const contexts = yield spinalMiddleware.getGraph().getChildren('hasContext');
-        //config token context
-        // var tokensService = new TokensService();
-        // for (const context of contexts) {
-        //   if (context.getName().get() === 'tokenList') {
-        //     // @ts-ignore
-        //     SpinalGraphService._addNode(context);
-        //     const childsContext = await context.getChildren(MONITORING_SERVICE_TOKEN_CATEGORY_RELATION_NAME);
-        //     if (childsContext.length === 0) {
-        //       await tokensService.createTokenTree();
-        //     }
-        //   }
-        // }
-        //config logs context
-        // var logsService = new LogsService();
-        // for (const context of contexts) {
-        //   if (context.getName().get() === LOG_LIST) {
-        //     // SpinalGraphService.removeFromGraph(context.getId().get())
-        //     // @ts-ignore
-        //     SpinalGraphService._addNode(context);
-        //     // await context.removeFromGraph();
-        //     const childsContext = await context.getChildren(MONITORING_SERVICE_LOG_CATEGORY_RELATION_NAME);
-        //     if (childsContext.length === 0) {
-        //       await logsService.createLogTree();
-        //       await logsService.createSubGraph(context);
-        //       await logsService.createEventTypeGraph(context);
-        //     }
-        //   }
-        // }
+        // config token context
+        var tokensService = new tokenService_1.TokensService();
+        for (const context of contexts) {
+            if (context.getName().get() === 'tokenList') {
+                // @ts-ignore
+                spinal_env_viewer_graph_service_1.SpinalGraphService._addNode(context);
+                const childsContext = yield context.getChildren(constant_1.MONITORING_SERVICE_TOKEN_CATEGORY_RELATION_NAME);
+                if (childsContext.length === 0) {
+                    yield tokensService.createTokenTree();
+                }
+            }
+        }
         //verification user
-        // for (const context of contexts) {
-        //   if (context.getName().get() === 'userList') {
-        //     // @ts-ignore
-        //     SpinalGraphService._addNode(context);
-        //     const childsContext = await context.getChildren(MONITORING_SERVICE_USER_RELATION_NAME);
-        //     if (childsContext.length === 0) {
-        //       const userService = new UserService();
-        //       let res = await userService.createAuthAdmin();
-        //       if (res !== undefined) {
-        //         console.log('Auth Admin created ...');
-        //       }
-        //     }
-        //   }
-        // }
+        for (const context of contexts) {
+            if (context.getName().get() === 'userList') {
+                // @ts-ignore
+                spinal_env_viewer_graph_service_1.SpinalGraphService._addNode(context);
+                const childsContext = yield context.getChildren(constant_1.MONITORING_SERVICE_USER_RELATION_NAME);
+                if (childsContext.length === 0) {
+                    const userService = new userService_1.UserService();
+                    let res = yield userService.createMonitoringAdmin();
+                    if (res !== undefined) {
+                        console.log('Monitoring Admin created ...');
+                    }
+                }
+            }
+        }
         // start organ with platform config
-        // var plateformsService = new PlatformService();
-        // var plateforms = await plateformsService.getPlateforms();
-        // if (plateforms.length === 0) {
-        //   let res = await plateformsService.createAuthPlateform();
-        //   if (res !== undefined) {
-        //     console.log('Auth Plateform created ...');
-        //   }
-        // }
-        // // start organ with register key config
-        // for (const context of contexts) {
-        //   if (context.getName().get() === 'infoAdmin') {
-        //     let nodes = await context.getChildren(MONITORING_SERVICE_INFO_ADMIN_RELATION_NAME);
-        //     if (nodes.length === 0) {
-        //       let res = await plateformsService.createRegisterKeyNode();
-        //       if (res !== undefined) {
-        //         console.log('register key created ...', res);
-        //       }
-        //     }
-        //   }
-        // }
+        var plateformsService = new platformServices_1.PlatformService();
+        var plateforms = yield plateformsService.getPlateforms();
+        if (plateforms.length === 0) {
+            let res = yield plateformsService.createOrUpdateMonitoringPlateform();
+            if (res !== undefined) {
+                console.log('Monitoring Platform created ...');
+            }
+        }
+        // start organ with register key config
+        var plateformsService = new platformServices_1.PlatformService();
+        for (const context of contexts) {
+            if (context.getName().get() === 'infoMonitoring') {
+                let nodes = yield context.getChildren(constant_1.MONITORING_SERVICE_INFO_RELATION_NAME);
+                if (nodes.length === 0) {
+                    let res = yield plateformsService.createRegisterKeyNode();
+                    if (res !== undefined) {
+                        console.log('register key created ...', res);
+                    }
+                }
+            }
+        }
         // start organ with token cron
         // var cron = require('node-cron');
         // cron.schedule('0-9 1 1 * * *', async function () {

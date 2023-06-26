@@ -1,3 +1,4 @@
+"use strict";
 /*
  * Copyright 2023 SpinalCom - www.spinalcom.com
  *
@@ -21,4 +22,5 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
+Object.defineProperty(exports, "__esModule", { value: true });
 //# sourceMappingURL=server.model.js.map

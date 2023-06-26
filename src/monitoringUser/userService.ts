@@ -22,12 +22,7 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import {
-  Model,
-  Ptr,
-  spinalCore,
-  FileSystem,
-} from 'spinal-core-connectorjs_type';
+
 import {
   USER_LIST,
   MONITORING_SERVICE_USER_RELATION_NAME,
@@ -94,38 +89,40 @@ export class UserService {
             );
           }
         }
-        console.log("service", userCreationParams);
-
         var userNode: SpinalNode<any> = bcrypt
           .hash(userCreationParams.password, 10)
-          .then(async (hash) => {
-            const userObject = {
-              type: USER_TYPE,
-              name: userCreationParams.email,
-              email: userCreationParams.email,
-              userType: userCreationParams.userType,
-              password: hash,
-            };
-            if (userObject.userType !== 'MonitoringAdmin') {
-              const UserId = SpinalGraphService.createNode(
-                userObject,
-                undefined
-              );
+        console.log(userNode);
 
-              const res = await SpinalGraphService.addChildInContext(
-                context.getId().get(),
-                UserId,
-                context.getId().get(),
-                MONITORING_SERVICE_USER_RELATION_NAME,
-                MONITORING_SERVICE_RELATION_TYPE_PTR_LST
-              );
-              return res
-            } else {
-              return undefined;
-            }
-          });
+        // .then(async (hash) => {
+        //   const userObject = {
+        //     type: USER_TYPE,
+        //     name: userCreationParams.email,
+        //     email: userCreationParams.email,
+        //     userType: userCreationParams.userType,
+        //     password: hash,
+        //   };
+        //   if (userObject.userType !== 'MonitoringAdmin') {
+        //     const UserId = SpinalGraphService.createNode(
+        //       userObject,
+        //       undefined
+        //     );
+
+        //     const res = await SpinalGraphService.addChildInContext(
+        //       context.getId().get(),
+        //       UserId,
+        //       context.getId().get(),
+        //       MONITORING_SERVICE_USER_RELATION_NAME,
+        //       MONITORING_SERVICE_RELATION_TYPE_PTR_LST
+        //     );
+        //     return res
+        //   } else {
+        //     return undefined;
+        //   }
+        // });
 
         const userCreated = userNode;
+        console.log("userCreated", await userCreated);
+
         if (userCreated === undefined) {
           // await this.logService.createLog(userCreated, 'UserLogs', 'Create', 'Create Not Valid', "Create Not Valid");
           throw new OperationError('NOT_CREATED', HttpStatusCode.BAD_REQUEST);
@@ -145,7 +142,6 @@ export class UserService {
   }
 
   public async login(userLoginParams: IUserLoginParams): Promise<IUserToken> {
-    // const logService = new LogsService();
     const contexts = await this.graph.getChildren('hasContext');
     for (const context of contexts) {
       if (context.getName().get() === USER_LIST) {

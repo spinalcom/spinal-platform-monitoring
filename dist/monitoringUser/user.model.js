@@ -28,5 +28,5 @@ var IUserType;
 (function (IUserType) {
     IUserType["MonitoringAdmin"] = "MonitoringAdmin";
     IUserType["User"] = "User";
-})(IUserType = exports.IUserType || (exports.IUserType = {}));
+})(IUserType || (exports.IUserType = IUserType = {}));
 //# sourceMappingURL=user.model.js.map

@@ -44,7 +44,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TokensController = void 0;
 const tsoa_1 = require("tsoa");
 const tokenService_1 = require("./tokenService");
-let TokensController = class TokensController extends tsoa_1.Controller {
+let TokensController = exports.TokensController = class TokensController extends tsoa_1.Controller {
     getTokens() {
         return __awaiter(this, void 0, void 0, function* () {
             this.setStatus(201); // set return status 201
@@ -107,8 +107,7 @@ __decorate([
     (0, tsoa_1.Post)('/verifyToken'),
     __param(0, (0, tsoa_1.Body)())
 ], TokensController.prototype, "verifyToken", null);
-TokensController = __decorate([
+exports.TokensController = TokensController = __decorate([
     (0, tsoa_1.Route)('tokens')
 ], TokensController);
-exports.TokensController = TokensController;
 //# sourceMappingURL=tokenController.js.map

@@ -44,15 +44,21 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PlatformsController = void 0;
 const tsoa_1 = require("tsoa");
 const platformServices_1 = require("./platformServices");
-const profileServices_1 = require("./profileServices");
-let PlatformsController = class PlatformsController extends tsoa_1.Controller {
-    createPlateform(requestBody) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let platform = new platformServices_1.PlatformService().createPlateform(requestBody);
-            this.setStatus(201); // set return status 201rt
-            return platform;
-        });
-    }
+let PlatformsController = exports.PlatformsController = class PlatformsController extends tsoa_1.Controller {
+    // @Security('jwt')
+    // @SuccessResponse('201', 'Created') // Custom success response
+    // @Post()
+    // public async createPlateform(@Body() requestBody): Promise<any> {
+    //   let platform = new PlatformService().createPlateform(requestBody);
+    //   this.setStatus(201); // set return status 201rt
+    //   return platform;
+    // }
+    /**
+     *
+     *
+     * @return {*}  {Promise<IPlatform[]>}
+     * @memberof PlatformsController
+     */
     getPlatforms() {
         return __awaiter(this, void 0, void 0, function* () {
             return new platformServices_1.PlatformService().getPlateforms();
@@ -74,21 +80,6 @@ let PlatformsController = class PlatformsController extends tsoa_1.Controller {
             return new platformServices_1.PlatformService().updatePlateform(platformId, requestBody);
         });
     }
-    getUserProfileList(platformId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return new profileServices_1.ProfileServices().getUserProfileService(platformId);
-        });
-    }
-    getAppProfileService(platformId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return new profileServices_1.ProfileServices().getAppProfileService(platformId);
-        });
-    }
-    getPlatformLogs(platformId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return new platformServices_1.PlatformService().getPlateformLogs(platformId);
-        });
-    }
     updateRegisterKeyNode() {
         return __awaiter(this, void 0, void 0, function* () {
             this.setStatus(201); // set return status 201
@@ -98,18 +89,11 @@ let PlatformsController = class PlatformsController extends tsoa_1.Controller {
 };
 __decorate([
     (0, tsoa_1.Security)('jwt'),
-    (0, tsoa_1.SuccessResponse)('201', 'Created') // Custom success response
-    ,
-    (0, tsoa_1.Post)(),
-    __param(0, (0, tsoa_1.Body)())
-], PlatformsController.prototype, "createPlateform", null);
-__decorate([
-    (0, tsoa_1.Security)('jwt'),
-    (0, tsoa_1.Get)()
+    (0, tsoa_1.Post)()
 ], PlatformsController.prototype, "getPlatforms", null);
 __decorate([
     (0, tsoa_1.Security)('jwt'),
-    (0, tsoa_1.Get)('{platformId}'),
+    (0, tsoa_1.Post)('{platformId}'),
     __param(0, (0, tsoa_1.Path)())
 ], PlatformsController.prototype, "getPlateform", null);
 __decorate([
@@ -125,25 +109,9 @@ __decorate([
 ], PlatformsController.prototype, "updatePlateform", null);
 __decorate([
     (0, tsoa_1.Security)('jwt'),
-    (0, tsoa_1.Get)('{platformId}/getUserProfileList'),
-    __param(0, (0, tsoa_1.Path)())
-], PlatformsController.prototype, "getUserProfileList", null);
-__decorate([
-    (0, tsoa_1.Security)('jwt'),
-    (0, tsoa_1.Get)('{platformId}/getAppProfileList'),
-    __param(0, (0, tsoa_1.Path)())
-], PlatformsController.prototype, "getAppProfileService", null);
-__decorate([
-    (0, tsoa_1.Security)('jwt'),
-    (0, tsoa_1.Get)('{platformId}/platformLogs'),
-    __param(0, (0, tsoa_1.Path)())
-], PlatformsController.prototype, "getPlatformLogs", null);
-__decorate([
-    (0, tsoa_1.Security)('jwt'),
     (0, tsoa_1.Post)('/registerKey')
 ], PlatformsController.prototype, "updateRegisterKeyNode", null);
-PlatformsController = __decorate([
+exports.PlatformsController = PlatformsController = __decorate([
     (0, tsoa_1.Route)('platforms')
 ], PlatformsController);
-exports.PlatformsController = PlatformsController;
 //# sourceMappingURL=platformController.js.map

@@ -41,7 +41,7 @@ exports.RegisterKeyController = void 0;
  */
 const tsoa_1 = require("tsoa");
 const platformServices_1 = require("./platformServices");
-let RegisterKeyController = class RegisterKeyController extends tsoa_1.Controller {
+let RegisterKeyController = exports.RegisterKeyController = class RegisterKeyController extends tsoa_1.Controller {
     updateRegisterKeyNode() {
         return __awaiter(this, void 0, void 0, function* () {
             this.setStatus(201); // set return status 201
@@ -63,8 +63,7 @@ __decorate([
     (0, tsoa_1.Security)('jwt'),
     (0, tsoa_1.Get)()
 ], RegisterKeyController.prototype, "getRegisterKeyNode", null);
-RegisterKeyController = __decorate([
+exports.RegisterKeyController = RegisterKeyController = __decorate([
     (0, tsoa_1.Route)('registerKey')
 ], RegisterKeyController);
-exports.RegisterKeyController = RegisterKeyController;
 //# sourceMappingURL=registerKeyController.js.map

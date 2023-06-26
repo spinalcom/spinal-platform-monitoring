@@ -66,27 +66,36 @@ class UserService {
                             throw new operation_error_1.OperationError('EMAIL_IN_USE', http_status_code_1.HttpStatusCode.FORBIDDEN);
                         }
                     }
-                    console.log("service", userCreationParams);
                     var userNode = bcrypt
-                        .hash(userCreationParams.password, 10)
-                        .then((hash) => __awaiter(this, void 0, void 0, function* () {
-                        const userObject = {
-                            type: constant_1.USER_TYPE,
-                            name: userCreationParams.email,
-                            email: userCreationParams.email,
-                            userType: userCreationParams.userType,
-                            password: hash,
-                        };
-                        if (userObject.userType !== 'MonitoringAdmin') {
-                            const UserId = spinal_env_viewer_graph_service_1.SpinalGraphService.createNode(userObject, undefined);
-                            const res = yield spinal_env_viewer_graph_service_1.SpinalGraphService.addChildInContext(context.getId().get(), UserId, context.getId().get(), constant_1.MONITORING_SERVICE_USER_RELATION_NAME, constant_1.MONITORING_SERVICE_RELATION_TYPE_PTR_LST);
-                            return res;
-                        }
-                        else {
-                            return undefined;
-                        }
-                    }));
+                        .hash(userCreationParams.password, 10);
+                    console.log(userNode);
+                    // .then(async (hash) => {
+                    //   const userObject = {
+                    //     type: USER_TYPE,
+                    //     name: userCreationParams.email,
+                    //     email: userCreationParams.email,
+                    //     userType: userCreationParams.userType,
+                    //     password: hash,
+                    //   };
+                    //   if (userObject.userType !== 'MonitoringAdmin') {
+                    //     const UserId = SpinalGraphService.createNode(
+                    //       userObject,
+                    //       undefined
+                    //     );
+                    //     const res = await SpinalGraphService.addChildInContext(
+                    //       context.getId().get(),
+                    //       UserId,
+                    //       context.getId().get(),
+                    //       MONITORING_SERVICE_USER_RELATION_NAME,
+                    //       MONITORING_SERVICE_RELATION_TYPE_PTR_LST
+                    //     );
+                    //     return res
+                    //   } else {
+                    //     return undefined;
+                    //   }
+                    // });
                     const userCreated = userNode;
+                    console.log("userCreated", yield userCreated);
                     if (userCreated === undefined) {
                         // await this.logService.createLog(userCreated, 'UserLogs', 'Create', 'Create Not Valid', "Create Not Valid");
                         throw new operation_error_1.OperationError('NOT_CREATED', http_status_code_1.HttpStatusCode.BAD_REQUEST);
@@ -109,7 +118,6 @@ class UserService {
     }
     login(userLoginParams) {
         return __awaiter(this, void 0, void 0, function* () {
-            // const logService = new LogsService();
             const contexts = yield this.graph.getChildren('hasContext');
             for (const context of contexts) {
                 if (context.getName().get() === constant_1.USER_LIST) {

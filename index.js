@@ -25,10 +25,15 @@
 const dotenv = require('dotenv');
 const { getEnvValue, setEnvValue } = require('./writeToenvFile');
 const generator = require('generate-password');
+const { get } = require('http');
 var password = generator.generate({
   length: 10,
   numbers: true,
 });
-setEnvValue('AUTH_ADMIN_PASSWORD', password);
+
+if (getEnvValue("MONITORING_ADMIN_PASSWORD") === '""') {
+  setEnvValue('MONITORING_ADMIN_PASSWORD', password);
+}
+console.log(getEnvValue("MONITORING_ADMIN_PASSWORD"));
 dotenv.config();
 require('./dist/index.js');

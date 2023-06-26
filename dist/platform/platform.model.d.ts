@@ -18,26 +18,34 @@ export interface IPlatform {
         login: string;
         password: string;
     };
+    organList?: {
+        organId: string;
+        organName: string;
+    }[];
 }
 export interface IPlateformCreationParams {
     name: string;
     type?: string;
     statusPlatform?: statusPlatform;
     TokenBosRegister?: string;
-    infoHub: {
+    infoHub?: {
         ip: string;
         port: number;
         url: string;
         login: string;
         password: string;
     };
-    infoWall: {
+    infoWall?: {
         ip: string;
         port: number;
         url: string;
         login: string;
         password: string;
     };
+    organList?: {
+        organId: string;
+        organName: string;
+    }[];
 }
 export interface IPlatformUpdateParams {
     name?: string;
@@ -56,6 +64,10 @@ export interface IPlatformUpdateParams {
         login?: string;
         password?: string;
     };
+    organList?: {
+        organId: string;
+        organName: string;
+    }[];
 }
 export interface IRegisterParams {
     platformCreationParms: IPlateformCreationParams;

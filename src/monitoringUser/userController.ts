@@ -47,21 +47,22 @@ import { IUserToken } from '../tokens/token.model';
 
 @Route('users')
 export class UsersController extends Controller {
-  // @Security('jwt')
+  @Security('jwt')
   @SuccessResponse('201', 'Created') // Custom success response
   @Post()
   public async createUser(
     @Body() requestBody: IUserCreationParams
   ): Promise<IUser> {
-    console.log("controller", requestBody);
     let user = new UserService().createUser(requestBody);
     this.setStatus(201); // set return status 201rt
     return user;
   }
 
   @Security('jwt')
-  @Get()
+  @Get("/hello")
   public async getUsers(): Promise<IUser[]> {
+    console.log("controller");
+
     this.setStatus(201); // set return status 201
     return new UserService().getUsers();
   }

@@ -40,7 +40,7 @@ const config = {
         port: process.env.SPINALHUB_PORT || 7777, // port
     },
     api: {
-        port: process.env.REQUESTS_PORT || 4040, // internal port
+        port: process.env.REQUESTS_PORT || 5050, // internal port
     },
     file: {
         // path to a digital twin in spinalhub filesystem

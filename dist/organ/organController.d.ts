@@ -1,7 +1,6 @@
 import { Controller } from 'tsoa';
-import { IOrganCreationParams, IOrganUpdateParams, IOrgan } from './organ.model';
+import { IOrgan } from './organ.model';
 export declare class OrgansController extends Controller {
-    createOrgan(requestBody: IOrganCreationParams): Promise<IOrgan>;
-    getOrgans(platformId: string): Promise<IOrgan[]>;
-    updatePlateform(organId: string, requestBody: IOrganUpdateParams): Promise<IOrgan>;
+    getOrgans(): Promise<IOrgan[]>;
+    updatePlateform(organId: string): Promise<void>;
 }

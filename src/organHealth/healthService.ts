@@ -1,19 +1,19 @@
 /*
- * Copyright 2022 SpinalCom - www.spinalcom.com
- *
+ * Copyright 2023 SpinalCom - www.spinalcom.com
+ * 
  * This file is part of SpinalCore.
- *
+ * 
  * Please read all of the following terms and conditions
  * of the Free Software license Agreement ("Agreement")
  * carefully.
- *
+ * 
  * This Agreement is a legally binding contract between
  * the Licensee (as defined below) and SpinalCom that
  * sets forth the terms and conditions that govern your
  * use of the Program. By installing and/or using the
  * Program, you agree to abide by all the terms and
  * conditions stated or referenced herein.
- *
+ * 
  * If you do not agree to abide by these terms and
  * conditions, do not demonstrate your acceptance and do
  * not install or use the Program.
@@ -21,21 +21,25 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-export interface IUserProfileCreationParams {
-  userProfileId: string;
-  name: string;
-  type?: string;
-  platformId: string;
-}
 
-export interface IUserProfileUpdateParams {
-  name: string;
-}
+import { IHealth } from "./health.model";
+import SpinalMiddleware from '../spinalMiddleware';
+import {
+  SpinalGraphService,
+  SpinalGraph,
+  SpinalContext,
+  SpinalNode,
+} from 'spinal-env-viewer-graph-service';
+export class HealthService {
+  public spinalMiddleware: SpinalMiddleware = SpinalMiddleware.getInstance();
+  public graph: SpinalGraph<any>;
+  // public logService: LogsService;
+  constructor() {
+    this.spinalMiddleware.init();
+    this.graph = this.spinalMiddleware.getGraph();
+  }
 
-export interface IUserProfile {
-  id: string;
-  userProfileId: string;
-  name: string;
-  type: string; // type de noeud graph
-  platformId: string;
+  public async createHealth(params: IHealth[]): Promise<IHealth> {
+    return
+  }
 }

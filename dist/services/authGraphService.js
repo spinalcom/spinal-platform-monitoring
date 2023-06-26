@@ -43,20 +43,21 @@ class AuthGraphService {
         return __awaiter(this, void 0, void 0, function* () {
             let promises = [];
             var userList;
-            // var applicationList: SpinalContext<spinal.Model>;
             var platformList;
             var tokenList;
-            // var infoAdmin: SpinalContext<spinal.Model>;
+            var infoMonitoring;
             var logs;
             var notifications;
+            var serverList;
+            var organList;
             if ((yield this.graph.getContext(constant_1.USER_LIST)) === undefined) {
                 userList = new spinal_env_viewer_graph_service_1.SpinalContext(constant_1.USER_LIST);
                 promises.push(this.graph.addContext(userList));
             }
-            // if ((await this.graph.getContext(APPLICATION_LIST)) === undefined) {
-            //   applicationList = new SpinalContext(APPLICATION_LIST);
-            //   promises.push(this.graph.addContext(applicationList));
-            // }
+            if ((yield this.graph.getContext(constant_1.SERVER_LIST)) === undefined) {
+                serverList = new spinal_env_viewer_graph_service_1.SpinalContext(constant_1.SERVER_LIST);
+                promises.push(this.graph.addContext(serverList));
+            }
             if ((yield this.graph.getContext(constant_1.PLATFORM_LIST)) === undefined) {
                 platformList = new spinal_env_viewer_graph_service_1.SpinalContext(constant_1.PLATFORM_LIST);
                 promises.push(this.graph.addContext(platformList));
@@ -65,10 +66,10 @@ class AuthGraphService {
                 tokenList = new spinal_env_viewer_graph_service_1.SpinalContext(constant_1.TOKEN_LIST);
                 promises.push(this.graph.addContext(tokenList));
             }
-            // if ((await this.graph.getContext(INFO_ADMIN)) === undefined) {
-            //   infoAdmin = new SpinalContext(INFO_ADMIN);
-            //   promises.push(this.graph.addContext(infoAdmin));
-            // }
+            if ((yield this.graph.getContext(constant_1.INFO_MONITORING)) === undefined) {
+                infoMonitoring = new spinal_env_viewer_graph_service_1.SpinalContext(constant_1.INFO_MONITORING);
+                promises.push(this.graph.addContext(infoMonitoring));
+            }
             if ((yield this.graph.getContext(constant_1.LOG_LIST)) === undefined) {
                 logs = new spinal_env_viewer_graph_service_1.SpinalContext(constant_1.LOG_LIST);
                 promises.push(this.graph.addContext(logs));
@@ -76,6 +77,10 @@ class AuthGraphService {
             if ((yield this.graph.getContext(constant_1.NOTIFICATION_LIST)) === undefined) {
                 notifications = new spinal_env_viewer_graph_service_1.SpinalContext(constant_1.NOTIFICATION_LIST);
                 promises.push(this.graph.addContext(notifications));
+            }
+            if ((yield this.graph.getContext(constant_1.ORGAN_LIST)) === undefined) {
+                organList = new spinal_env_viewer_graph_service_1.SpinalContext(constant_1.ORGAN_LIST);
+                promises.push(this.graph.addContext(organList));
             }
             return Promise.all(promises).then(() => {
                 return this.graph;

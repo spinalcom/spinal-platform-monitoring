@@ -31,8 +31,10 @@ import {
   APPLICATION_LIST,
   TOKEN_LIST,
   LOG_LIST,
-  INFO_ADMIN,
-  NOTIFICATION_LIST
+  INFO_MONITORING,
+  NOTIFICATION_LIST,
+  SERVER_LIST,
+  ORGAN_LIST
 } from '../constant';
 
 export class AuthGraphService {
@@ -43,22 +45,23 @@ export class AuthGraphService {
   async init(): Promise<SpinalGraph<any>> {
     let promises = [];
     var userList: SpinalContext<spinal.Model>;
-    // var applicationList: SpinalContext<spinal.Model>;
     var platformList: SpinalContext<spinal.Model>;
     var tokenList: SpinalContext<spinal.Model>;
-    // var infoAdmin: SpinalContext<spinal.Model>;
+    var infoMonitoring: SpinalContext<spinal.Model>;
     var logs: SpinalContext<spinal.Model>;
     var notifications: SpinalContext<spinal.Model>;
+    var serverList: SpinalContext<spinal.Model>;
+    var organList: SpinalContext<spinal.Model>;
 
     if ((await this.graph.getContext(USER_LIST)) === undefined) {
       userList = new SpinalContext(USER_LIST);
       promises.push(this.graph.addContext(userList));
     }
 
-    // if ((await this.graph.getContext(APPLICATION_LIST)) === undefined) {
-    //   applicationList = new SpinalContext(APPLICATION_LIST);
-    //   promises.push(this.graph.addContext(applicationList));
-    // }
+    if ((await this.graph.getContext(SERVER_LIST)) === undefined) {
+      serverList = new SpinalContext(SERVER_LIST);
+      promises.push(this.graph.addContext(serverList));
+    }
 
     if ((await this.graph.getContext(PLATFORM_LIST)) === undefined) {
       platformList = new SpinalContext(PLATFORM_LIST);
@@ -69,10 +72,10 @@ export class AuthGraphService {
       promises.push(this.graph.addContext(tokenList));
     }
 
-    // if ((await this.graph.getContext(INFO_ADMIN)) === undefined) {
-    //   infoAdmin = new SpinalContext(INFO_ADMIN);
-    //   promises.push(this.graph.addContext(infoAdmin));
-    // }
+    if ((await this.graph.getContext(INFO_MONITORING)) === undefined) {
+      infoMonitoring = new SpinalContext(INFO_MONITORING);
+      promises.push(this.graph.addContext(infoMonitoring));
+    }
 
 
     if ((await this.graph.getContext(LOG_LIST)) === undefined) {
@@ -83,6 +86,11 @@ export class AuthGraphService {
     if ((await this.graph.getContext(NOTIFICATION_LIST)) === undefined) {
       notifications = new SpinalContext(NOTIFICATION_LIST);
       promises.push(this.graph.addContext(notifications));
+    }
+
+    if ((await this.graph.getContext(ORGAN_LIST)) === undefined) {
+      organList = new SpinalContext(ORGAN_LIST);
+      promises.push(this.graph.addContext(organList));
     }
 
     return Promise.all(promises).then(() => {

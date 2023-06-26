@@ -25,7 +25,6 @@ import * as express from 'express';
 import * as fileUpload from 'express-fileupload';
 import * as cors from 'cors';
 import * as morgan from 'morgan';
-import * as _ from 'lodash';
 import config from './config';
 import path = require('path');
 import * as methodOverride from 'method-override';

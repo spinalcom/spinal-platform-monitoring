@@ -42,30 +42,33 @@ import {
   IRegisterKeyObject,
   IPlatformLogs
 } from './platform.model';
-import { IUserProfile } from './userProfile.model';
-import { IAppProfile } from './appProfile.model';
 import { PlatformService } from './platformServices';
-import { ProfileServices } from './profileServices';
 
 @Route('platforms')
 export class PlatformsController extends Controller {
-  @Security('jwt')
-  @SuccessResponse('201', 'Created') // Custom success response
-  @Post()
-  public async createPlateform(@Body() requestBody): Promise<any> {
-    let platform = new PlatformService().createPlateform(requestBody);
-    this.setStatus(201); // set return status 201rt
-    return platform;
-  }
+  // @Security('jwt')
+  // @SuccessResponse('201', 'Created') // Custom success response
+  // @Post()
+  // public async createPlateform(@Body() requestBody): Promise<any> {
+  //   let platform = new PlatformService().createPlateform(requestBody);
+  //   this.setStatus(201); // set return status 201rt
+  //   return platform;
+  // }
 
+  /**
+   *
+   *
+   * @return {*}  {Promise<IPlatform[]>}
+   * @memberof PlatformsController
+   */
   @Security('jwt')
-  @Get()
+  @Post()
   public async getPlatforms(): Promise<IPlatform[]> {
     return new PlatformService().getPlateforms();
   }
 
   @Security('jwt')
-  @Get('{platformId}')
+  @Post('{platformId}')
   public async getPlateform(@Path() platformId: string): Promise<IPlatform> {
     this.setStatus(201); // set return status 201
     return new PlatformService().getPlateform(platformId);
@@ -81,34 +84,12 @@ export class PlatformsController extends Controller {
   @Put('{platformId}')
   public async updatePlateform(
     @Path() platformId: string,
-    @Body() requestBody: IPlatformUpdateParams
+    @Body() requestBody: any
   ): Promise<IPlatform> {
     return new PlatformService().updatePlateform(platformId, requestBody);
   }
 
-  @Security('jwt')
-  @Get('{platformId}/getUserProfileList')
-  public async getUserProfileList(
-    @Path() platformId: string
-  ): Promise<IUserProfile[]> {
-    return new ProfileServices().getUserProfileService(platformId);
-  }
 
-  @Security('jwt')
-  @Get('{platformId}/getAppProfileList')
-  public async getAppProfileService(
-    @Path() platformId: string
-  ): Promise<IAppProfile[]> {
-    return new ProfileServices().getAppProfileService(platformId);
-  }
-
-  @Security('jwt')
-  @Get('{platformId}/platformLogs')
-  public async getPlatformLogs(
-    @Path() platformId: string
-  ): Promise<IPlatformLogs[]> {
-    return new PlatformService().getPlateformLogs(platformId);
-  }
 
   @Security('jwt')
   @Post('/registerKey')

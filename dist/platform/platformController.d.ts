@@ -1,15 +1,15 @@
 import { Controller } from 'tsoa';
-import { IPlatform, IPlatformUpdateParams, IRegisterKeyObject, IPlatformLogs } from './platform.model';
-import { IUserProfile } from './userProfile.model';
-import { IAppProfile } from './appProfile.model';
+import { IPlatform, IRegisterKeyObject } from './platform.model';
 export declare class PlatformsController extends Controller {
-    createPlateform(requestBody: any): Promise<any>;
+    /**
+     *
+     *
+     * @return {*}  {Promise<IPlatform[]>}
+     * @memberof PlatformsController
+     */
     getPlatforms(): Promise<IPlatform[]>;
     getPlateform(platformId: string): Promise<IPlatform>;
     deletePlatform(platformId: string): Promise<void>;
-    updatePlateform(platformId: string, requestBody: IPlatformUpdateParams): Promise<IPlatform>;
-    getUserProfileList(platformId: string): Promise<IUserProfile[]>;
-    getAppProfileService(platformId: string): Promise<IAppProfile[]>;
-    getPlatformLogs(platformId: string): Promise<IPlatformLogs[]>;
+    updatePlateform(platformId: string, requestBody: any): Promise<IPlatform>;
     updateRegisterKeyNode(): Promise<IRegisterKeyObject>;
 }

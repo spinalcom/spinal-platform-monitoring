@@ -67,7 +67,7 @@ exports.RegisterController = void 0;
  */
 const tsoa_1 = require("tsoa");
 const platformServices_1 = require("../platform/platformServices");
-let RegisterController = class RegisterController extends tsoa_1.Controller {
+let RegisterController = exports.RegisterController = class RegisterController extends tsoa_1.Controller {
     registerPlatform(object) {
         return __awaiter(this, void 0, void 0, function* () {
             let platform = new platformServices_1.PlatformService().registerNewPlatform(object);
@@ -95,8 +95,7 @@ __decorate([
     (0, tsoa_1.Put)(),
     __param(0, (0, tsoa_1.Body)())
 ], RegisterController.prototype, "updatePlatform", null);
-RegisterController = __decorate([
+exports.RegisterController = RegisterController = __decorate([
     (0, tsoa_1.Route)('register')
 ], RegisterController);
-exports.RegisterController = RegisterController;
 //# sourceMappingURL=registerController.js.map

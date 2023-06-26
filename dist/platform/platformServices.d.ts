@@ -12,10 +12,11 @@ export declare class PlatformService {
     graph: SpinalGraph<any>;
     constructor();
     createPlateform(platformCreationParms: IPlateformCreationParams): Promise<IPlatform>;
-    getPlateform(id: any): Promise<IPlatform>;
+    getPlateform(id: string): Promise<IPlatform>;
     getPlateforms(): Promise<IPlatform[]>;
     updatePlateform(id: string, requestBody: IPlatformUpdateParams): Promise<IPlatform>;
     deletePlatform(id: string): Promise<void>;
+    createOrUpdateMonitoringPlateform(): Promise<IPlatform>;
     createRegisterKeyNode(): Promise<IRegisterKeyObject>;
     generateRegisterKey(): any;
     updateRegisterKeyNode(): Promise<IRegisterKeyObject>;

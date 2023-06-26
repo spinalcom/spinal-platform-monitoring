@@ -1,25 +1,43 @@
-export interface IOrganCreationParams {
-    name: string;
-    type?: string;
-    organType: string;
-    statusOrgan: string;
-    platformId: string;
-}
-export interface IOrganUpdateParams {
-    name: string;
-    organType: string;
-    statusOrgan: statusOrgan;
-    platformId: string;
-}
 export interface IOrgan {
     id?: string;
     name?: string;
-    statusOrgan: statusOrgan;
-    organType: string;
     type?: string;
-    platformId: string;
+    bootTimestamp?: number;
+    lastHealthTime?: number;
+    ramHeapUsed?: string;
+    statusOrgan?: StatusOrgan;
+    organType?: string;
+    ipAdress?: string;
+    port?: number;
+    protocol?: string;
+    platformId?: string;
 }
-export declare enum statusOrgan {
+export interface IOrganCreationParams {
+    name: string;
+    type?: string;
+    bootTimestamp?: number;
+    lastHealthTime?: number;
+    ramHeapUsed?: string;
+    statusOrgan?: StatusOrgan;
+    organType?: string;
+    ipAdress?: string;
+    port?: number;
+    protocol?: string;
+    platformId?: string;
+}
+export interface IOrganUpdateParams {
+    name: string;
+    bootTimestamp?: number;
+    lastHealthTime?: number;
+    ramHeapUsed?: string;
+    statusOrgan?: StatusOrgan;
+    organType?: string;
+    ipAdress?: string;
+    port?: number;
+    protocol?: string;
+    platformId?: string;
+}
+export declare enum StatusOrgan {
     'online' = "online",
     'fail' = "fail",
     'stop' = "stop"

@@ -7,6 +7,8 @@ import { UsersController } from './monitoringUser/userController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { OrgansController } from './organ/organController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { HealthController } from './organHealth/healthController';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { PlatformsController } from './platform/platformController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { RegisterKeyController } from './platform/registerKeyController';
@@ -97,7 +99,7 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "statusOrgan": {
+    "StatusOrgan": {
         "dataType": "refEnum",
         "enums": ["online","fail","stop"],
     },
@@ -107,33 +109,58 @@ const models: TsoaRoute.Models = {
         "properties": {
             "id": {"dataType":"string"},
             "name": {"dataType":"string"},
-            "statusOrgan": {"ref":"statusOrgan","required":true},
-            "organType": {"dataType":"string","required":true},
             "type": {"dataType":"string"},
-            "platformId": {"dataType":"string","required":true},
+            "bootTimestamp": {"dataType":"double"},
+            "lastHealthTime": {"dataType":"double"},
+            "ramHeapUsed": {"dataType":"string"},
+            "statusOrgan": {"ref":"StatusOrgan"},
+            "organType": {"dataType":"string"},
+            "ipAdress": {"dataType":"string"},
+            "port": {"dataType":"double"},
+            "protocol": {"dataType":"string"},
+            "platformId": {"dataType":"string"},
         },
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "IOrganCreationParams": {
+    "ILog": {
         "dataType": "refObject",
         "properties": {
-            "name": {"dataType":"string","required":true},
-            "type": {"dataType":"string"},
-            "organType": {"dataType":"string","required":true},
-            "statusOrgan": {"dataType":"string","required":true},
-            "platformId": {"dataType":"string","required":true},
+            "timeStamp": {"dataType":"double","required":true},
+            "message": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "IOrganUpdateParams": {
+    "IGenericOrganData": {
         "dataType": "refObject",
         "properties": {
             "name": {"dataType":"string","required":true},
-            "organType": {"dataType":"string","required":true},
-            "statusOrgan": {"ref":"statusOrgan","required":true},
-            "platformId": {"dataType":"string","required":true},
+            "bootTimestamp": {"dataType":"double","required":true},
+            "lastHealthTime": {"dataType":"double","required":true},
+            "ramHeapUsed": {"dataType":"string","required":true},
+            "logList": {"dataType":"array","array":{"dataType":"refObject","ref":"ILog"},"required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ISpecificOrganData": {
+        "dataType": "refObject",
+        "properties": {
+            "state": {"dataType":"string","required":true},
+            "ipAdress": {"dataType":"string","required":true},
+            "port": {"dataType":"double","required":true},
+            "protocol": {"dataType":"string","required":true},
+            "lastAction": {"dataType":"nestedObjectLiteral","nestedProperties":{"date":{"dataType":"double","required":true},"message":{"dataType":"string","required":true}},"required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IHealth": {
+        "dataType": "refObject",
+        "properties": {
+            "genericOrganData": {"ref":"IGenericOrganData","required":true},
+            "specificOrganData": {"ref":"ISpecificOrganData","required":true},
         },
         "additionalProperties": false,
     },
@@ -153,54 +180,7 @@ const models: TsoaRoute.Models = {
             "TokenBosRegister": {"dataType":"string"},
             "infoHub": {"dataType":"nestedObjectLiteral","nestedProperties":{"password":{"dataType":"string","required":true},"login":{"dataType":"string","required":true},"url":{"dataType":"string","required":true},"port":{"dataType":"double","required":true},"ip":{"dataType":"string","required":true}},"required":true},
             "infoWall": {"dataType":"nestedObjectLiteral","nestedProperties":{"password":{"dataType":"string","required":true},"login":{"dataType":"string","required":true},"url":{"dataType":"string","required":true},"port":{"dataType":"double","required":true},"ip":{"dataType":"string","required":true}},"required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "IPlatformUpdateParams": {
-        "dataType": "refObject",
-        "properties": {
-            "name": {"dataType":"string"},
-            "statusPlatform": {"ref":"statusPlatform"},
-            "infoHub": {"dataType":"nestedObjectLiteral","nestedProperties":{"password":{"dataType":"string"},"login":{"dataType":"string"},"url":{"dataType":"string"},"port":{"dataType":"double"},"ip":{"dataType":"string"}},"required":true},
-            "infoWall": {"dataType":"nestedObjectLiteral","nestedProperties":{"password":{"dataType":"string"},"login":{"dataType":"string"},"url":{"dataType":"string"},"port":{"dataType":"double"},"ip":{"dataType":"string"}},"required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "IUserProfile": {
-        "dataType": "refObject",
-        "properties": {
-            "id": {"dataType":"string","required":true},
-            "userProfileId": {"dataType":"string","required":true},
-            "name": {"dataType":"string","required":true},
-            "type": {"dataType":"string","required":true},
-            "platformId": {"dataType":"string","required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "IAppProfile": {
-        "dataType": "refObject",
-        "properties": {
-            "id": {"dataType":"string"},
-            "appProfileId": {"dataType":"string","required":true},
-            "name": {"dataType":"string"},
-            "type": {"dataType":"string"},
-            "platformId": {"dataType":"string","required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "IPlatformLogs": {
-        "dataType": "refObject",
-        "properties": {
-            "id": {"dataType":"string","required":true},
-            "name": {"dataType":"string","required":true},
-            "type": {"dataType":"string","required":true},
-            "date": {"dataType":"string","required":true},
-            "message": {"dataType":"string","required":true},
-            "actor": {"dataType":"nestedObjectLiteral","nestedProperties":{"actorName":{"dataType":"string","required":true},"actorId":{"dataType":"string","required":true}},"required":true},
+            "organList": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"organName":{"dataType":"string","required":true},"organId":{"dataType":"string","required":true}}}},
         },
         "additionalProperties": false,
     },
@@ -223,8 +203,9 @@ const models: TsoaRoute.Models = {
             "type": {"dataType":"string"},
             "statusPlatform": {"ref":"statusPlatform"},
             "TokenBosRegister": {"dataType":"string"},
-            "infoHub": {"dataType":"nestedObjectLiteral","nestedProperties":{"password":{"dataType":"string","required":true},"login":{"dataType":"string","required":true},"url":{"dataType":"string","required":true},"port":{"dataType":"double","required":true},"ip":{"dataType":"string","required":true}},"required":true},
-            "infoWall": {"dataType":"nestedObjectLiteral","nestedProperties":{"password":{"dataType":"string","required":true},"login":{"dataType":"string","required":true},"url":{"dataType":"string","required":true},"port":{"dataType":"double","required":true},"ip":{"dataType":"string","required":true}},"required":true},
+            "infoHub": {"dataType":"nestedObjectLiteral","nestedProperties":{"password":{"dataType":"string","required":true},"login":{"dataType":"string","required":true},"url":{"dataType":"string","required":true},"port":{"dataType":"double","required":true},"ip":{"dataType":"string","required":true}}},
+            "infoWall": {"dataType":"nestedObjectLiteral","nestedProperties":{"password":{"dataType":"string","required":true},"login":{"dataType":"string","required":true},"url":{"dataType":"string","required":true},"port":{"dataType":"double","required":true},"ip":{"dataType":"string","required":true}}},
+            "organList": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"organName":{"dataType":"string","required":true},"organId":{"dataType":"string","required":true}}}},
         },
         "additionalProperties": false,
     },
@@ -264,6 +245,7 @@ export function RegisterRoutes(app: Router) {
     //      Please look into the "controllerPathGlobs" config option described in the readme: https://github.com/lukeautry/tsoa
     // ###########################################################################################################
         app.post('/users',
+            authenticateMiddleware([{"jwt":[]}]),
             ...(fetchMiddlewares<RequestHandler>(UsersController)),
             ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.createUser)),
 
@@ -288,7 +270,7 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.get('/users',
+        app.get('/users/hello',
             authenticateMiddleware([{"jwt":[]}]),
             ...(fetchMiddlewares<RequestHandler>(UsersController)),
             ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.getUsers)),
@@ -567,40 +549,13 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.post('/organs/:platformId',
-            authenticateMiddleware([{"jwt":[]}]),
-            ...(fetchMiddlewares<RequestHandler>(OrgansController)),
-            ...(fetchMiddlewares<RequestHandler>(OrgansController.prototype.createOrgan)),
-
-            function OrgansController_createOrgan(request: any, response: any, next: any) {
-            const args = {
-                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"IOrganCreationParams"},
-            };
-
-            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = getValidatedArgs(args, request, response);
-
-                const controller = new OrgansController();
-
-
-              const promise = controller.createOrgan.apply(controller, validatedArgs as any);
-              promiseHandler(controller, promise, response, 201, next);
-            } catch (err) {
-                return next(err);
-            }
-        });
-        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.get('/organs/:platformId',
+        app.post('/organs',
             authenticateMiddleware([{"jwt":[]}]),
             ...(fetchMiddlewares<RequestHandler>(OrgansController)),
             ...(fetchMiddlewares<RequestHandler>(OrgansController.prototype.getOrgans)),
 
             function OrgansController_getOrgans(request: any, response: any, next: any) {
             const args = {
-                    platformId: {"in":"path","name":"platformId","required":true,"dataType":"string"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -619,7 +574,7 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.put('/organs/:organId',
+        app.delete('/organs/:organId',
             authenticateMiddleware([{"jwt":[]}]),
             ...(fetchMiddlewares<RequestHandler>(OrgansController)),
             ...(fetchMiddlewares<RequestHandler>(OrgansController.prototype.updatePlateform)),
@@ -627,7 +582,6 @@ export function RegisterRoutes(app: Router) {
             function OrgansController_updatePlateform(request: any, response: any, next: any) {
             const args = {
                     organId: {"in":"path","name":"organId","required":true,"dataType":"string"},
-                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"IOrganUpdateParams"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -646,14 +600,13 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.post('/platforms',
-            authenticateMiddleware([{"jwt":[]}]),
-            ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
-            ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.createPlateform)),
+        app.post('/health',
+            ...(fetchMiddlewares<RequestHandler>(HealthController)),
+            ...(fetchMiddlewares<RequestHandler>(HealthController.prototype.createHealth)),
 
-            function PlatformsController_createPlateform(request: any, response: any, next: any) {
+            function HealthController_createHealth(request: any, response: any, next: any) {
             const args = {
-                    requestBody: {"in":"body","name":"requestBody","required":true,"dataType":"any"},
+                    requestBody: {"in":"body","name":"requestBody","required":true,"dataType":"array","array":{"dataType":"any"}},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -662,17 +615,17 @@ export function RegisterRoutes(app: Router) {
             try {
                 validatedArgs = getValidatedArgs(args, request, response);
 
-                const controller = new PlatformsController();
+                const controller = new HealthController();
 
 
-              const promise = controller.createPlateform.apply(controller, validatedArgs as any);
+              const promise = controller.createHealth.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, 201, next);
             } catch (err) {
                 return next(err);
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.get('/platforms',
+        app.post('/platforms',
             authenticateMiddleware([{"jwt":[]}]),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.getPlatforms)),
@@ -697,7 +650,7 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.get('/platforms/:platformId',
+        app.post('/platforms/:platformId',
             authenticateMiddleware([{"jwt":[]}]),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.getPlateform)),
@@ -757,7 +710,7 @@ export function RegisterRoutes(app: Router) {
             function PlatformsController_updatePlateform(request: any, response: any, next: any) {
             const args = {
                     platformId: {"in":"path","name":"platformId","required":true,"dataType":"string"},
-                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"IPlatformUpdateParams"},
+                    requestBody: {"in":"body","name":"requestBody","required":true,"dataType":"any"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -770,84 +723,6 @@ export function RegisterRoutes(app: Router) {
 
 
               const promise = controller.updatePlateform.apply(controller, validatedArgs as any);
-              promiseHandler(controller, promise, response, undefined, next);
-            } catch (err) {
-                return next(err);
-            }
-        });
-        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.get('/platforms/:platformId/getUserProfileList',
-            authenticateMiddleware([{"jwt":[]}]),
-            ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
-            ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.getUserProfileList)),
-
-            function PlatformsController_getUserProfileList(request: any, response: any, next: any) {
-            const args = {
-                    platformId: {"in":"path","name":"platformId","required":true,"dataType":"string"},
-            };
-
-            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = getValidatedArgs(args, request, response);
-
-                const controller = new PlatformsController();
-
-
-              const promise = controller.getUserProfileList.apply(controller, validatedArgs as any);
-              promiseHandler(controller, promise, response, undefined, next);
-            } catch (err) {
-                return next(err);
-            }
-        });
-        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.get('/platforms/:platformId/getAppProfileList',
-            authenticateMiddleware([{"jwt":[]}]),
-            ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
-            ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.getAppProfileService)),
-
-            function PlatformsController_getAppProfileService(request: any, response: any, next: any) {
-            const args = {
-                    platformId: {"in":"path","name":"platformId","required":true,"dataType":"string"},
-            };
-
-            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = getValidatedArgs(args, request, response);
-
-                const controller = new PlatformsController();
-
-
-              const promise = controller.getAppProfileService.apply(controller, validatedArgs as any);
-              promiseHandler(controller, promise, response, undefined, next);
-            } catch (err) {
-                return next(err);
-            }
-        });
-        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.get('/platforms/:platformId/platformLogs',
-            authenticateMiddleware([{"jwt":[]}]),
-            ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
-            ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.getPlatformLogs)),
-
-            function PlatformsController_getPlatformLogs(request: any, response: any, next: any) {
-            const args = {
-                    platformId: {"in":"path","name":"platformId","required":true,"dataType":"string"},
-            };
-
-            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = getValidatedArgs(args, request, response);
-
-                const controller = new PlatformsController();
-
-
-              const promise = controller.getPlatformLogs.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);

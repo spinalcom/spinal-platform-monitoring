@@ -39,6 +39,7 @@ import {
   IOrganCreationParams,
   IOrganUpdateParams,
   IOrgan,
+  StatusOrgan
 } from './organ.model';
 import SpinalMiddleware from '../spinalMiddleware';
 
@@ -49,28 +50,43 @@ export class OrganService {
     this.spinalMiddleware.init();
     this.graph = this.spinalMiddleware.getGraph();
   }
-
   public async createOrgan(
     organCreationParms: IOrganCreationParams
   ): Promise<IOrgan> {
-    const platformContext = SpinalGraphService.getContext('platformList');
+    const oragnListContext = SpinalGraphService.getContext('organList');
     const organObject: IOrganCreationParams = {
       name: organCreationParms.name,
       type: ORGAN_TYPE,
       organType: organCreationParms.organType,
-      statusOrgan: '',
+      statusOrgan: organCreationParms.statusOrgan,
+      bootTimestamp: organCreationParms.bootTimestamp,
+      lastHealthTime: organCreationParms.lastHealthTime,
+      ramHeapUsed: organCreationParms.ramHeapUsed,
+      ipAdress: organCreationParms.ipAdress,
+      port: organCreationParms.port,
+      protocol: organCreationParms.protocol,
       platformId: organCreationParms.platformId,
     };
     const OrganId = SpinalGraphService.createNode(organObject, undefined);
-    const platforms = await platformContext.getChildren('HasPlatform');
+    var res = await SpinalGraphService.addChildInContext(
+      oragnListContext.getId().get(),
+      OrganId,
+      oragnListContext.getId().get(),
+      MONITORING_SERVICE_ORGAN_RELATION_NAME,
+      MONITORING_SERVICE_RELATION_TYPE_PTR_LST
+    );
+    const platformListContext = SpinalGraphService.getContext('platformList');
+    const platforms = await platformListContext.getChildren('HasPlatform');
     for (const platform of platforms) {
       if (platform.getId().get() === organCreationParms.platformId) {
         //@ts-ignore
         SpinalGraphService._addNode(platform);
+        await SpinalGraphService.addChild(platform.getId().get(), OrganId, MONITORING_SERVICE_ORGAN_RELATION_NAME,
+          MONITORING_SERVICE_RELATION_TYPE_PTR_LST)
         var res = await SpinalGraphService.addChildInContext(
           platform.getId().get(),
           OrganId,
-          platformContext.getId().get(),
+          oragnListContext.getId().get(),
           MONITORING_SERVICE_ORGAN_RELATION_NAME,
           MONITORING_SERVICE_RELATION_TYPE_PTR_LST
         );
@@ -82,75 +98,76 @@ export class OrganService {
         name: res.getName().get(),
         type: res.getType().get(),
         statusOrgan: res.info.statusOrgan.get(),
+        bootTimestamp: res.info.bootTimestamp.get(),
+        lastHealthTime: res.info.lastHealthTime.get(),
+        ramHeapUsed: res.info.ramHeapUsed.get(),
+        ipAdress: res.info.ipAdress.get(),
+        port: res.info.port.get(),
+        protocol: res.info.protocol.get(),
         organType: res.info.organType.get(),
         platformId: res.info.platformId.get(),
       };
     }
   }
 
-  public async getOrgans(platformId: string): Promise<IOrgan[]> {
+  public async getOrgans(): Promise<IOrgan[]> {
     try {
       var organsObjectList = [];
-      const contexts = await this.graph.getChildren('hasContext');
-      for (const context of contexts) {
-        if (context.getName().get() === PLATFORM_LIST) {
-          const platforms = await context.getChildren(
-            MONITORING_SERVICE_PLATFORM_RELATION_NAME
-          );
-          for (const platform of platforms) {
-            if (platform.getId().get() === platformId) {
-              var organs = await platform.getChildren('HasOrgan');
-              for (const organ of organs) {
-                var OrganObject: IOrgan = {
-                  id: organ.getId().get(),
-                  type: organ.getType().get(),
-                  name: organ.getName().get(),
-                  statusOrgan: organ.info.statusOrgan.get(),
-                  organType: organ.info.organType.get(),
-                  platformId: organ.info.platformId.get(),
-                };
-                organsObjectList.push(OrganObject);
-              }
-            }
-          }
-        }
+      const context = SpinalGraphService.getContext('organList')
+      const organs = await context.getChildren(
+        MONITORING_SERVICE_ORGAN_RELATION_NAME
+      );
+      for (const organ of organs) {
+        var OrganObject: IOrgan = {
+          id: organ.getId().get(),
+          type: organ.getType().get(),
+          name: organ.getName().get(),
+          bootTimestamp: organ.info.bootTimestamp.get(),
+          lastHealthTime: organ.info.lastHealthTime.get(),
+          ramHeapUsed: organ.info.ramHeapUsed.get(),
+          statusOrgan: organ.info.statusOrgan.get(),
+          organType: organ.info.organType.get(),
+          platformId: organ.info.platformId.get(),
+          ipAdress: organ.info.ipAdress.get(),
+          port: organ.info.port.get(),
+          protocol: organ.info.protocol.get(),
+        };
+        organsObjectList.push(OrganObject);
       }
+
       return organsObjectList;
     } catch (error) {
       return error;
     }
   }
 
-  public async getOrgan(platformId: string, organId: string): Promise<IOrgan> {
-    const contexts = await this.graph.getChildren('hasContext');
-    for (const context of contexts) {
-      if (context.getName().get() === PLATFORM_LIST) {
-        const platforms = await context.getChildren(
-          MONITORING_SERVICE_PLATFORM_RELATION_NAME
-        );
-        for (const platform of platforms) {
-          if (platform.getId().get() === platformId) {
-            var organs = await platform.getChildren('HasOrgan');
-            for (const organ of organs) {
-              if (organ.getId().get() === organId) {
-                var OrganObject: IOrgan = {
-                  id: organ.getId().get(),
-                  type: organ.getType().get(),
-                  name: organ.getName().get(),
-                  statusOrgan: organ.info.statusOrgan.get(),
-                  organType: organ.info.organType.get(),
-                  platformId: organ.info.platformId.get(),
-                };
-              }
-            }
-          }
-        }
-        if (OrganObject) {
-          return OrganObject;
-        } else {
-          throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
+  public async getOrgan(organId: string): Promise<IOrgan> {
+    try {
+      const context = SpinalGraphService.getContext('organList')
+      const organs = await context.getChildren(
+        MONITORING_SERVICE_ORGAN_RELATION_NAME
+      );
+      for (const organ of organs) {
+        if (organ.getId().get() === organId) {
+          var OrganObject: IOrgan = {
+            id: organ.getId().get(),
+            type: organ.getType().get(),
+            name: organ.getName().get(),
+            bootTimestamp: organ.info.bootTimestamp.get(),
+            lastHealthTime: organ.info.lastHealthTime.get(),
+            ramHeapUsed: organ.info.ramHeapUsed.get(),
+            statusOrgan: organ.info.statusOrgan.get(),
+            organType: organ.info.organType.get(),
+            platformId: organ.info.platformId.get(),
+            ipAdress: organ.info.ipAdress.get(),
+            port: organ.info.port.get(),
+            protocol: organ.info.protocol.get(),
+          };
         }
       }
+      return OrganObject;
+    } catch (error) {
+      return error;
     }
   }
 
@@ -158,56 +175,49 @@ export class OrganService {
     organId: string,
     requestBody: IOrganUpdateParams
   ): Promise<IOrgan> {
-    const contexts = await this.graph.getChildren('hasContext');
-    for (const context of contexts) {
-      if (context.getName().get() === PLATFORM_LIST) {
-        const platforms = await context.getChildren(
-          MONITORING_SERVICE_PLATFORM_RELATION_NAME
-        );
-        for (const platform of platforms) {
-          if (platform.getId().get() === requestBody.platformId) {
-            var organs = await platform.getChildren('HasOrgan');
-            for (const organ of organs) {
-              if (organ.getId().get() === organId) {
-                organ.info.name.set(requestBody.name);
-                organ.info.organType.set(requestBody.organType);
-                organ.info.statusOrgan.set(requestBody.statusOrgan);
 
-                var OrganObject: IOrgan = {
-                  id: organ.getId().get(),
-                  type: organ.getType().get(),
-                  name: organ.getName().get(),
-                  statusOrgan: organ.info.statusOrgan.get(),
-                  organType: organ.info.organType.get(),
-                  platformId: organ.info.platformId.get(),
-                };
-              }
-            }
-          }
-        }
+    const context = SpinalGraphService.getContext('organList')
+    const organs = await context.getChildren(
+      MONITORING_SERVICE_ORGAN_RELATION_NAME
+    ); for (const organ of organs) {
+      if (organ.getId().get() === organId) {
+        if (requestBody.name !== undefined) organ.info.name.set(requestBody.name)
+        if (requestBody.bootTimestamp !== undefined) organ.info.bootTimestamp.set(requestBody.bootTimestamp)
+        if (requestBody.lastHealthTime !== undefined) organ.info.lastHealthTime.set(requestBody.lastHealthTime)
+        if (requestBody.ramHeapUsed !== undefined) organ.info.ramHeapUsed.set(requestBody.ramHeapUsed)
+        if (requestBody.statusOrgan !== undefined) organ.info.statusOrgan.set(requestBody.statusOrgan)
+        if (requestBody.organType !== undefined) organ.info.organType.set(requestBody.organType)
+        if (requestBody.ipAdress !== undefined) organ.info.ipAdress.set(requestBody.ipAdress)
+        if (requestBody.port !== undefined) organ.info.port.set(requestBody.port)
+        if (requestBody.protocol !== undefined) organ.info.protocol.set(requestBody.protocol)
+        if (requestBody.platformId !== undefined) organ.info.platformId.set(requestBody.platformId)
+
+        var OrganObject: IOrgan = {
+          id: organ.getId().get(),
+          type: organ.getType().get(),
+          name: organ.getName().get(),
+          statusOrgan: organ.info.statusOrgan.get(),
+          bootTimestamp: organ.info.bootTimestamp.get(),
+          lastHealthTime: organ.info.lastHealthTime.get(),
+          ramHeapUsed: organ.info.ramHeapUsed.get(),
+          organType: organ.info.organType.get(),
+          platformId: organ.info.platformId.get(),
+        };
       }
     }
+
     if (OrganObject !== undefined) return OrganObject;
     else throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
   }
 
-  public async deleteOrgan(platformId: string, organId: string): Promise<void> {
-    const contexts = await this.graph.getChildren('hasContext');
-    for (const context of contexts) {
-      if (context.getName().get() === PLATFORM_LIST) {
-        const platforms = await context.getChildren(
-          MONITORING_SERVICE_PLATFORM_RELATION_NAME
-        );
-        for (const platform of platforms) {
-          if (platform.getId().get() === platformId) {
-            var organs = await platform.getChildren('HasOrgan');
-            for (const organ of organs) {
-              if (organ.getId().get() === organId) {
-                SpinalGraphService.removeFromGraph(organ.getId().get());
-              }
-            }
-          }
-        }
+  public async deleteOrgan(organId: string): Promise<void> {
+    const organListContext = SpinalGraphService.getContext('organList');
+    const organs = await organListContext.getChildren(
+      MONITORING_SERVICE_ORGAN_RELATION_NAME
+    );
+    for (const organ of organs) {
+      if (organ.getId().get() === organId) {
+        SpinalGraphService.removeFromGraph(organ.getId().get());
       }
     }
   }

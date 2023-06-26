@@ -44,11 +44,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersController = void 0;
 const tsoa_1 = require("tsoa");
 const userService_1 = require("./userService");
-let UsersController = class UsersController extends tsoa_1.Controller {
-    // @Security('jwt')
+let UsersController = exports.UsersController = class UsersController extends tsoa_1.Controller {
     createUser(requestBody) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("controller", requestBody);
             let user = new userService_1.UserService().createUser(requestBody);
             this.setStatus(201); // set return status 201rt
             return user;
@@ -56,6 +54,7 @@ let UsersController = class UsersController extends tsoa_1.Controller {
     }
     getUsers() {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log("controller");
             this.setStatus(201); // set return status 201
             return new userService_1.UserService().getUsers();
         });
@@ -125,6 +124,7 @@ let UsersController = class UsersController extends tsoa_1.Controller {
     }
 };
 __decorate([
+    (0, tsoa_1.Security)('jwt'),
     (0, tsoa_1.SuccessResponse)('201', 'Created') // Custom success response
     ,
     (0, tsoa_1.Post)(),
@@ -132,7 +132,7 @@ __decorate([
 ], UsersController.prototype, "createUser", null);
 __decorate([
     (0, tsoa_1.Security)('jwt'),
-    (0, tsoa_1.Get)()
+    (0, tsoa_1.Get)("/hello")
 ], UsersController.prototype, "getUsers", null);
 __decorate([
     (0, tsoa_1.Security)('jwt'),
@@ -178,8 +178,7 @@ __decorate([
     (0, tsoa_1.Get)('{userId}/userLogs'),
     __param(0, (0, tsoa_1.Path)())
 ], UsersController.prototype, "getUserLogs", null);
-UsersController = __decorate([
+exports.UsersController = UsersController = __decorate([
     (0, tsoa_1.Route)('users')
 ], UsersController);
-exports.UsersController = UsersController;
 //# sourceMappingURL=userController.js.map
