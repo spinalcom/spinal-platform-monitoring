@@ -45,8 +45,8 @@ import { OrganService } from './organService';
 
 @Route('organs')
 export class OrgansController extends Controller {
-  // @Security('jwt')
-  // @SuccessResponse('201', 'Created') // Custom success response
+  @Security('jwt')
+  @SuccessResponse('201', 'Created') // Custom success response
   // @Post()
   // public async createOrgan(
   //   @Body() requestBody: any
@@ -57,7 +57,7 @@ export class OrgansController extends Controller {
   // }
 
   @Security('jwt')
-  @Get()
+  @Post()
   public async getOrgans(): Promise<IOrgan[]> {
     this.setStatus(201); // set return status 201
     return new OrganService().getOrgans();
@@ -72,18 +72,18 @@ export class OrgansController extends Controller {
   }
 
 
-  // @Security('jwt')
-  // @Put('{organId}')
-  // public async updatePlateform(
-  //   @Path() organId: string,
-  //   @Body() requestBody: IOrganUpdateParams
-  // ): Promise<IOrgan> {
-  //   return new OrganService().updateOrgan(organId, requestBody);
-  // }
+  @Security('jwt')
+  @Put('{organId}')
+  public async updatePlateform(
+    @Path() organId: string,
+    @Body() requestBody: any
+  ): Promise<IOrgan> {
+    return new OrganService().updateOrgan(organId, requestBody);
+  }
 
   @Security('jwt')
   @Delete('{organId}')
-  public async updatePlateform(
+  public async deleteOrgan(
     @Path() organId: string,
   ): Promise<void> {
     return new OrganService().deleteOrgan(organId);

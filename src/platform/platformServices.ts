@@ -109,6 +109,8 @@ export class PlatformService {
         );
         // @ts-ignore
         SpinalGraphService._addNode(res);
+
+
         if (platformCreationParms.organList.length !== 0) {
           for (const organ of platformCreationParms.organList) {
             await SpinalGraphService.addChild(res.getId().get(), organ.organId, 'HasOrgan', MONITORING_SERVICE_RELATION_TYPE_PTR_LST);
@@ -119,6 +121,15 @@ export class PlatformService {
           throw new OperationError('NOT_CREATED', HttpStatusCode.BAD_REQUEST);
 
         } else {
+          let _organList = []
+          const _organs = await res.getChildren('HasOrgan')
+          for (const _organ of _organs) {
+            var _organObject = {
+              id: _organ.getId().get(),
+              name: _organ.getName().get(),
+            }
+            _organList.push(_organObject);
+          }
           // await this.logService.createLog(res, 'PlatformLogs', 'Register', 'Register Valid', "Register Valid");
           return {
             id: res.getId().get(),
@@ -139,7 +150,8 @@ export class PlatformService {
               url: res.info.infoWall.url.get(),
               login: res.info.infoWall.login.get(),
               password: res.info.infoWall.password.get(),
-            }
+            },
+            organList: _organList
           };
         }
       }
@@ -200,56 +212,57 @@ export class PlatformService {
     }
   }
   public async getPlateforms(): Promise<IPlatform[]> {
-    try {
-      var platformObjectList = [];
-      const contexts = await this.graph.getChildren('hasContext');
-      for (const context of contexts) {
-        if (context.getName().get() === PLATFORM_LIST) {
-          const platforms = await context.getChildren(
-            MONITORING_SERVICE_PLATFORM_RELATION_NAME
-          );
+    var platformObjectList = [];
+    const contexts = await this.graph.getChildren('hasContext');
+    for (const context of contexts) {
+      if (context.getName().get() === PLATFORM_LIST) {
+        const platforms = await context.getChildren(
+          MONITORING_SERVICE_PLATFORM_RELATION_NAME
+        );
 
-          for (const platform of platforms) {
-            const organList = await platform.getChildren('HasOrgan');
-            let _organList = [];
-            if (organList.length !== 0) {
-              for (const organ of organList) {
-                let infoOrgan = {
-                  id: organ.getId(),
-                  name: organ.getName(),
-                }
-                _organList.push(infoOrgan);
+        for (const platform of platforms) {
+          let _organList = [];
+          const organList = await platform.getChildren('HasOrgan');
+          if (organList.length !== 0) {
+            for (const organ of organList) {
+              let infoOrgan = {
+                id: organ.getId(),
+                name: organ.getName(),
               }
+              _organList.push(infoOrgan);
             }
-            var PlatformObject: IPlatform = {
-              id: platform.getId().get(),
-              type: platform.getType().get(),
-              name: platform.getName().get(),
-              statusPlatform: platform.info.statusPlatform.get(),
-              TokenBosRegister: platform.info.TokenBosRegister.get(),
-              infoHub: {
-                ip: platform.info.infoHub.ip.get(),
-                port: platform.info.infoHub.port.get(),
-                url: platform.info.infoHub.url.get(),
-                login: platform.info.infoHub.login.get(),
-                password: platform.info.infoHub.password.get(),
-              },
-              infoWall: {
-                ip: platform.info.infoWall.ip.get(),
-                port: platform.info.infoWall.port.get(),
-                url: platform.info.infoWall.url.get(),
-                login: platform.info.infoWall.login.get(),
-                password: platform.info.infoWall.password.get(),
-              },
-              organList: _organList
-            };
-            platformObjectList.push(PlatformObject);
           }
+
+          var PlatformObject: IPlatform = {
+            id: platform.getId().get(),
+            type: platform.getType().get(),
+            name: platform.getName().get(),
+            statusPlatform: platform.info.statusPlatform.get(),
+            TokenBosRegister: platform.info.TokenBosRegister.get(),
+            infoHub: {
+              ip: platform.info.infoHub.ip.get(),
+              port: platform.info.infoHub.port.get(),
+              url: platform.info.infoHub.url.get(),
+              login: platform.info.infoHub.login.get(),
+              password: platform.info.infoHub.password.get(),
+            },
+            infoWall: {
+              ip: platform.info.infoWall.ip.get(),
+              port: platform.info.infoWall.port.get(),
+              url: platform.info.infoWall.url.get(),
+              login: platform.info.infoWall.login.get(),
+              password: platform.info.infoWall.password.get(),
+            },
+            organList: _organList
+          };
+          platformObjectList.push(PlatformObject);
         }
       }
+    }
+    if (platformObjectList) {
       return platformObjectList;
-    } catch (error) {
-      return error;
+    } else {
+      throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
     }
   }
   public async updatePlateform(
@@ -351,10 +364,13 @@ export class PlatformService {
         var platformFound: SpinalNode<any>
         for (const platform of platforms) {
           if (platform.getId().get() === id) {
-            platformFound = platform;
+            if (platform.getName().get() === "monitoringPlatform") {
+              throw new OperationError('UNAUTHORIZED ROLE', HttpStatusCode.FORBIDDEN);
+            } else {
+              platformFound = platform;
+            }
           }
         }
-
         if (platformFound !== undefined) {
           // await this.logService.createLog(platformFound, 'PlatformLogs', 'Delete', 'Delete Valid', "Delete Valid");
           await platformFound.removeFromGraph();
@@ -370,25 +386,15 @@ export class PlatformService {
   public async createOrUpdateMonitoringPlateform(): Promise<IPlatform> {
 
     const contexts = await this.graph.getChildren('hasContext');
-    // const platformListContext = SpinalGraphService.getContext('platformList')
-    // const organListContext = SpinalGraphService.getContext('organList')
     for (const context of contexts) {
       if (context.getName().get() === PLATFORM_LIST) {
-        const platforms = await context.getChildren('HasPlatform');
-        // if (platforms.length === 0) {
-        //   for (const platform of platforms) {
-        //     if (platform.getName().get() === 'monitoringPlatform') {
-
-        //     }
-        //   }
-        // }
-
         // @ts-ignore
         SpinalGraphService._addNode(context);
         const platformObject: IPlateformCreationParams = {
           name: 'monitoringPlatform',
           type: PLATFORM_TYPE,
           statusPlatform: statusPlatform.online,
+          TokenBosRegister: "",
           infoHub: {
             ip: process.env.SPINALHUB_IP,
             port: parseInt(process.env.SPINALHUB_PORT),
@@ -402,7 +408,8 @@ export class PlatformService {
             url: "",
             login: "",
             password: "",
-          }
+          },
+          organList: []
         };
         const PlatformId = SpinalGraphService.createNode(
           platformObject,

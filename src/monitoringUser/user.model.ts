@@ -33,6 +33,10 @@ export interface IUser {
   email: string;
   password: string;
   userType: string;
+  platformList?: {
+    name: string;
+    id: string;
+  }[]
 }
 export enum IUserType {
   'MonitoringAdmin' = 'MonitoringAdmin',
@@ -43,9 +47,14 @@ export enum IUserType {
  * @interface IUserCreationParams
  */
 export interface IUserCreationParams {
+  name: string;
   email: string;
   userType: string;
   password: string;
+  platformList: {
+    name: string;
+    id: string;
+  }[]
 }
 
 export interface IUserUpdateParams {
@@ -53,8 +62,11 @@ export interface IUserUpdateParams {
   email?: string;
   oldPassword?: string;
   newPassword?: string;
-  password?: string;
   userType?: string;
+  platformList?: {
+    name: string;
+    id: string;
+  }[]
 }
 
 

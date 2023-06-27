@@ -33,6 +33,7 @@ const models: TsoaRoute.Models = {
             "email": {"dataType":"string","required":true},
             "password": {"dataType":"string","required":true},
             "userType": {"dataType":"string","required":true},
+            "platformList": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"id":{"dataType":"string","required":true},"name":{"dataType":"string","required":true}}}},
         },
         "additionalProperties": false,
     },
@@ -40,9 +41,11 @@ const models: TsoaRoute.Models = {
     "IUserCreationParams": {
         "dataType": "refObject",
         "properties": {
+            "name": {"dataType":"string","required":true},
             "email": {"dataType":"string","required":true},
             "userType": {"dataType":"string","required":true},
             "password": {"dataType":"string","required":true},
+            "platformList": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"id":{"dataType":"string","required":true},"name":{"dataType":"string","required":true}}},"required":true},
         },
         "additionalProperties": false,
     },
@@ -54,8 +57,8 @@ const models: TsoaRoute.Models = {
             "email": {"dataType":"string"},
             "oldPassword": {"dataType":"string"},
             "newPassword": {"dataType":"string"},
-            "password": {"dataType":"string"},
             "userType": {"dataType":"string"},
+            "platformList": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"id":{"dataType":"string","required":true},"name":{"dataType":"string","required":true}}}},
         },
         "additionalProperties": false,
     },
@@ -424,31 +427,6 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.post('/users/userProfilesList',
-            authenticateMiddleware([{"jwt":[]}]),
-            ...(fetchMiddlewares<RequestHandler>(UsersController)),
-            ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.userProfilesList)),
-
-            function UsersController_userProfilesList(request: any, response: any, next: any) {
-            const args = {
-            };
-
-            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = getValidatedArgs(args, request, response);
-
-                const controller = new UsersController();
-
-
-              const promise = controller.userProfilesList.apply(controller, validatedArgs as any);
-              promiseHandler(controller, promise, response, undefined, next);
-            } catch (err) {
-                return next(err);
-            }
-        });
-        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/users/login',
             ...(fetchMiddlewares<RequestHandler>(UsersController)),
             ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.login)),
@@ -549,8 +527,8 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.get('/organs',
-            authenticateMiddleware([{"jwt":[]}]),
+        app.post('/organs',
+            authenticateMiddleware([{"jwt":[]},{"jwt":[]}]),
             ...(fetchMiddlewares<RequestHandler>(OrgansController)),
             ...(fetchMiddlewares<RequestHandler>(OrgansController.prototype.getOrgans)),
 
@@ -568,7 +546,7 @@ export function RegisterRoutes(app: Router) {
 
 
               const promise = controller.getOrgans.apply(controller, validatedArgs as any);
-              promiseHandler(controller, promise, response, undefined, next);
+              promiseHandler(controller, promise, response, 201, next);
             } catch (err) {
                 return next(err);
             }
@@ -600,12 +578,39 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.delete('/organs/:organId',
+        app.put('/organs/:organId',
             authenticateMiddleware([{"jwt":[]}]),
             ...(fetchMiddlewares<RequestHandler>(OrgansController)),
             ...(fetchMiddlewares<RequestHandler>(OrgansController.prototype.updatePlateform)),
 
             function OrgansController_updatePlateform(request: any, response: any, next: any) {
+            const args = {
+                    organId: {"in":"path","name":"organId","required":true,"dataType":"string"},
+                    requestBody: {"in":"body","name":"requestBody","required":true,"dataType":"any"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new OrgansController();
+
+
+              const promise = controller.updatePlateform.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.delete('/organs/:organId',
+            authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(OrgansController)),
+            ...(fetchMiddlewares<RequestHandler>(OrgansController.prototype.deleteOrgan)),
+
+            function OrgansController_deleteOrgan(request: any, response: any, next: any) {
             const args = {
                     organId: {"in":"path","name":"organId","required":true,"dataType":"string"},
             };
@@ -619,7 +624,7 @@ export function RegisterRoutes(app: Router) {
                 const controller = new OrgansController();
 
 
-              const promise = controller.updatePlateform.apply(controller, validatedArgs as any);
+              const promise = controller.deleteOrgan.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);
@@ -654,6 +659,32 @@ export function RegisterRoutes(app: Router) {
         app.post('/platforms',
             authenticateMiddleware([{"jwt":[]}]),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
+            ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.createPlateform)),
+
+            function PlatformsController_createPlateform(request: any, response: any, next: any) {
+            const args = {
+                    requestBody: {"in":"body","name":"requestBody","required":true,"dataType":"any"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new PlatformsController();
+
+
+              const promise = controller.createPlateform.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, 201, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/platforms',
+            authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.getPlatforms)),
 
             function PlatformsController_getPlatforms(request: any, response: any, next: any) {
@@ -676,7 +707,7 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.post('/platforms/:platformId',
+        app.get('/platforms/:platformId',
             authenticateMiddleware([{"jwt":[]}]),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.getPlateform)),

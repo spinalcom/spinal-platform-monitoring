@@ -50,8 +50,6 @@ export class UsersController extends Controller {
   @Security('jwt')
   @Get('/')
   public async getUsers(): Promise<IUser[]> {
-    console.log('controller');
-
     this.setStatus(201); // set return status 201
     return new UserService().getUsers();
   }
@@ -102,12 +100,7 @@ export class UsersController extends Controller {
     return new UserService().getMonitoringAdmin();
   }
 
-  @Security('jwt')
-  @Post('/userProfilesList')
-  public async userProfilesList(): Promise<any[]> {
-    this.setStatus(201); // set return status 201
-    return new UserService().userProfilesList();
-  }
+
 
   @Post('/login')
   public async login(

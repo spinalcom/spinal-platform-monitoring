@@ -31,6 +31,7 @@ import {
   TOKEN_TYPE,
   TOKEN_LIST,
   MONITORING_SERVICE_TOKEN_RELATION_NAME,
+  MONITORING_SERVICE_PLATFORM_RELATION_NAME
 } from '../constant';
 import {
   SpinalGraphService,
@@ -91,43 +92,53 @@ export class UserService {
         }
         var userNode: SpinalNode<any> = bcrypt
           .hash(userCreationParams.password, 10)
-        console.log(userNode);
+          .then(async (hash) => {
+            const userObject = {
+              type: USER_TYPE,
+              name: userCreationParams.name,
+              email: userCreationParams.email,
+              userType: userCreationParams.userType,
+              password: hash,
+            };
+            if (userObject.userType !== 'MonitoringAdmin') {
+              const UserId = SpinalGraphService.createNode(
+                userObject,
+                undefined
+              );
 
-        // .then(async (hash) => {
-        //   const userObject = {
-        //     type: USER_TYPE,
-        //     name: userCreationParams.email,
-        //     email: userCreationParams.email,
-        //     userType: userCreationParams.userType,
-        //     password: hash,
-        //   };
-        //   if (userObject.userType !== 'MonitoringAdmin') {
-        //     const UserId = SpinalGraphService.createNode(
-        //       userObject,
-        //       undefined
-        //     );
+              const res = await SpinalGraphService.addChildInContext(
+                context.getId().get(),
+                UserId,
+                context.getId().get(),
+                MONITORING_SERVICE_USER_RELATION_NAME,
+                MONITORING_SERVICE_RELATION_TYPE_PTR_LST
+              );
+              if (userCreationParams.platformList.length !== 0) {
+                for (const platform of userCreationParams.platformList) {
+                  await SpinalGraphService.addChild(res.getId().get(), platform.id, MONITORING_SERVICE_PLATFORM_RELATION_NAME, MONITORING_SERVICE_RELATION_TYPE_PTR_LST)
+                }
 
-        //     const res = await SpinalGraphService.addChildInContext(
-        //       context.getId().get(),
-        //       UserId,
-        //       context.getId().get(),
-        //       MONITORING_SERVICE_USER_RELATION_NAME,
-        //       MONITORING_SERVICE_RELATION_TYPE_PTR_LST
-        //     );
-        //     return res
-        //   } else {
-        //     return undefined;
-        //   }
-        // });
-
-        const userCreated = userNode;
-        console.log("userCreated", await userCreated);
-
+              }
+              return res
+            } else {
+              return undefined;
+            }
+          });
+        const userCreated = await userNode;
         if (userCreated === undefined) {
           // await this.logService.createLog(userCreated, 'UserLogs', 'Create', 'Create Not Valid', "Create Not Valid");
           throw new OperationError('NOT_CREATED', HttpStatusCode.BAD_REQUEST);
         } else {
           // await this.logService.createLog(userCreated, 'UserLogs', 'Create', 'Create Valid', "Create Valid");
+          let _platformList = []
+          const _platforms = await userCreated.getChildren('HasPlatform')
+          for (const _platform of _platforms) {
+            var _platformObject = {
+              id: _platform.getId().get(),
+              name: _platform.getName().get(),
+            }
+            _platformList.push(_platformObject);
+          }
           return {
             id: userCreated.getId().get(),
             type: userCreated.getType().get(),
@@ -135,7 +146,8 @@ export class UserService {
             email: userCreated.info.email.get(),
             password: userCreated.info.password.get(),
             userType: userCreated.info.userType.get(),
-          };;
+            platformList: _platformList
+          };
         }
       }
     }
@@ -180,28 +192,15 @@ export class UserService {
                       'MonitoringServiceUserCategory'
                     ) {
 
-                      // var platformList = [];
-                      // const userProfiles = await user.getChildren('HasUserProfile');
-                      // for (const userProfile of userProfiles) {
-                      //   const platformParents = await userProfile.getParents('HasUserProfile')
-                      //   for (const platformParent of platformParents) {
-                      //     if (platformParent !== undefined) {
-                      //       if (platformParent.getType().get() === "MonitoringServicePlatform") {
-                      //         platformList.push({
-                      //           platformId: platformParent.getId().get(),
-                      //           platformName: platformParent.getName().get(),
-                      //           idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
-                      //           userProfile: {
-                      //             userProfileAdminId: userProfile.getId().get(),
-                      //             userProfileBosConfigId: userProfile.info.userProfileId.get(),
-                      //             userProfileName: userProfile.getName().get()
-                      //           }
-                      //         })
-                      //       }
-                      //     }
-                      //   }
-                      // }
-
+                      var ObjectsPlatformList = [];
+                      const platformList = await user.getChildren(MONITORING_SERVICE_PLATFORM_RELATION_NAME);
+                      for (const platform of platformList) {
+                        let objectPlatform = {
+                          id: platform.getId().get(),
+                          name: platform.getName().get(),
+                        }
+                        ObjectsPlatformList.push(objectPlatform);
+                      }
 
                       const TokenId = SpinalGraphService.createNode(
                         {
@@ -231,6 +230,7 @@ export class UserService {
                         // @ts-ignore
                         expieredToken: decodedToken.exp,
                         userId: user.getId().get(),
+                        platformList: ObjectsPlatformList
                       };
                       // await this.logService.createLog(user, 'UserLogs', 'Connection', 'Login Valid', "Login Valid");
                       return tokenObj;
@@ -339,35 +339,23 @@ export class UserService {
       const context = SpinalGraphService.getContext(USER_LIST);
       const users = await context.getChildren('HasUser');
       for (const user of users) {
-        // var platformList = [];
-        // const userProfiles = await user.getChildren('HasUserProfile');
-        // for (const userProfile of userProfiles) {
-        //   const platformParents = await userProfile.getParents('HasUserProfile')
-        //   for (const platformParent of platformParents) {
-        //     if (platformParent !== undefined) {
-        //       if (platformParent.getType().get() === "MonitoringServicePlatform") {
-        //         platformList.push({
-        //           platformId: platformParent.getId().get(),
-        //           platformName: platformParent.getName().get(),
-        //           idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
-        //           userProfile: {
-        //             userProfileAdminId: userProfile.getId().get(),
-        //             userProfileBosConfigId: userProfile.info.userProfileId.get(),
-        //             userProfileName: userProfile.getName().get()
-        //           }
-        //         })
-        //       }
-        //     }
-        //   }
-        // }
-
-        var userObject: IUser = {
+        var ObjectsPlatformList = [];
+        const platformList = await user.getChildren(MONITORING_SERVICE_PLATFORM_RELATION_NAME);
+        for (const platform of platformList) {
+          let objectPlatform = {
+            name: platform.getName().get(),
+            id: platform.getId().get()
+          }
+          ObjectsPlatformList.push(objectPlatform);
+        }
+        let userObject: IUser = {
           id: user.getId().get(),
           type: user.getType().get(),
           name: user.getName().get(),
           password: user.info.password.get(),
           email: user.info.email.get(),
           userType: user.info.userType.get(),
+          platformList: ObjectsPlatformList,
         };
         usersObjectList.push(userObject);
       }
@@ -392,27 +380,15 @@ export class UserService {
         );
         for (const user of users) {
           if (user.getId().get() === id) {
-            // var platformList = [];
-            // const userProfiles = await user.getChildren('HasUserProfile');
-            // for (const userProfile of userProfiles) {
-            //   const platformParents = await userProfile.getParents('HasUserProfile')
-            //   for (const platformParent of platformParents) {
-            //     if (platformParent !== undefined) {
-            //       if (platformParent.getType().get() === "MonitoringServicePlatform") {
-            //         platformList.push({
-            //           platformId: platformParent.getId().get(),
-            //           platformName: platformParent.getName().get(),
-            //           idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
-            //           userProfile: {
-            //             userProfileAdminId: userProfile.getId().get(),
-            //             userProfileBosConfigId: userProfile.info.userProfileId.get(),
-            //             userProfileName: userProfile.getName().get()
-            //           }
-            //         })
-            //       }
-            //     }
-            //   }
-            // }
+            var ObjectsPlatformList = [];
+            const platformList = await user.getChildren(MONITORING_SERVICE_PLATFORM_RELATION_NAME);
+            for (const platform of platformList) {
+              let objectPlatform = {
+                name: platform.getName().get(),
+                id: platform.getId().get()
+              }
+              ObjectsPlatformList.push(objectPlatform);
+            }
             var userObject: IUser = {
               id: user.getId().get(),
               type: user.getType().get(),
@@ -420,6 +396,7 @@ export class UserService {
               password: user.info.password.get(),
               email: user.info.email.get(),
               userType: user.info.userType.get(),
+              platformList: ObjectsPlatformList
             };
           }
         }
@@ -439,7 +416,6 @@ export class UserService {
     const context = await SpinalGraphService.getContext(USER_LIST);
     const users = await context.getChildren(MONITORING_SERVICE_USER_RELATION_NAME);
     var userObject: IUser;
-
     for (const user of users) {
       if (userId !== user.getId().get())
         if (requestBody.email === user.info.email.get()) {
@@ -449,47 +425,46 @@ export class UserService {
     }
     for (const user of users) {
       if (user.getId().get() === userId) {
-        // if (user.info.userType.get() === "Admin") {
-        //   // await this.logService.createLog(user, 'UserLogs', 'Edit', 'Edit Not Valid', "modify this user with a username that is not authorized");
-        //   throw new OperationError('UNAUTHORIZED ROLE', HttpStatusCode.FORBIDDEN);
-        // }
+        if (user.info.userType.get() === "MonitoringAdmin" || requestBody.userType === "MonitoringAdmin") {
+          // await this.logService.createLog(user, 'UserLogs', 'Edit', 'Edit Not Valid', "modify this user with a username that is not authorized");
+          throw new OperationError('UNAUTHORIZED ROLE', HttpStatusCode.FORBIDDEN);
+        }
+        if (requestBody.oldPassword !== undefined || user.info.password !== "") {
+          const bcryptResult = bcrypt.compare(requestBody.oldPassword, user.info.password.get())
+            .then(async (valid) => {
+              if (!valid) {
+                // await this.logService.createLog(user, 'AdminLogs', 'Edit', 'Edit Not Valid', "invalid old password");
+                throw new OperationError(
+                  'ERROR_PASSWORD',
+                  HttpStatusCode.FORBIDDEN
+                );
+              } else {
+                bcrypt.hash(requestBody.newPassword, 10).then(async (hash) => {
+                  user.info.password.set(hash);
+                });
+              }
+            });
+          await bcryptResult;
+        }
+
         if (requestBody.email !== undefined) {
           user.info.email.set(requestBody.email);
-          user.info.name.set(requestBody.email);
         }
-        if (user.info.password !== undefined || user.info.password !== "") {
-          bcrypt
-            .hash(requestBody.password, 10)
-            .then(async (hash) => {
-              user.info.password.set(hash);
-            })
+        if (requestBody.name !== undefined) {
+          user.info.name.set(requestBody.name);
         }
-        // const oldUserProfileList = await user.getChildren('HasUserProfile');
-        // const newUserPlatformList = requestBody.platformList;
-        // await updateUserProfileList(oldUserProfileList, newUserPlatformList, user, this.graph);
-
-
-        // var platformList = [];
-        // const userProfiles = await user.getChildren('HasUserProfile');
-        // for (const userProfile of userProfiles) {
-        //   const platformParents = await userProfile.getParents('HasUserProfile')
-        //   for (const platformParent of platformParents) {
-        //     if (platformParent !== undefined) {
-        //       if (platformParent.getType().get() === "MonitoringServicePlatform") {
-        //         platformList.push({
-        //           platformId: platformParent.getId().get(),
-        //           platformName: platformParent.getName().get(),
-        //           idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
-        //           userProfile: {
-        //             userProfileAdminId: userProfile.getId().get(),
-        //             userProfileBosConfigId: userProfile.info.userProfileId.get(),
-        //             userProfileName: userProfile.getName().get()
-        //           }
-        //         })
-        //       }
-        //     }
-        //   }
-        // }
+        const oldUserPlatformList = await user.getChildren('HasPlatform');
+        const newUserPlatformList = requestBody.platformList;
+        await updateUserPlatformList(oldUserPlatformList, newUserPlatformList, user, this.graph);
+        var ObjectsPlatformList = [];
+        const platformList = await user.getChildren(MONITORING_SERVICE_PLATFORM_RELATION_NAME);
+        for (const platform of platformList) {
+          let objectPlatform = {
+            name: platform.getName().get(),
+            id: platform.getId().get()
+          }
+          ObjectsPlatformList.push(objectPlatform);
+        }
 
         userObject = {
           id: user.getId().get(),
@@ -498,9 +473,8 @@ export class UserService {
           password: user.info.password.get(),
           email: user.info.email.get(),
           userType: user.info.userType.get(),
-          // platformList: platformList,
+          platformList: ObjectsPlatformList,
         };
-
         if (userObject === undefined) {
           // await this.logService.createLog(user, 'UserLogs', 'Edit', 'Edit Not Valid', "Edit Not Valid");
           throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
@@ -523,7 +497,11 @@ export class UserService {
         var userFound: SpinalNode<any>;
         for (const user of users) {
           if (user.getId().get() === userId) {
-            userFound = user;
+            if (user.getName().get() === "MonitoringAdmin") {
+              throw new OperationError('UNAUTHORIZED ROLE', HttpStatusCode.FORBIDDEN);
+            } else {
+              userFound = user;
+            }
           }
         }
         if (userFound !== undefined) {
@@ -539,10 +517,11 @@ export class UserService {
 
   async createMonitoringAdmin(): Promise<IUser> {
     let userCreationParams: IUserCreationParams = {
+      name: "MonitoringAdmin",
       password: process.env.MONITORING_ADMIN_PASSWORD,
       email: process.env.MONITORING_ADMIN_EMAIL,
       userType: IUserType.MonitoringAdmin,
-      // platformList: [],
+      platformList: [],
     };
     const contexts = await this.graph.getChildren('hasContext');
     for (const context of contexts) {
@@ -552,7 +531,7 @@ export class UserService {
           .then(async (hash) => {
             const userObject = {
               type: USER_TYPE,
-              name: userCreationParams.email,
+              name: userCreationParams.name,
               password: hash,
               email: userCreationParams.email,
               userType: userCreationParams.userType,
@@ -697,9 +676,6 @@ export class UserService {
       }
     }
   }
-  public async userProfilesList() {
-    return []
-  }
   public async getRoles(): Promise<{ name: string }[]> {
     return [{ name: 'MonitoringAdmin' }, { name: 'User' }];
   }
@@ -745,13 +721,13 @@ export class UserService {
   }
 }
 
-async function updateUserProfileList(oldUserProfileList: SpinalNode<any>[], newUserPlatformList: any[], user: SpinalNode<any>, graph: SpinalGraph<any>) {
+async function updateUserPlatformList(oldUserPlatformList: SpinalNode<any>[], newUserPlatformList: any[], user: SpinalNode<any>, graph: SpinalGraph<any>) {
   var arrayDelete = [];
   var arrayCreate = [];
 
-  for (const olditem of oldUserProfileList) {
+  for (const olditem of oldUserPlatformList) {
     const resSome = newUserPlatformList.some(it => {
-      return it.userProfile.userProfileAdminId === olditem.getId().get();
+      return it.id === olditem.getId().get();
     });
     if (resSome === false) {
       arrayDelete.push(olditem);
@@ -759,39 +735,30 @@ async function updateUserProfileList(oldUserProfileList: SpinalNode<any>[], newU
   }
 
   for (const newItem of newUserPlatformList) {
-    const resSome = oldUserProfileList.some(it => {
-      return it.getId().get() === newItem.userProfile.userProfileAdminId;
+    const resSome = oldUserPlatformList.some(it => {
+      return it.getId().get() === newItem.id;
     });
     if (resSome === false) {
       arrayCreate.push(newItem);
     }
   }
-
   for (const arrdlt of arrayDelete) {
-    await user.removeChild(arrdlt, 'HasUserProfile', MONITORING_SERVICE_RELATION_TYPE_PTR_LST)
+    await user.removeChild(arrdlt, 'HasPlatform', MONITORING_SERVICE_RELATION_TYPE_PTR_LST)
   }
 
   for (const arrcrt of arrayCreate) {
-    const realNode = await getrealNodeProfile(arrcrt.userProfile.userProfileAdminId, arrcrt.platformId, graph)
-    await user.addChild(realNode, 'HasUserProfile', MONITORING_SERVICE_RELATION_TYPE_PTR_LST);
-  }
-
-}
-
-async function getrealNodeProfile(profileId: string, platformId: string, graph: SpinalGraph<any>) {
-  const contexts: SpinalNode<any>[] = await graph.getChildren('hasContext');
-  for (const context of contexts) {
-    const platforms = await context.getChildren('HasPlatform');
-    for (const platform of platforms) {
-      if (platform.getId().get() === platformId) {
-        const profiles = await platform.getChildren('HasUserProfile');
-        for (const profile of profiles) {
-          if (profile.getId().get() === profileId) {
-            return profile;
-          }
-        }
-      }
+    const realNode = await getrealNodePlatform(arrcrt.id);
+    if (realNode) {
+      await user.addChild(realNode, 'HasPlatform', MONITORING_SERVICE_RELATION_TYPE_PTR_LST);
     }
   }
-
+}
+async function getrealNodePlatform(platformId: string) {
+  const context = SpinalGraphService.getContext('platformList')
+  const platforms = await context.getChildren('HasPlatform');
+  for (const platform of platforms) {
+    if (platform.getId().get() === platformId) {
+      return platform;
+    }
+  }
 }

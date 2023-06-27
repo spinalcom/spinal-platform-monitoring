@@ -46,14 +46,14 @@ import { PlatformService } from './platformServices';
 
 @Route('platforms')
 export class PlatformsController extends Controller {
-  // @Security('jwt')
-  // @SuccessResponse('201', 'Created') // Custom success response
-  // @Post()
-  // public async createPlateform(@Body() requestBody): Promise<any> {
-  //   let platform = new PlatformService().createPlateform(requestBody);
-  //   this.setStatus(201); // set return status 201rt
-  //   return platform;
-  // }
+  @Security('jwt')
+  @SuccessResponse('201', 'Created') // Custom success response
+  @Post()
+  public async createPlateform(@Body() requestBody): Promise<any> {
+    let platform = new PlatformService().createPlateform(requestBody);
+    this.setStatus(201); // set return status 201rt
+    return platform;
+  }
 
   /**
    *
@@ -62,13 +62,13 @@ export class PlatformsController extends Controller {
    * @memberof PlatformsController
    */
   @Security('jwt')
-  @Post()
+  @Get()
   public async getPlatforms(): Promise<IPlatform[]> {
     return new PlatformService().getPlateforms();
   }
 
   @Security('jwt')
-  @Post('{platformId}')
+  @Get('{platformId}')
   public async getPlateform(@Path() platformId: string): Promise<IPlatform> {
     this.setStatus(201); // set return status 201
     return new PlatformService().getPlateform(platformId);

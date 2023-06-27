@@ -196,12 +196,15 @@ export class OrganService {
           id: organ.getId().get(),
           type: organ.getType().get(),
           name: organ.getName().get(),
-          statusOrgan: organ.info.statusOrgan.get(),
           bootTimestamp: organ.info.bootTimestamp.get(),
           lastHealthTime: organ.info.lastHealthTime.get(),
           ramHeapUsed: organ.info.ramHeapUsed.get(),
+          statusOrgan: organ.info.statusOrgan.get(),
           organType: organ.info.organType.get(),
           platformId: organ.info.platformId.get(),
+          ipAdress: organ.info.ipAdress.get(),
+          port: organ.info.port.get(),
+          protocol: organ.info.protocol.get(),
         };
       }
     }
@@ -217,8 +220,10 @@ export class OrganService {
     );
     for (const organ of organs) {
       if (organ.getId().get() === organId) {
-        SpinalGraphService.removeFromGraph(organ.getId().get());
+        console.log(organ.getName().get());
+        await organ.removeFromGraph()
       }
     }
   }
+
 }
