@@ -21,35 +21,4 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-export interface IOrgan {
-  id?: string;
-  bosId: string;
-  name?: string;
-  type?: string;
-  bootTimestamp?: number,
-  lastHealthTime?: number,
-  organType?: string;
-  platformId?: string;
-}
-export interface IOrganCreationParams {
-  bosId: string;
-  name: string;
-  type?: string;
-  bootTimestamp?: number;
-  lastHealthTime?: number;
-  organType?: string;
-  platformId?: string;
-}
 
-export interface IOrganUpdateParams {
-  name?: string;
-  statusOrgan?: StatusOrgan;
-  organType?: string;
-}
-
-
-export enum StatusOrgan {
-  'online' = 'online',
-  'fail' = 'fail',
-  'stop' = 'stop',
-}

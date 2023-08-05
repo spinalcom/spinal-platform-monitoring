@@ -47,39 +47,39 @@ import { OrganService } from './organService';
 export class OrgansController extends Controller {
   @Security('jwt')
   @SuccessResponse('201', 'Created') // Custom success response
-  // @Post()
-  // public async createOrgan(
-  //   @Body() requestBody: any
-  // ): Promise<IOrgan> {
-  //   let organ = new OrganService().createOrgan(requestBody);
-  //   this.setStatus(201); // set return status 201rt
-  //   return organ;
-  // }
-
-  @Security('jwt')
   @Post()
-  public async getOrgans(): Promise<IOrgan[]> {
-    this.setStatus(201); // set return status 201
-    return new OrganService().getOrgans();
-  }
-
-  @Security('jwt')
-  @Get('{organId}')
-  public async getOrgan(@Path() organId: string,
-  ): Promise<IOrgan> {
-    this.setStatus(201); // set return status 201
-    return new OrganService().getOrgan(organId);
-  }
-
-
-  @Security('jwt')
-  @Put('{organId}')
-  public async updatePlateform(
-    @Path() organId: string,
+  public async createOrgan(
     @Body() requestBody: any
   ): Promise<IOrgan> {
-    return new OrganService().updateOrgan(organId, requestBody);
+    let organ = new OrganService().createOrgan(requestBody);
+    this.setStatus(201); // set return status 201rt
+    return organ;
   }
+
+  // @Security('jwt')
+  // @Get()
+  // public async getOrgans(): Promise<IOrgan[]> {
+  //   this.setStatus(201); // set return status 201
+  //   return new OrganService().getOrgans();
+  // }
+
+  // @Security('jwt')
+  // @Get('{organId}')
+  // public async getOrgan(@Path() organId: string,
+  // ): Promise<IOrgan> {
+  //   this.setStatus(201); // set return status 201
+  //   return new OrganService().getOrgan(organId);
+  // }
+
+
+  // @Security('jwt')
+  // @Put('{organId}')
+  // public async updatePlateform(
+  //   @Path() organId: string,
+  //   @Body() requestBody: any
+  // ): Promise<IOrgan> {
+  //   return new OrganService().updateOrgan(organId, requestBody);
+  // }
 
   @Security('jwt')
   @Delete('{organId}')

@@ -33,6 +33,7 @@ import SpinalMiddleware from './spinalMiddleware';
 import { LOG_LIST, MONITORING_SERVICE_TOKEN_CATEGORY_RELATION_NAME, MONITORING_SERVICE_USER_RELATION_NAME, MONITORING_SERVICE_INFO_RELATION_NAME, MONITORING_SERVICE_LOG_CATEGORY_RELATION_NAME } from './constant'
 import { AuthGraphService } from './services/authGraphService';
 import { OrganService } from './organ/organService';
+import { notificationGoogleChat } from "./utilities/notificationGoogleChat";
 
 async function main() {
   const spinalMiddleware = SpinalMiddleware.getInstance();
@@ -41,7 +42,7 @@ async function main() {
   const authGraphService = new AuthGraphService(spinalMiddleware.getGraph());
   await authGraphService.init();
   const contexts = await spinalMiddleware.getGraph().getChildren('hasContext');
-
+  notificationGoogleChat();
   // config token context
   var tokensService = new TokensService();
   for (const context of contexts) {
@@ -75,10 +76,10 @@ async function main() {
   var plateformsService = new PlatformService();
   var plateforms = await plateformsService.getPlateforms();
   if (plateforms.length === 0) {
-    let res = await plateformsService.createOrUpdateMonitoringPlateform();
-    if (res !== undefined) {
-      console.log('Monitoring Platform created ...');
-    }
+    // let res = await plateformsService.createOrUpdateMonitoringPlateform();
+    // if (res !== undefined) {
+    //   console.log('Monitoring Platform created ...');
+    // }
   }
 
   // start organ with register key config

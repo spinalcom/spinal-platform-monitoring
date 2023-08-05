@@ -31,7 +31,8 @@ import {
   TOKEN_TYPE,
   TOKEN_LIST,
   MONITORING_SERVICE_TOKEN_RELATION_NAME,
-  MONITORING_SERVICE_PLATFORM_RELATION_NAME
+  MONITORING_SERVICE_PLATFORM_RELATION_NAME,
+  CATEGORY_NAME
 } from '../constant';
 import {
   SpinalGraphService,
@@ -57,6 +58,7 @@ import data from './profileUserListData';
 import bcrypt = require('bcrypt');
 import jwt = require('jsonwebtoken');
 import jwt_decode from 'jwt-decode';
+import serviceDocumentation from "spinal-env-viewer-plugin-documentation-service"
 /**
  * @export
  * @class UserService
@@ -99,6 +101,12 @@ export class UserService {
               email: userCreationParams.email,
               userType: userCreationParams.userType,
               password: hash,
+              [Symbol.iterator]: function* () {
+                let properties = Object.keys(this);
+                for (let i of properties) {
+                  yield [i, this[i]];
+                }
+              }
             };
             if (userObject.userType !== 'MonitoringAdmin') {
               const UserId = SpinalGraphService.createNode(
@@ -113,11 +121,15 @@ export class UserService {
                 MONITORING_SERVICE_USER_RELATION_NAME,
                 MONITORING_SERVICE_RELATION_TYPE_PTR_LST
               );
+
+              const category = await serviceDocumentation.addCategoryAttribute(res, CATEGORY_NAME)
+              for (const [key, value] of userObject) {
+                await serviceDocumentation.addAttributeByCategoryName(res, category.nameCat, key, value)
+              }
               if (userCreationParams.platformList.length !== 0) {
                 for (const platform of userCreationParams.platformList) {
                   await SpinalGraphService.addChild(res.getId().get(), platform.id, MONITORING_SERVICE_PLATFORM_RELATION_NAME, MONITORING_SERVICE_RELATION_TYPE_PTR_LST)
                 }
-
               }
               return res
             } else {

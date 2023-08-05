@@ -34,7 +34,10 @@ import {
   INFO_MONITORING,
   NOTIFICATION_LIST,
   SERVER_LIST,
-  ORGAN_LIST
+  ORGAN_LIST,
+  CUSTOMER_LIST,
+  SITE_LIST,
+  BUILDING_LIST
 } from '../constant';
 
 export class AuthGraphService {
@@ -52,6 +55,12 @@ export class AuthGraphService {
     var notifications: SpinalContext<spinal.Model>;
     var serverList: SpinalContext<spinal.Model>;
     var organList: SpinalContext<spinal.Model>;
+    var customerList: SpinalContext<spinal.Model>;
+    var siteList: SpinalContext<spinal.Model>;
+    var buildingList: SpinalContext<spinal.Model>;
+
+
+
 
     if ((await this.graph.getContext(USER_LIST)) === undefined) {
       userList = new SpinalContext(USER_LIST);
@@ -92,6 +101,20 @@ export class AuthGraphService {
       organList = new SpinalContext(ORGAN_LIST);
       promises.push(this.graph.addContext(organList));
     }
+
+    if ((await this.graph.getContext(CUSTOMER_LIST)) === undefined) {
+      customerList = new SpinalContext(CUSTOMER_LIST);
+      promises.push(this.graph.addContext(customerList));
+    }
+    if ((await this.graph.getContext(SITE_LIST)) === undefined) {
+      siteList = new SpinalContext(SITE_LIST);
+      promises.push(this.graph.addContext(siteList));
+    }
+    if ((await this.graph.getContext(BUILDING_LIST)) === undefined) {
+      buildingList = new SpinalContext(BUILDING_LIST);
+      promises.push(this.graph.addContext(buildingList));
+    }
+
 
     return Promise.all(promises).then(() => {
       return this.graph;

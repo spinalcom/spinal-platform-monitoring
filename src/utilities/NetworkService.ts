@@ -1,19 +1,19 @@
 /*
- * Copyright 2023 SpinalCom - www.spinalcom.com
- * 
+ * Copyright 2020 SpinalCom - www.spinalcom.com
+ *
  * This file is part of SpinalCore.
- * 
+ *
  * Please read all of the following terms and conditions
  * of the Free Software license Agreement ("Agreement")
  * carefully.
- * 
+ *
  * This Agreement is a legally binding contract between
  * the Licensee (as defined below) and SpinalCom that
  * sets forth the terms and conditions that govern your
  * use of the Program. By installing and/or using the
  * Program, you agree to abide by all the terms and
  * conditions stated or referenced herein.
- * 
+ *
  * If you do not agree to abide by these terms and
  * conditions, do not demonstrate your acceptance and do
  * not install or use the Program.
@@ -21,35 +21,14 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-export interface IOrgan {
-  id?: string;
-  bosId: string;
-  name?: string;
-  type?: string;
-  bootTimestamp?: number,
-  lastHealthTime?: number,
-  organType?: string;
-  platformId?: string;
-}
-export interface IOrganCreationParams {
-  bosId: string;
-  name: string;
-  type?: string;
-  bootTimestamp?: number;
-  lastHealthTime?: number;
-  organType?: string;
-  platformId?: string;
-}
 
-export interface IOrganUpdateParams {
-  name?: string;
-  statusOrgan?: StatusOrgan;
-  organType?: string;
-}
+import { NetworkService } from 'spinal-model-bmsnetwork'
 
-
-export enum StatusOrgan {
-  'online' = 'online',
-  'fail' = 'fail',
-  'stop' = 'stop',
+let instance = null;
+function getInstance(): NetworkService {
+  if (instance === null) {
+    instance = new NetworkService();
+  }
+  return instance;
 }
+export default getInstance

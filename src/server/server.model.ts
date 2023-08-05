@@ -22,50 +22,41 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
+import { type } from "os";
+
 export interface IServer {
   id: string;
-  name: string;
-  ip: string;
-  url: string;
-  sshLogin: string;
-  sshPassword: string;
-  serverType: string;
-  provider: string;
-  state: {
-    memory: string;
-    cache: string;
-    DD: string;
-    proc: string;
-  }
+  type?: string;
+  name?: string;
+  ipAdress?: string;
+  macAdress?: string;
+  sshLogin?: string;
+  sshPassword?: string;
+  boot_timestamp?: number;
+  last_health_time?: number;
+  serverType?: string;
 }
 export interface IServerCreationParams {
-  name: string;
-  ip: string;
-  url: string;
-  sshLogin: string;
-  sshPassword: string;
-  serverType: string;
-  provider: string;
-  state: {
-    memory: string;
-    cache: string;
-    DD: string;
-    proc: string;
-  }
+  type?: string;
+  name?: string;
+  ipAdress?: string;
+  macAdress?: string;
+  sshLogin?: string;
+  sshPassword?: string;
+  boot_timestamp?: number;
+  last_health_time?: number;
+  serverType?: string;
+  [Symbol.iterator](): Iterator<any>;
 }
 
 export interface IServerUpdateParams {
+  type?: string;
   name?: string;
-  ip?: string;
-  url?: string;
+  ipAdress?: string;
+  macAdress?: string;
   sshLogin?: string;
   sshPassword?: string;
+  boot_timestamp?: number;
+  last_health_time?: number;
   serverType?: string;
-  provider?: string;
-  state: {
-    memory?: string;
-    cache?: string;
-    DD: string;
-    proc?: string;
-  }
 }

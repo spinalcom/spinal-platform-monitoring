@@ -27,6 +27,15 @@ export interface IHealth {
   specificOrganData: ISpecificOrganData;
 }
 
+export interface IHealthCreationParams {
+  TokenBosRegister: string;
+  infoOrgans: {
+    genericOrganData: IGenericOrganData;
+    specificOrganData: ISpecificOrganData;
+  }[]
+
+}
+
 interface ILog {
   timeStamp: number,
   message: string

@@ -36,7 +36,7 @@ import {
   SuccessResponse,
 } from 'tsoa';
 import { HealthService } from './healthService';
-import { IHealth } from './health.model';
+import { IHealth, IHealthCreationParams } from './health.model';
 
 @Route('health')
 export class HealthController extends Controller {
@@ -44,11 +44,9 @@ export class HealthController extends Controller {
   @SuccessResponse('201', 'Created') // Custom success response
   @Post()
   public async createHealth(
-    @Body() requestBody: any[]
-  ): Promise<IHealth> {
-    console.log(requestBody);
-    let health = new HealthService().createHealth(requestBody)
+    @Body() requestBody: any
+  ): Promise<any> {
     this.setStatus(201); // set return status 201rt
-    return health;
+    return new HealthService().createHealth(requestBody)
   }
 }

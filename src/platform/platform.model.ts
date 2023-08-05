@@ -27,22 +27,14 @@ export interface IPlatform {
   id: string;
   name: string;
   type: string;
-  statusPlatform: statusPlatform;
+  platformType: string;
   TokenBosRegister?: string;
-  infoHub: {
-    ip: string;
-    port: number;
-    url: string;
-    login: string;
-    password: string;
-  },
-  infoWall: {
-    ip: string;
-    port: number;
-    url: string;
-    login: string;
-    password: string;
-  },
+  ipAdress: string;
+  port: number;
+  urlServerApi: string;
+  login: string;
+  password: string;
+  errorHistory: string;
   organList?: {
     organId: string;
     organName: string;
@@ -51,23 +43,15 @@ export interface IPlatform {
 
 export interface IPlateformCreationParams {
   name: string;
-  type?: string;
-  statusPlatform?: statusPlatform;
+  type: string;
+  platformType: string;
   TokenBosRegister?: string;
-  infoHub?: {
-    ip: string;
-    port: number;
-    url: string;
-    login: string;
-    password: string;
-  },
-  infoWall?: {
-    ip: string;
-    port: number;
-    url: string;
-    login: string;
-    password: string;
-  },
+  ipAdress: string;
+  port: number;
+  urlServerApi: string;
+  login: string;
+  password: string;
+  errorHistory: string;
   organList?: {
     organId: string;
     organName: string;
@@ -75,22 +59,16 @@ export interface IPlateformCreationParams {
 }
 
 export interface IPlatformUpdateParams {
-  name?: string;
-  statusPlatform?: statusPlatform;
-  infoHub: {
-    ip?: string;
-    port?: number;
-    url?: string;
-    login?: string;
-    password?: string;
-  },
-  infoWall: {
-    ip?: string;
-    port?: number;
-    url?: string;
-    login?: string;
-    password?: string;
-  },
+  name: string;
+  type: string;
+  platformType: string;
+  TokenBosRegister?: string;
+  ipAdress: string;
+  port: number;
+  urlServerApi: string;
+  login: string;
+  password: string;
+  errorHistory: string;
   organList?: {
     organId: string;
     organName: string;
@@ -106,13 +84,6 @@ export interface IRegisterKeyObject {
   type: string;
   value: string;
 }
-
-export enum statusPlatform {
-  'online' = 'online',
-  'fail' = 'fail',
-  'stop' = 'stop',
-}
-
 export interface IPlatformLogs {
   id: string;
   name: string;

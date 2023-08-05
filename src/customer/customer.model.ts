@@ -21,35 +21,49 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-export interface IOrgan {
+
+import { type } from "os";
+
+export interface ICustomer {
+  id: string;
+  type?: string;
+  name?: string;
+  service?: string;
+  contacts?: IContact[]
+
+}
+
+export interface IContact {
   id?: string;
-  bosId: string;
   name?: string;
   type?: string;
-  bootTimestamp?: number,
-  lastHealthTime?: number,
-  organType?: string;
-  platformId?: string;
+  email?: string;
+  telephone?: number;
+  category?: string;
 }
-export interface IOrganCreationParams {
-  bosId: string;
-  name: string;
+export interface ICustomerCreationParams {
   type?: string;
-  bootTimestamp?: number;
-  lastHealthTime?: number;
-  organType?: string;
-  platformId?: string;
-}
-
-export interface IOrganUpdateParams {
   name?: string;
-  statusOrgan?: StatusOrgan;
-  organType?: string;
+  service?: string;
+  contacts?: IContactCreationParams[]
+  [Symbol.iterator](): Iterator<any>;
 }
 
+export interface ICustomerUpdateParams {
+  name?: string;
+  service?: string;
+}
 
-export enum StatusOrgan {
-  'online' = 'online',
-  'fail' = 'fail',
-  'stop' = 'stop',
+export interface IContactCreationParams {
+  name?: string;
+  type?: string;
+  email?: string;
+  telephone?: number;
+  category?: string;
+  [Symbol.iterator](): Iterator<any>;
+}
+
+export interface IAddPlatform {
+  customerId: string;
+  platformId: string;
 }
