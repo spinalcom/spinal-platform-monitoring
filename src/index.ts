@@ -42,7 +42,7 @@ async function main() {
   const authGraphService = new AuthGraphService(spinalMiddleware.getGraph());
   await authGraphService.init();
   const contexts = await spinalMiddleware.getGraph().getChildren('hasContext');
-  notificationGoogleChat();
+  // notificationGoogleChat();
   // config token context
   var tokensService = new TokensService();
   for (const context of contexts) {

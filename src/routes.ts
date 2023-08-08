@@ -19,6 +19,8 @@ import { RegisterController } from './register/registerController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { ServersController } from './server/serverController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { SiteController } from './site/siteController';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { TokensController } from './tokens/tokenController';
 import { expressAuthentication } from './monitoringUser/authentication';
 // @ts-ignore - no great way to install types from subpackage
@@ -257,6 +259,57 @@ const models: TsoaRoute.Models = {
             "boot_timestamp": {"dataType":"double"},
             "last_health_time": {"dataType":"double"},
             "serverType": {"dataType":"string"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ISla": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string"},
+            "name": {"dataType":"string"},
+            "type": {"dataType":"string"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ISite": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "type": {"dataType":"string"},
+            "name": {"dataType":"string"},
+            "address": {"dataType":"string"},
+            "slas": {"dataType":"array","array":{"dataType":"refObject","ref":"ISla"}},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ISlaCreationParams": {
+        "dataType": "refObject",
+        "properties": {
+            "name": {"dataType":"string"},
+            "type": {"dataType":"string"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ISiteCreationParams": {
+        "dataType": "refObject",
+        "properties": {
+            "type": {"dataType":"string"},
+            "name": {"dataType":"string"},
+            "address": {"dataType":"string"},
+            "slas": {"dataType":"array","array":{"dataType":"refObject","ref":"ISlaCreationParams"}},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ISiteUpdateParams": {
+        "dataType": "refObject",
+        "properties": {
+            "name": {"dataType":"string"},
+            "address": {"dataType":"string"},
         },
         "additionalProperties": false,
     },
@@ -1102,6 +1155,189 @@ export function RegisterRoutes(app: Router) {
 
               const promise = controller.createServer.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, 201, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/sites',
+            authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(SiteController)),
+            ...(fetchMiddlewares<RequestHandler>(SiteController.prototype.createSite)),
+
+            function SiteController_createSite(request: any, response: any, next: any) {
+            const args = {
+                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"ISiteCreationParams"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new SiteController();
+
+
+              const promise = controller.createSite.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, 201, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/sites/addPlatform',
+            authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(SiteController)),
+            ...(fetchMiddlewares<RequestHandler>(SiteController.prototype.addPlatform)),
+
+            function SiteController_addPlatform(request: any, response: any, next: any) {
+            const args = {
+                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"IAddPlatform"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new SiteController();
+
+
+              const promise = controller.addPlatform.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, 201, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/sites/:siteId/addSla',
+            authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(SiteController)),
+            ...(fetchMiddlewares<RequestHandler>(SiteController.prototype.addSla)),
+
+            function SiteController_addSla(request: any, response: any, next: any) {
+            const args = {
+                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"ISlaCreationParams"},
+                    siteId: {"in":"path","name":"siteId","required":true,"dataType":"string"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new SiteController();
+
+
+              const promise = controller.addSla.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, 201, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.put('/sites/:siteId',
+            authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(SiteController)),
+            ...(fetchMiddlewares<RequestHandler>(SiteController.prototype.updateSite)),
+
+            function SiteController_updateSite(request: any, response: any, next: any) {
+            const args = {
+                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"ISiteUpdateParams"},
+                    siteId: {"in":"path","name":"siteId","required":true,"dataType":"string"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new SiteController();
+
+
+              const promise = controller.updateSite.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, 201, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/sites',
+            authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(SiteController)),
+            ...(fetchMiddlewares<RequestHandler>(SiteController.prototype.getSites)),
+
+            function SiteController_getSites(request: any, response: any, next: any) {
+            const args = {
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new SiteController();
+
+
+              const promise = controller.getSites.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/sites/:siteId',
+            authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(SiteController)),
+            ...(fetchMiddlewares<RequestHandler>(SiteController.prototype.getSite)),
+
+            function SiteController_getSite(request: any, response: any, next: any) {
+            const args = {
+                    siteId: {"in":"path","name":"siteId","required":true,"dataType":"string"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new SiteController();
+
+
+              const promise = controller.getSite.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.delete('/sites/:siteId',
+            authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(SiteController)),
+            ...(fetchMiddlewares<RequestHandler>(SiteController.prototype.deleteSite)),
+
+            function SiteController_deleteSite(request: any, response: any, next: any) {
+            const args = {
+                    siteId: {"in":"path","name":"siteId","required":true,"dataType":"string"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new SiteController();
+
+
+              const promise = controller.deleteSite.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);
             }

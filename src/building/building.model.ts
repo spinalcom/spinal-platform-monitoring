@@ -21,46 +21,27 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-export interface IOrgan {
-  id?: string;
-  bosId: string;
-  name?: string;
+
+export interface IBuilding {
+  id: string;
   type?: string;
-  mac_adress?: string;
-  IP_adress?: string;
-  organType?: string;
-  platformId?: string;
+  name?: string;
+  address?: string;
 }
 
-export interface IOrganHub {
-  id?: string;
-  bosId: string;
-  name?: string;
+export interface IBuildingCreationParams {
   type?: string;
-  mac_adress?: string;
-  IP_adress?: string;
-  URL: string;
-  port: number;
-  login: string;
-  password: string;
-  organType?: string;
-  platformId?: string;
-}
-export interface IOrganCreationParams {
-  bosId: string;
   name?: string;
-  type?: string;
-  mac_adress: string;
-  IP_adress: string;
-  organType?: string;
-  platformId?: string;
+  address?: string;
+  [Symbol.iterator](): Iterator<any>;
 }
 
-export interface IOrganUpdateParams {
+export interface IBuildingUpdateParams {
   name?: string;
-  organType?: string;
-  mac_adress: string;
-  IP_adress: string;
+  address?: string;
 }
 
-
+export interface IAddPlatform {
+  buildingId: string;
+  platformId: string;
+}

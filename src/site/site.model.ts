@@ -27,12 +27,35 @@ export interface ISite {
   type?: string;
   name?: string;
   address?: string;
-  contacts?: ISla[]
-
+  slas?: ISla[]
 }
 
 export interface ISla {
   id?: string;
   name?: string;
   type?: string;
+}
+
+export interface ISiteCreationParams {
+  type?: string;
+  name?: string;
+  address?: string;
+  slas?: ISlaCreationParams[]
+  [Symbol.iterator](): Iterator<any>;
+}
+
+export interface ISiteUpdateParams {
+  name?: string;
+  address?: string;
+}
+
+export interface ISlaCreationParams {
+  name?: string;
+  type?: string;
+  [Symbol.iterator](): Iterator<any>;
+}
+
+export interface IAddPlatform {
+  siteId: string;
+  platformId: string;
 }

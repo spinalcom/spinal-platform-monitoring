@@ -21,46 +21,4 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-export interface IOrgan {
-  id?: string;
-  bosId: string;
-  name?: string;
-  type?: string;
-  mac_adress?: string;
-  IP_adress?: string;
-  organType?: string;
-  platformId?: string;
-}
-
-export interface IOrganHub {
-  id?: string;
-  bosId: string;
-  name?: string;
-  type?: string;
-  mac_adress?: string;
-  IP_adress?: string;
-  URL: string;
-  port: number;
-  login: string;
-  password: string;
-  organType?: string;
-  platformId?: string;
-}
-export interface IOrganCreationParams {
-  bosId: string;
-  name?: string;
-  type?: string;
-  mac_adress: string;
-  IP_adress: string;
-  organType?: string;
-  platformId?: string;
-}
-
-export interface IOrganUpdateParams {
-  name?: string;
-  organType?: string;
-  mac_adress: string;
-  IP_adress: string;
-}
-
 
