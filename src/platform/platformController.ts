@@ -86,7 +86,7 @@ export class PlatformsController extends Controller {
     @Path() platformId: string,
     @Body() requestBody: any
   ): Promise<IPlatform> {
-    return new PlatformService().updatePlateform(platformId, requestBody);
+    return new PlatformService().updatePlatform(platformId, requestBody);
   }
 
 

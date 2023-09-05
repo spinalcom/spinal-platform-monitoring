@@ -21,7 +21,6 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-
 import {
   Body,
   Controller,
@@ -39,7 +38,10 @@ import {
   IOrganCreationParams,
   IOrganUpdateParams,
   IOrgan,
-  StatusOrgan,
+  IOrganHub,
+  IOrganHubCreationParams,
+  IOrganHubUpdateParams
+
 } from './organ.model';
 import { OrganService } from './organService';
 
@@ -56,30 +58,30 @@ export class OrgansController extends Controller {
     return organ;
   }
 
-  // @Security('jwt')
-  // @Get()
-  // public async getOrgans(): Promise<IOrgan[]> {
-  //   this.setStatus(201); // set return status 201
-  //   return new OrganService().getOrgans();
-  // }
+  @Security('jwt')
+  @Get()
+  public async getOrgans(): Promise<IOrgan[]> {
+    this.setStatus(201); // set return status 201
+    return new OrganService().getOrgans();
+  }
 
-  // @Security('jwt')
-  // @Get('{organId}')
-  // public async getOrgan(@Path() organId: string,
-  // ): Promise<IOrgan> {
-  //   this.setStatus(201); // set return status 201
-  //   return new OrganService().getOrgan(organId);
-  // }
+  @Security('jwt')
+  @Get('{organId}')
+  public async getOrgan(@Path() organId: string,
+  ): Promise<IOrgan> {
+    this.setStatus(201); // set return status 201
+    return new OrganService().getOrgan(organId);
+  }
 
 
-  // @Security('jwt')
-  // @Put('{organId}')
-  // public async updatePlateform(
-  //   @Path() organId: string,
-  //   @Body() requestBody: any
-  // ): Promise<IOrgan> {
-  //   return new OrganService().updateOrgan(organId, requestBody);
-  // }
+  @Security('jwt')
+  @Put('{organId}')
+  public async updatePlateform(
+    @Path() organId: string,
+    @Body() requestBody: any
+  ): Promise<IOrgan> {
+    return new OrganService().updateOrgan(organId, requestBody);
+  }
 
   @Security('jwt')
   @Delete('{organId}')

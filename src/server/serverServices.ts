@@ -27,7 +27,8 @@ import {
   PLATFORM_LIST,
   MONITORING_SERVICE_RELATION_TYPE_PTR_LST,
   MONITORING_SERVICE_SERVER_RELATION_NAME,
-  CATEGORY_NAME
+  CATEGORY_NAME,
+  SERVER_LIST
 } from '../constant';
 import {
   SpinalGraphService,
@@ -183,129 +184,125 @@ export class ServerService {
 
 
 
-  // public async updateServer(serverId: string, serverUpdateParms: IServerUpdateParams
-  // ): Promise<IServer> {
-  //   const context = SpinalGraphService.getContext('serverList')
-  //   const servers = await context.getChildren(
-  //     MONITORING_SERVICE_SERVER_RELATION_NAME
-  //   );
-  //   for (const server of servers) {
-  //     if (server.getId().get() === serverId) {
+  public async updateServer(serverId: string, requestBody: IServerUpdateParams
+  ): Promise<IServer> {
+    const context = SpinalGraphService.getContext(SERVER_LIST)
+    const servers = await context.getChildren(
+      MONITORING_SERVICE_SERVER_RELATION_NAME
+    );
+    for (const server of servers) {
+      if (server.getId().get() === serverId) {
+        const attrs = await serviceDocumentation.getAttributesByCategory(server, CATEGORY_NAME);
+        for (const attr of attrs) {
+          if (attr.label.get() === 'name') serviceDocumentation.setAttributeById(server, attr._server_id, 'name', requestBody.name, attr.type.get(), attr.unit.get())
+          else if (attr.label.get() === 'ipAdress') serviceDocumentation.setAttributeById(server, attr._server_id, 'ipAdress', requestBody.ipAdress, attr.type.get(), attr.unit.get())
+          else if (attr.label.get() === 'macAdress') serviceDocumentation.setAttributeById(server, attr._server_id, 'macAdress', requestBody.macAdress, attr.type.get(), attr.unit.get())
+          else if (attr.label.get() === 'sshLogin') serviceDocumentation.setAttributeById(server, attr._server_id, 'sshLogin', requestBody.sshLogin, attr.type.get(), attr.unit.get())
+          else if (attr.label.get() === 'sshPassword') serviceDocumentation.setAttributeById(server, attr._server_id, 'sshPassword', requestBody.sshPassword, attr.type.get(), attr.unit.get())
+          else if (attr.label.get() === 'boot_timestamp') serviceDocumentation.setAttributeById(server, attr._server_id, 'boot_timestamp', requestBody.boot_timestamp, attr.type.get(), attr.unit.get())
+          else if (attr.label.get() === 'last_health_time') serviceDocumentation.setAttributeById(server, attr._server_id, 'last_health_time', requestBody.last_health_time, attr.type.get(), attr.unit.get())
+          else if (attr.label.get() === 'serverType') serviceDocumentation.setAttributeById(server, attr._server_id, 'serverType', requestBody.serverType, attr.type.get(), attr.unit.get())
+        }
 
-  //     }
-  //   }
-
-
-
-
-
-
-
-  //   if (res !== undefined) {
-  //     return {
-  //       id: res.getId().get(),
-  //       type: res.getType().get(),
-  //       name: res.getName().get(),
-  //       ip: res.info.ip.get(),
-  //       url: res.info.url.get(),
-  //       sshLogin: res.info.sshLogin.get(),
-  //       sshPassword: res.info.sshPassword.get(),
-  //       serverType: res.info.serverType.get(),
-  //       provider: res.info.provider.get(),
-  //       state: {
-  //         memory: res.info.state.memory.get(),
-  //         cache: res.info.state.cache.get(),
-  //         DD: res.info.state.DD.get(),
-  //         proc: res.info.state.proc.get(),
-  //       }
-  //     };
-  //   }
-
-  // }
-
+        const attrsres = await serviceDocumentation.getAttributesByCategory(server, CATEGORY_NAME);
+        var customerObject: any = {}
+        for (const attr of attrsres) {
+          if (attr.label.get() === 'id') Object.assign(customerObject, { id: attr.value.get() });
+          else if (attr.label.get() === 'type') Object.assign(customerObject, { type: attr.value.get() });
+          else if (attr.label.get() === 'name') Object.assign(customerObject, { name: attr.value.get() });
+          else if (attr.label.get() === 'ipAdress') Object.assign(customerObject, { ipAdress: attr.value.get() });
+          else if (attr.label.get() === 'macAdress') Object.assign(customerObject, { macAdress: attr.value.get() });
+          else if (attr.label.get() === 'sshLogin') Object.assign(customerObject, { sshLogin: attr.value.get() });
+          else if (attr.label.get() === 'sshPassword') Object.assign(customerObject, { sshPassword: attr.value.get() });
+          else if (attr.label.get() === 'boot_timestamp') Object.assign(customerObject, { boot_timestamp: attr.value.get() });
+          else if (attr.label.get() === 'last_health_time') Object.assign(customerObject, { last_health_time: attr.value.get() });
+          else if (attr.label.get() === 'serverType') Object.assign(customerObject, { serverType: attr.value.get() });
+        }
+      }
+    }
+    return customerObject;
+  }
 
 
 
 
 
 
-  // public async getServers(): Promise<IServer[]> {
-  //   try {
-  //     var serversObjectList = [];
-  //     const context = SpinalGraphService.getContext('serverList')
-  //     const servers = await context.getChildren(
-  //       MONITORING_SERVICE_SERVER_RELATION_NAME
-  //     );
-  //     for (const server of servers) {
-  //       var ServerObject: IServer = {
-  //         id: server.getId().get(),
-  //         type: server.getType().get(),
-  //         name: server.getName().get(),
-  //         ip: server.info.ip.get(),
-  //         url: server.info.url.get(),
-  //         sshLogin: server.info.sshLogin.get(),
-  //         sshPassword: server.info.sshPassword.get(),
-  //         serverType: server.info.serverType.get(),
-  //         provider: server.info.provider.get(),
-  //         state: {
-  //           memory: server.info.state.memory.get(),
-  //           cache: server.info.state.cache.get(),
-  //           DD: server.info.state.DD.get(),
-  //           proc: server.info.state.proc.get(),
-  //         }
-  //       };
-  //       serversObjectList.push(ServerObject);
-  //     }
-  //     return serversObjectList;
-  //   } catch (error) {
-  //     return error;
-  //   }
-  // }
 
-  // public async getServer(serverId: string): Promise<IServer> {
-  //   try {
-  //     const context = SpinalGraphService.getContext('serverList')
-  //     const servers = await context.getChildren(
-  //       MONITORING_SERVICE_SERVER_RELATION_NAME
-  //     );
-  //     for (const server of servers) {
-  //       if (server.getId().get() === serverId) {
-  //         var ServerObject: IServer = {
-  //           id: server.getId().get(),
-  //           type: server.getType().get(),
-  //           name: server.getName().get(),
-  //           ip: server.info.ip.get(),
-  //           url: server.info.url.get(),
-  //           sshLogin: server.info.sshLogin.get(),
-  //           sshPassword: server.info.sshPassword.get(),
-  //           serverType: server.info.serverType.get(),
-  //           provider: server.info.provider.get(),
-  //           state: {
-  //             memory: server.info.state.memory.get(),
-  //             cache: server.info.state.cache.get(),
-  //             DD: server.info.state.DD.get(),
-  //             proc: server.info.state.proc.get(),
-  //           }
-  //         };
-  //       }
-  //     }
-  //     return ServerObject;
-  //   } catch (error) {
-  //     return error;
-  //   }
-  // }
+  public async getServers(): Promise<IServer[]> {
+    try {
+      var serversObjectList = [];
+      const context = SpinalGraphService.getContext('serverList')
+      const servers = await context.getChildren(
+        MONITORING_SERVICE_SERVER_RELATION_NAME
+      );
+      const arrayServer: IServer[] = []
 
 
-  // public async deleteServer(serverId: string): Promise<void> {
-  //   const context = SpinalGraphService.getContext('serverList')
-  //   const servers = await context.getChildren(
-  //     MONITORING_SERVICE_SERVER_RELATION_NAME
-  //   );
-  //   for (const server of servers) {
-  //     if (server.getId().get() === serverId) {
-  //       await server.removeFromGraph()
-  //     }
-  //   }
-  // }
+
+      for (const server of servers) {
+        let serverObject: any = {}
+        const attrs = await serviceDocumentation.getAttributesByCategory(server, CATEGORY_NAME);
+        for (const attr of attrs) {
+          if (attr.label.get() === 'id') Object.assign(serverObject, { id: attr.value.get() });
+          else if (attr.label.get() === 'type') Object.assign(serverObject, { type: attr.value.get() });
+          else if (attr.label.get() === 'name') Object.assign(serverObject, { name: attr.value.get() });
+          else if (attr.label.get() === 'ipAdress') Object.assign(serverObject, { ipAdress: attr.value.get() });
+          else if (attr.label.get() === 'macAdress') Object.assign(serverObject, { macAdress: attr.value.get() });
+          else if (attr.label.get() === 'sshLogin') Object.assign(serverObject, { sshLogin: attr.value.get() });
+          else if (attr.label.get() === 'sshPassword') Object.assign(serverObject, { sshPassword: attr.value.get() });
+          else if (attr.label.get() === 'boot_timestamp') Object.assign(serverObject, { boot_timestamp: attr.value.get() });
+          else if (attr.label.get() === 'last_health_time') Object.assign(serverObject, { last_health_time: attr.value.get() });
+          else if (attr.label.get() === 'serverType') Object.assign(serverObject, { serverType: attr.value.get() });
+        }
+        arrayServer.push(serverObject);
+      }
+      return serversObjectList;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  public async getServer(serverId: string): Promise<IServer> {
+    try {
+      const context = SpinalGraphService.getContext('serverList')
+      const servers = await context.getChildren(
+        MONITORING_SERVICE_SERVER_RELATION_NAME
+      );
+      var serverObject: any = {}
+      for (const server of servers) {
+        if (server.getId().get() === serverId) {
+          const attrs = await serviceDocumentation.getAttributesByCategory(server, CATEGORY_NAME);
+          for (const attr of attrs) {
+            if (attr.label.get() === 'id') Object.assign(serverObject, { id: attr.value.get() });
+            else if (attr.label.get() === 'type') Object.assign(serverObject, { type: attr.value.get() });
+            else if (attr.label.get() === 'name') Object.assign(serverObject, { name: attr.value.get() });
+            else if (attr.label.get() === 'ipAdress') Object.assign(serverObject, { ipAdress: attr.value.get() });
+            else if (attr.label.get() === 'macAdress') Object.assign(serverObject, { macAdress: attr.value.get() });
+            else if (attr.label.get() === 'sshLogin') Object.assign(serverObject, { sshLogin: attr.value.get() });
+            else if (attr.label.get() === 'sshPassword') Object.assign(serverObject, { sshPassword: attr.value.get() });
+            else if (attr.label.get() === 'boot_timestamp') Object.assign(serverObject, { boot_timestamp: attr.value.get() });
+            else if (attr.label.get() === 'last_health_time') Object.assign(serverObject, { last_health_time: attr.value.get() });
+            else if (attr.label.get() === 'serverType') Object.assign(serverObject, { serverType: attr.value.get() });
+          }
+        }
+      }
+      return serverObject;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  public async deleteServer(serverId: string): Promise<void> {
+    const context = SpinalGraphService.getContext('serverList')
+    const servers = await context.getChildren(
+      MONITORING_SERVICE_SERVER_RELATION_NAME
+    );
+    for (const server of servers) {
+      if (server.getId().get() === serverId) {
+        await server.removeFromGraph()
+      }
+    }
+  }
 
 }

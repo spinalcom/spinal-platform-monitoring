@@ -30,12 +30,15 @@ import {
   MONITORING_SERVICE_SITE_RELATION_NAME,
   MONITORING_SERVICE_SLA_RELATION_NAME,
   SLA_TYPE,
-  MONITORING_SERVICE_PLATFORM_RELATION_NAME
+  MONITORING_SERVICE_PLATFORM_RELATION_NAME,
+  BUILDING_LIST,
+  MONITORING_SERVICE_BUILDING_RELATION_NAME
 } from '../constant';
 
 import {
   SpinalGraphService,
   SpinalGraph,
+  SpinalNode,
 } from 'spinal-env-viewer-graph-service';
 import { OperationError } from '../utilities/operation-error';
 import { HttpStatusCode } from '../utilities/http-status-code';
@@ -45,7 +48,8 @@ import {
   ISiteCreationParams,
   ISiteUpdateParams,
   ISlaCreationParams,
-  IAddPlatform
+  IAddPlatform,
+  LinkParamSiteToBuilding
 } from './site.model';
 import SpinalMiddleware from '../spinalMiddleware';
 import serviceDocumentation from "spinal-env-viewer-plugin-documentation-service"
@@ -319,8 +323,38 @@ export class SiteService {
         return siteObject
       }
     }
-
-
   }
+  public async linkSiteToBuilding(requestBody: LinkParamSiteToBuilding): Promise<void> {
+    var foundSite: SpinalNode;
+    var foundBuilding: SpinalNode;
+    const siteContext = SpinalGraphService.getContext(SITE_LIST)
+    const buildingContext = SpinalGraphService.getContext(BUILDING_LIST)
+    const sites = await siteContext.getChildren(
+      MONITORING_SERVICE_SITE_RELATION_NAME
+    );
+    const buildings = await buildingContext.getChildren(
+      MONITORING_SERVICE_BUILDING_RELATION_NAME
+    );
+    for (const building of buildings) {
+      if (building.getId().get() === requestBody.buildingId) {
+        foundBuilding = building;
+      }
+    }
+    for (const site of sites) {
+      if (site.getId().get() === requestBody.siteId) {
+        foundSite = site;
+      }
+    }
+    if (foundBuilding === undefined || foundSite === undefined) {
+      throw new OperationError(
+        'NOT_FOUND',
+        HttpStatusCode.FORBIDDEN
+      );
+    }
+    console.log(foundSite.getId().get());
+    console.log(foundBuilding.getId().get());
 
+    const res = await SpinalGraphService.addChild(foundSite.getId().get(), foundBuilding.getId().get(), MONITORING_SERVICE_BUILDING_RELATION_NAME, MONITORING_SERVICE_RELATION_TYPE_PTR_LST)
+    console.log(res);
+  }
 }

@@ -67,3 +67,8 @@ export interface IAddPlatform {
   customerId: string;
   platformId: string;
 }
+
+export interface LinkParamCustomerToSite {
+  customerId: string;
+  siteId: string;
+}

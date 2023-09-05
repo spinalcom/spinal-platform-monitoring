@@ -55,27 +55,33 @@ export class ServersController extends Controller {
     return server;
   }
 
-  // @Security('jwt')
-  // @Get()
-  // public async getOrgans(): Promise<IOrgan[]> {
-  //   this.setStatus(201); // set return status 201
-  //   return new OrganService().getOrgans();
-  // }
+  @Security('jwt')
+  @Get()
+  public async getServers(): Promise<IServer[]> {
+    this.setStatus(201); // set return status 201
+    return new ServerService().getServers();
+  }
 
-  // @Security('jwt')
-  // @Get('{organId}')
-  // public async getOrgan(@Path() organId: string,
-  // ): Promise<IOrgan> {
-  //   this.setStatus(201); // set return status 201
-  //   return new OrganService().getOrgan(organId);
-  // }
+  @Security('jwt')
+  @Get('{serverId}')
+  public async getServer(@Path() serverId: string,
+  ): Promise<IServer> {
+    this.setStatus(201); // set return status 201
+    return new ServerService().getServer(serverId);
+  }
 
+  public async updatePlateform(
+    @Path() serverId: string,
+    @Body() requestBody: any
+  ): Promise<IServer> {
+    return new ServerService().updateServer(serverId, requestBody);
+  }
 
-  // @Security('jwt')
-  // @Delete('{organId}')
-  // public async deleteOrgan(
-  //   @Path() organId: string,
-  // ): Promise<void> {
-  //   return new OrganService().deleteOrgan(organId);
-  // }
+  @Security('jwt')
+  @Delete('{serverId}')
+  public async deleteServer(
+    @Path() serverId: string,
+  ): Promise<void> {
+    return new ServerService().deleteServer(serverId);
+  }
 }

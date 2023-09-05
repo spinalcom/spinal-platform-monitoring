@@ -49,15 +49,16 @@ export class HealthService {
         for (const organ of organs) {
           for (const infoOrgan of requestBody.infoOrgans) {
             if (organ.info.bosId.get() === infoOrgan.genericOrganData.id) {
+
               let state: string = "";
               if (isWithinTwoMinutes(infoOrgan.genericOrganData.lastHealthTime)) {
                 state = "online"
               } else {
                 state = "stop"
               }
-              organ.info.bootTimestamp.set(infoOrgan.genericOrganData.bootTimestamp);
-              organ.info.lastHealthTime.set(infoOrgan.genericOrganData.lastHealthTime);
-              organ.info.ramHeapUsed.set(infoOrgan.genericOrganData.ramHeapUsed);
+              // organ.info.bootTimestamp.set(infoOrgan.genericOrganData.bootTimestamp);
+              // organ.info.lastHealthTime.set(infoOrgan.genericOrganData.lastHealthTime);
+              // organ.info.ramHeapUsed.set(infoOrgan.genericOrganData.ramHeapUsed);
               organ.info.statusOrgan.set(state);
               organ.info.ipAdress.set(infoOrgan.specificOrganData.ipAdress);
               organ.info.port.set(infoOrgan.specificOrganData.port);

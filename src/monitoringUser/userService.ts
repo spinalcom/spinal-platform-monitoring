@@ -32,7 +32,7 @@ import {
   TOKEN_LIST,
   MONITORING_SERVICE_TOKEN_RELATION_NAME,
   MONITORING_SERVICE_PLATFORM_RELATION_NAME,
-  CATEGORY_NAME
+  CATEGORY_NAME,
 } from '../constant';
 import {
   SpinalGraphService,
@@ -187,7 +187,7 @@ export class UserService {
                   let token = jwt.sign(
                     { userId: user.getId().get() },
                     'RANDOM_TOKEN_SECRET',
-                    { expiresIn: '1h' }
+                    { expiresIn: process.env.EXPIRESIN_TOKEN }
                   );
                   let decodedToken = jwt_decode(token);
                   const tokenContext = SpinalGraphService.getContext(
@@ -213,18 +213,24 @@ export class UserService {
                         }
                         ObjectsPlatformList.push(objectPlatform);
                       }
-
+                      const tokenObject = {
+                        name: 'token_' + user.getName().get(),
+                        type: TOKEN_TYPE,
+                        token: token,
+                        // @ts-ignore
+                        createdToken: decodedToken.iat,
+                        // @ts-ignore
+                        expieredToken: decodedToken.exp,
+                        userId: user.getId().get(),
+                        [Symbol.iterator]: function* () {
+                          let properties = Object.keys(this);
+                          for (let i of properties) {
+                            yield [i, this[i]];
+                          }
+                        }
+                      }
                       const TokenId = SpinalGraphService.createNode(
-                        {
-                          name: 'token_' + user.getName().get(),
-                          type: TOKEN_TYPE,
-                          token: token,
-                          // @ts-ignore
-                          createdToken: decodedToken.iat,
-                          // @ts-ignore
-                          expieredToken: decodedToken.exp,
-                          userId: user.getId().get(),
-                        },
+                        tokenObject,
                         undefined
                       );
                       const res = await SpinalGraphService.addChildInContext(
@@ -234,6 +240,11 @@ export class UserService {
                         MONITORING_SERVICE_TOKEN_RELATION_NAME,
                         MONITORING_SERVICE_RELATION_TYPE_PTR_LST
                       );
+
+                      const category = await serviceDocumentation.addCategoryAttribute(res, CATEGORY_NAME)
+                      for (const [key, value] of tokenObject) {
+                        await serviceDocumentation.addAttributeByCategoryName(res, category.nameCat, key, value)
+                      }
                       let tokenObj: IUserToken = {
                         name: res.getName().get(),
                         token: token,
@@ -282,7 +293,7 @@ export class UserService {
                   let token = jwt.sign(
                     { userId: user.getId().get() },
                     'RANDOM_TOKEN_SECRET',
-                    { expiresIn: '24h' }
+                    { expiresIn: process.env.EXPIRESIN_TOKEN },
                   );
                   let decodedToken = jwt_decode(token);
                   const tokenContext = SpinalGraphService.getContext(
@@ -298,18 +309,25 @@ export class UserService {
                       categoryTokenUser.getType().get() ===
                       'MonitoringServiceUserCategory'
                     ) {
+
+                      const tokenObject = {
+                        name: 'token_' + user.getName().get(),
+                        type: TOKEN_TYPE,
+                        token: token,
+                        // @ts-ignore
+                        createdToken: decodedToken.iat,
+                        // @ts-ignore
+                        expieredToken: decodedToken.exp,
+                        userId: user.getId().get(),
+                        [Symbol.iterator]: function* () {
+                          let properties = Object.keys(this);
+                          for (let i of properties) {
+                            yield [i, this[i]];
+                          }
+                        }
+                      }
                       const TokenId = SpinalGraphService.createNode(
-                        {
-                          name: 'token_' + user.getName().get(),
-                          type: TOKEN_TYPE,
-                          token: token,
-                          // @ts-ignore
-                          createdToken: decodedToken.iat,
-                          // @ts-ignore
-                          expieredToken: decodedToken.exp,
-                          userId: user.getId().get(),
-                          userType: user.info.userType.get(),
-                        },
+                        tokenObject,
                         undefined
                       );
                       const res = await SpinalGraphService.addChildInContext(
@@ -319,6 +337,10 @@ export class UserService {
                         MONITORING_SERVICE_TOKEN_RELATION_NAME,
                         MONITORING_SERVICE_RELATION_TYPE_PTR_LST
                       );
+                      const category = await serviceDocumentation.addCategoryAttribute(res, CATEGORY_NAME)
+                      for (const [key, value] of tokenObject) {
+                        await serviceDocumentation.addAttributeByCategoryName(res, category.nameCat, key, value)
+                      }
                       let tokenObj: IUserToken = {
                         name: res.getName().get(),
                         type: res.getType().get(),

@@ -37,7 +37,8 @@ import {
   ORGAN_LIST,
   CUSTOMER_LIST,
   SITE_LIST,
-  BUILDING_LIST
+  BUILDING_LIST,
+  ORGAN_GROUP
 } from '../constant';
 
 export class AuthGraphService {
@@ -55,9 +56,11 @@ export class AuthGraphService {
     var notifications: SpinalContext<spinal.Model>;
     var serverList: SpinalContext<spinal.Model>;
     var organList: SpinalContext<spinal.Model>;
+    var organGroup: SpinalContext<spinal.Model>;
     var customerList: SpinalContext<spinal.Model>;
     var siteList: SpinalContext<spinal.Model>;
     var buildingList: SpinalContext<spinal.Model>;
+
 
 
 
@@ -100,6 +103,11 @@ export class AuthGraphService {
     if ((await this.graph.getContext(ORGAN_LIST)) === undefined) {
       organList = new SpinalContext(ORGAN_LIST);
       promises.push(this.graph.addContext(organList));
+    }
+
+    if ((await this.graph.getContext(ORGAN_GROUP)) === undefined) {
+      organGroup = new SpinalContext(ORGAN_GROUP);
+      promises.push(this.graph.addContext(organGroup));
     }
 
     if ((await this.graph.getContext(CUSTOMER_LIST)) === undefined) {

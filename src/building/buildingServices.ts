@@ -29,11 +29,13 @@ import {
   MONITORING_SERVICE_RELATION_TYPE_PTR_LST,
   CATEGORY_NAME,
   MONITORING_SERVICE_BUILDING_RELATION_NAME,
-  MONITORING_SERVICE_PLATFORM_RELATION_NAME
+  MONITORING_SERVICE_PLATFORM_RELATION_NAME,
+  PLATFORM_LIST
 } from '../constant';
 import {
   SpinalGraphService,
   SpinalGraph,
+  SpinalNode
 } from 'spinal-env-viewer-graph-service';
 import { OperationError } from '../utilities/operation-error';
 import { HttpStatusCode } from '../utilities/http-status-code';
@@ -41,7 +43,8 @@ import {
   IBuilding,
   IBuildingCreationParams,
   IBuildingUpdateParams,
-  IAddPlatform
+  IAddPlatform,
+  LinkParamBuildingToPlatform
 } from './building.model';
 
 import SpinalMiddleware from '../spinalMiddleware';
@@ -209,4 +212,38 @@ export class BuildingService {
     }
   }
 
+  public async linkBuildingToPlatform(requestBody: LinkParamBuildingToPlatform) {
+    var foundPlatform: SpinalNode;
+    var foundBuilding: SpinalNode;
+
+    const buildingContext = SpinalGraphService.getContext(BUILDING_LIST)
+    const buildings = await buildingContext.getChildren(
+      MONITORING_SERVICE_BUILDING_RELATION_NAME
+    );
+    const platformContext = SpinalGraphService.getContext(PLATFORM_LIST)
+    const platforms = await platformContext.getChildren(
+      MONITORING_SERVICE_PLATFORM_RELATION_NAME
+    );
+    for (const building of buildings) {
+      if (building.getId().get() === requestBody.buildingId) {
+        foundBuilding = building;
+      }
+    }
+    for (const platform of platforms) {
+      if (platform.getId().get() === requestBody.platformId) {
+        foundPlatform = platform;
+      }
+    }
+    if (foundBuilding === undefined || foundPlatform === undefined) {
+      throw new OperationError(
+        'NOT_FOUND',
+        HttpStatusCode.FORBIDDEN
+      );
+    }
+    // @ts-ignore
+    SpinalGraphService._addNode(foundBuilding);
+    // @ts-ignore
+    SpinalGraphService._addNode(foundPlatform);
+    const res = await SpinalGraphService.addChild(foundBuilding.getId().get(), foundPlatform.getId().get(), MONITORING_SERVICE_PLATFORM_RELATION_NAME, MONITORING_SERVICE_RELATION_TYPE_PTR_LST);
+  }
 }

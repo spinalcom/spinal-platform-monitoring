@@ -21,7 +21,12 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-
+import {
+  IOrgan,
+  IOrganHub,
+  IOrganHubCreationParams,
+  IOrganHubUpdateParams
+} from "../organ/organ.model";
 
 export interface IPlatform {
   id: string;
@@ -30,11 +35,10 @@ export interface IPlatform {
   platformType: string;
   TokenBosRegister?: string;
   ipAdress: string;
-  port: number;
-  urlServerApi: string;
-  login: string;
-  password: string;
-  errorHistory: string;
+  url: string;
+  loginAdmin: string;
+  passwordAdmin: string;
+  hubOrgan?: IOrganHub;
   organList?: {
     organId: string;
     organName: string;
@@ -47,15 +51,11 @@ export interface IPlateformCreationParams {
   platformType: string;
   TokenBosRegister?: string;
   ipAdress: string;
-  port: number;
-  urlServerApi: string;
-  login: string;
-  password: string;
-  errorHistory: string;
-  organList?: {
-    organId: string;
-    organName: string;
-  }[]
+  url: string;
+  loginAdmin: string;
+  passwordAdmin: string;
+  hubOrgan: IOrganHubCreationParams
+  [Symbol.iterator](): Iterator<any>;
 }
 
 export interface IPlatformUpdateParams {
@@ -64,11 +64,10 @@ export interface IPlatformUpdateParams {
   platformType: string;
   TokenBosRegister?: string;
   ipAdress: string;
-  port: number;
-  urlServerApi: string;
-  login: string;
-  password: string;
-  errorHistory: string;
+  url: string;
+  loginAdmin: string;
+  passwordAdmin: string;
+  hubOrgan: IOrgan;
   organList?: {
     organId: string;
     organName: string;

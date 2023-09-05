@@ -53,6 +53,9 @@ import {
 import serviceDocumentation from "spinal-env-viewer-plugin-documentation-service"
 import SpinalMiddleware from '../spinalMiddleware';
 import jwt = require('jsonwebtoken');
+import { OrganService } from '../organ/organService'
+import { InputDataEndpoint, InputDataEndpointDataType, InputDataEndpointType } from 'spinal-model-bmsnetwork';
+import getInstance from '../utilities/NetworkService';
 
 /**
  *
@@ -83,10 +86,9 @@ export class PlatformService {
           platformType: platformCreationParms.platformType,
           TokenBosRegister: this.generateTokenBosAdmin(platformCreationParms.name),
           ipAdress: platformCreationParms.ipAdress,
-          port: platformCreationParms.port,
-          urlServerApi: platformCreationParms.urlServerApi,
-          login: platformCreationParms.login,
-          password: platformCreationParms.password,
+          url: platformCreationParms.url,
+          loginAdmin: platformCreationParms.loginAdmin,
+          passwordAdmin: platformCreationParms.passwordAdmin,
           [Symbol.iterator]: function* () {
             let properties = Object.keys(this);
             for (let i of properties) {
@@ -95,7 +97,7 @@ export class PlatformService {
           }
         };
         const PlatformId = SpinalGraphService.createNode(
-          undefined,
+          platformObject,
           undefined
         );
         const res = await SpinalGraphService.addChildInContext(
@@ -111,38 +113,53 @@ export class PlatformService {
         for (const [key, value] of platformObject) {
           await serviceDocumentation.addAttributeByCategoryName(res, category.nameCat, key, value)
         }
-        if (platformCreationParms.organList.length !== 0) {
-          for (const organ of platformCreationParms.organList) {
-            await SpinalGraphService.addChild(res.getId().get(), organ.organId, 'HasOrgan', MONITORING_SERVICE_RELATION_TYPE_PTR_LST);
-          }
-        }
         if (res === undefined) {
           throw new OperationError('NOT_CREATED', HttpStatusCode.BAD_REQUEST);
-        } else {
-          let _organList = []
-          const _organs = await res.getChildren('HasOrgan')
-          for (const _organ of _organs) {
-            var _organObject = {
-              id: _organ.getId().get(),
-              name: _organ.getName().get(),
-            }
-            _organList.push(_organObject);
-          }
-          return {
-            id: res.getId().get(),
-            type: res.getType().get(),
-            name: res.getName().get(),
-            TokenBosRegister: res.info.TokenBosRegister.get(),
-            platformType: res.info.platformType.get(),
-            ipAdress: res.info.infoWall.ipAdress.get(),
-            port: res.info.infoWall.port.get(),
-            urlServerApi: res.info.infoWall.urlServerApi.get(),
-            login: res.info.infoWall.login.get(),
-            password: res.info.infoWall.password.get(),
-            errorHistory: "_errorHistory",
-            organList: _organList
-          };
         }
+        const organHub = await new OrganService().createHubOrgan(platformCreationParms.hubOrgan, PlatformId);
+        if (organHub === undefined) {
+          await res.removeFromGraph();
+          throw new OperationError('HUB_NOT_CREATED', HttpStatusCode.BAD_REQUEST);
+        }
+        // if (platformCreationParms.organList.length !== 0) {
+        //   for (const organ of platformCreationParms.organList) {
+        //     await SpinalGraphService.addChild(res.getId().get(), organ.organId, 'HasOrgan', MONITORING_SERVICE_RELATION_TYPE_PTR_LST);
+        //   }
+        // }
+
+        const errorHistory: InputDataEndpoint = {
+          id: "0",
+          name: "error_history",
+          path: "",
+          currentValue: 0,
+          unit: 'timestamp',
+          nodeTypeName: 'BmsEndpoint',
+          dataType: InputDataEndpointDataType.Date,
+          type: InputDataEndpointType.Other,
+        };
+        await getInstance().createNewBmsEndpointWithoutContext(PlatformId, errorHistory);
+
+        // let _organList = []
+        // const _organs = await res.getChildren('HasOrgan')
+        // for (const _organ of _organs) {
+        //   var _organObject = {
+        //     id: _organ.getId().get(),
+        //     name: _organ.getName().get(),
+        //   }
+        //   _organList.push(_organObject);
+        // }
+        return {
+          id: res.getId().get(),
+          type: res.getType().get(),
+          name: res.getName().get(),
+          TokenBosRegister: res.info.TokenBosRegister.get(),
+          platformType: res.info.platformType.get(),
+          ipAdress: res.info.ipAdress.get(),
+          url: res.info.url.get(),
+          loginAdmin: res.info.loginAdmin.get(),
+          passwordAdmin: res.info.passwordAdmin.get(),
+        };
+
       }
     }
   }
@@ -167,37 +184,27 @@ export class PlatformService {
                 _organList.push(infoOrgan);
               }
             }
-            // var PlatformObject: IPlatform = {
-            //   id: platform.getId().get(),
-            //   type: platform.getType().get(),
-            //   name: platform.getName().get(),
-            //   statusPlatform: platform.info.statusPlatform.get(),
-            //   TokenBosRegister: platform.info.TokenBosRegister.get(),
-            //   infoHub: {
-            //     ip: platform.info.infoHub.ip.get(),
-            //     port: platform.info.infoHub.port.get(),
-            //     url: platform.info.infoHub.url.get(),
-            //     login: platform.info.infoHub.login.get(),
-            //     password: platform.info.infoHub.password.get(),
-            //   },
-            //   infoWall: {
-            //     ip: platform.info.infoWall.ip.get(),
-            //     port: platform.info.infoWall.port.get(),
-            //     url: platform.info.infoWall.url.get(),
-            //     login: platform.info.infoWall.login.get(),
-            //     password: platform.info.infoWall.password.get(),
-            //   },
-            //   organList: _organList
-            // };
+            var PlatformObject: IPlatform = {
+              id: platform.getId().get(),
+              type: platform.getType().get(),
+              name: platform.getName().get(),
+              TokenBosRegister: platform.info.TokenBosRegister.get(),
+              url: platform.info.url.get(),
+              ipAdress: platform.info.ipAdress.get(),
+              loginAdmin: platform.info.loginAdmin.get(),
+              passwordAdmin: platform.info.passwordAdmin.get(),
+              platformType: platform.info.platformType.get(),
+              organList: _organList
+            };
           }
         }
       }
     }
-    // if (PlatformObject) {
-    //   return PlatformObject;
-    // } else {
-    //   throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
-    // }
+    if (PlatformObject) {
+      return PlatformObject;
+    } else {
+      throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
+    }
   }
   public async getPlateforms(): Promise<IPlatform[]> {
     var platformObjectList = [];
@@ -207,43 +214,31 @@ export class PlatformService {
         const platforms = await context.getChildren(
           MONITORING_SERVICE_PLATFORM_RELATION_NAME
         );
-
         for (const platform of platforms) {
-          let _organList = [];
           const organList = await platform.getChildren('HasOrgan');
+          let _organList = [];
           if (organList.length !== 0) {
             for (const organ of organList) {
               let infoOrgan = {
-                id: organ.getId().get(),
-                name: organ.getName().get(),
+                id: organ.getId(),
+                name: organ.getName(),
               }
               _organList.push(infoOrgan);
             }
           }
-
-          // var PlatformObject: IPlatform = {
-          //   id: platform.getId().get(),
-          //   type: platform.getType().get(),
-          //   name: platform.getName().get(),
-          //   statusPlatform: platform.info.statusPlatform.get(),
-          //   TokenBosRegister: platform.info.TokenBosRegister.get(),
-          //   infoHub: {
-          //     ip: platform.info.infoHub.ip.get(),
-          //     port: platform.info.infoHub.port.get(),
-          //     url: platform.info.infoHub.url.get(),
-          //     login: platform.info.infoHub.login.get(),
-          //     password: platform.info.infoHub.password.get(),
-          //   },
-          //   infoWall: {
-          //     ip: platform.info.infoWall.ip.get(),
-          //     port: platform.info.infoWall.port.get(),
-          //     url: platform.info.infoWall.url.get(),
-          //     login: platform.info.infoWall.login.get(),
-          //     password: platform.info.infoWall.password.get(),
-          //   },
-          //   organList: _organList
-          // };
-          platformObjectList.push();
+          var PlatformObject: IPlatform = {
+            id: platform.getId().get(),
+            type: platform.getType().get(),
+            name: platform.getName().get(),
+            TokenBosRegister: platform.info.TokenBosRegister.get(),
+            url: platform.info.url.get(),
+            ipAdress: platform.info.ipAdress.get(),
+            loginAdmin: platform.info.loginAdmin.get(),
+            passwordAdmin: platform.info.passwordAdmin.get(),
+            platformType: platform.info.platformType.get(),
+            organList: _organList
+          };
+          platformObjectList.push(PlatformObject);
         }
       }
     }
@@ -253,7 +248,7 @@ export class PlatformService {
       throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
     }
   }
-  public async updatePlateform(
+  public async updatePlatform(
     id: string,
     requestBody: IPlatformUpdateParams
   ): Promise<any> {
@@ -263,81 +258,44 @@ export class PlatformService {
         const platforms = await context.getChildren(
           MONITORING_SERVICE_PLATFORM_RELATION_NAME
         );
-        // for (const platform of platforms) {
-        //   if (platform.getId().get() === id) {
-        //     if (requestBody.name !== undefined) {
-        //       platform.info.name.set(requestBody.name);
-        //     }
-        //     if (requestBody.statusPlatform !== undefined) {
-        //       platform.info.statusPlatform.set(requestBody.statusPlatform);
-        //     }
-        //     if (requestBody.infoHub.ip !== undefined) {
-        //       platform.info.infoHub.ip.set(requestBody.infoHub.ip);
-        //     }
-        //     if (requestBody.infoHub.port !== undefined) {
-        //       platform.info.infoHub.port.set(requestBody.infoHub.port);
-        //     }
-        //     if (requestBody.infoHub.url !== undefined) {
-        //       platform.info.infoHub.url.set(requestBody.infoHub.url);
-        //     }
-        //     if (requestBody.infoHub.login !== undefined) {
-        //       platform.info.infoHub.login.set(requestBody.infoHub.login);
-        //     }
-        //     if (requestBody.infoHub.password !== undefined) {
-        //       platform.info.infoHub.password.set(requestBody.infoHub.password);
-        //     }
-        //     if (requestBody.infoWall.ip !== undefined) {
-        //       platform.info.infoWall.ip.set(requestBody.infoWall.ip);
-        //     }
-        //     if (requestBody.infoWall.port !== undefined) {
-        //       platform.info.infoWall.port.set(requestBody.infoWall.port);
-        //     }
-        //     if (requestBody.infoWall.url !== undefined) {
-        //       platform.info.infoWall.url.set(requestBody.infoWall.url);
-        //     }
-        //     if (requestBody.infoWall.login !== undefined) {
-        //       platform.info.infoWall.login.set(requestBody.infoWall.login);
-        //     }
-        //     if (requestBody.infoWall.password !== undefined) {
-        //       platform.info.infoWall.password.set(requestBody.infoWall.password);
-        //     }
-        //     const organList = await platform.getChildren('HasOrgan');
-        //     let _organList = [];
-        //     if (organList.length !== 0) {
-        //       for (const organ of organList) {
-        //         let infoOrgan = {
-        //           id: organ.getId(),
-        //           name: organ.getName(),
-        //         }
-        //         _organList.push(infoOrgan);
-        //       }
-        //     }
+        for (const platform of platforms) {
+          if (platform.getId().get() === id) {
+            const attrs = await serviceDocumentation.getAttributesByCategory(platform, CATEGORY_NAME);
+            for (const attr of attrs) {
+              if (attr.label.get() === 'name') serviceDocumentation.setAttributeById(platform, attr._server_id, 'name', requestBody.name, attr.type.get(), attr.unit.get())
+              else if (attr.label.get() === 'platformType') serviceDocumentation.setAttributeById(platform, attr._server_id, 'platformType', requestBody.platformType, attr.type.get(), attr.unit.get())
+              else if (attr.label.get() === 'ipAdress') serviceDocumentation.setAttributeById(platform, attr._server_id, 'ipAdress', requestBody.ipAdress, attr.type.get(), attr.unit.get())
+              else if (attr.label.get() === 'url') serviceDocumentation.setAttributeById(platform, attr._server_id, 'url', requestBody.url, attr.type.get(), attr.unit.get())
+              else if (attr.label.get() === 'loginAdmin') serviceDocumentation.setAttributeById(platform, attr._server_id, 'loginAdmin', requestBody.loginAdmin, attr.type.get(), attr.unit.get())
+              else if (attr.label.get() === 'passwordAdmin') serviceDocumentation.setAttributeById(platform, attr._server_id, 'passwordAdmin', requestBody.passwordAdmin, attr.type.get(), attr.unit.get())
+            }
+            const organList = await platform.getChildren('HasOrgan');
+            let _organList = [];
+            if (organList.length !== 0) {
+              for (const organ of organList) {
+                let infoOrgan = {
+                  id: organ.getId(),
+                  name: organ.getName(),
+                }
+                _organList.push(infoOrgan);
+              }
+            }
 
-        //     // await this.logService.createLog(platform, 'PlatformLogs', 'Edit', 'Edit Valid', "Edit Valid");
-        //     return {
-        //       id: platform.getId().get(),
-        //       type: platform.getType().get(),
-        //       name: platform.getName().get(),
-        //       statusPlatform: platform.info.statusPlatform.get(),
-        //       TokenBosRegister: platform.info.TokenBosRegister.get(),
-        //       infoHub: {
-        //         ip: platform.info.infoHub.ip.get(),
-        //         port: platform.info.infoHub.port.get(),
-        //         url: platform.info.infoHub.url.get(),
-        //         login: platform.info.infoHub.login.get(),
-        //         password: platform.info.infoHub.password.get(),
-        //       },
-        //       infoWall: {
-        //         ip: platform.info.infoWall.ip.get(),
-        //         port: platform.info.infoWall.port.get(),
-        //         url: platform.info.infoWall.url.get(),
-        //         login: platform.info.infoWall.login.get(),
-        //         password: platform.info.infoWall.password.get(),
-        //       },
-        //       organList: _organList
-        //     };
-        //   }
-        // }
+            // await this.logService.createLog(platform, 'PlatformLogs', 'Edit', 'Edit Valid', "Edit Valid");
+            return {
+              id: platform.getId().get(),
+              type: platform.getType().get(),
+              name: platform.getName().get(),
+              TokenBosRegister: platform.info.TokenBosRegister.get(),
+              url: platform.info.url.get(),
+              ipAdress: platform.info.ipAdress.get(),
+              loginAdmin: platform.info.loginAdmin.get(),
+              passwordAdmin: platform.info.passwordAdmin.get(),
+              platformType: platform.info.platformType.get(),
+              organList: _organList
+            };
+          }
+        }
       }
     }
   }
@@ -451,6 +409,12 @@ export class PlatformService {
           name: 'registerKey',
           type: REGISTER_KEY_TYPE,
           value: this.generateRegisterKey(),
+          [Symbol.iterator]: function* () {
+            let properties = Object.keys(this);
+            for (let i of properties) {
+              yield [i, this[i]];
+            }
+          }
         };
         const regesterKeyId = SpinalGraphService.createNode(
           registerKeyObject,
@@ -463,6 +427,11 @@ export class PlatformService {
           MONITORING_SERVICE_INFO_RELATION_NAME,
           MONITORING_SERVICE_RELATION_TYPE_PTR_LST
         );
+
+        const category = await serviceDocumentation.addCategoryAttribute(res, CATEGORY_NAME)
+        for (const [key, value] of registerKeyObject) {
+          await serviceDocumentation.addAttributeByCategoryName(res, category.nameCat, key, value)
+        }
         return {
           id: res.getId().get(),
           type: res.getType().get(),
@@ -492,7 +461,12 @@ export class PlatformService {
         );
         for (const child of childrens) {
           if (child.getName().get() === 'registerKey') {
-            child.info.value.set(this.generateRegisterKey());
+            const newValue = this.generateRegisterKey()
+            child.info.value.set(newValue);
+            const attrs = await serviceDocumentation.getAttributesByCategory(child, CATEGORY_NAME);
+            for (const attr of attrs) {
+              if (attr.label.get() === 'value') serviceDocumentation.setAttributeById(child, attr._server_id, 'value', newValue, attr.type.get(), attr.unit.get())
+            }
             return {
               id: child.getId().get(),
               type: child.getType().get(),
@@ -565,46 +539,46 @@ export class PlatformService {
     }
   }
 
-  public async updateNewPlatform(updateParams) {
-    const contexts = await this.graph.getChildren('hasContext');
-    for (const context of contexts) {
-      if (context.getName().get() === PLATFORM_LIST) {
-        const platformList = await context.getChildren('HasPlatform');
-        for (const platform of platformList) {
-          // @ts-ignore
-          SpinalGraphService._addNode(platform);
-          if (platform.getId().get() === updateParams.platformId) {
-            if (
-              platform.info.TokenBosAdmin.get() === updateParams.TokenBosAdmin
-            ) {
-              if (updateParams.jsonData) {
-                //update the old Organ List
-                const oldOrgans = await platform.getChildren('HasOrgan');
-                // await updateOrganProfile(oldOrgans, platform, updateParams.jsonData.organList);
-                // update th old user Profiles
-                const oldUserProfileList = await platform.getChildren('HasUserProfile');
-                // await updateAppUserProfile(oldUserProfileList, platform, updateParams.jsonData.userProfileList, "userProfile")
+  // public async updatePlatform(updateParams) {
+  //   const contexts = await this.graph.getChildren('hasContext');
+  //   for (const context of contexts) {
+  //     if (context.getName().get() === PLATFORM_LIST) {
+  //       const platformList = await context.getChildren('HasPlatform');
+  //       for (const platform of platformList) {
+  //         // @ts-ignore
+  //         SpinalGraphService._addNode(platform);
+  //         if (platform.getId().get() === updateParams.platformId) {
+  //           if (
+  //             platform.info.TokenBosAdmin.get() === updateParams.TokenBosAdmin
+  //           ) {
+  //             if (updateParams.jsonData) {
+  //               //update the old Organ List
+  //               const oldOrgans = await platform.getChildren('HasOrgan');
+  //               // await updateOrganProfile(oldOrgans, platform, updateParams.jsonData.organList);
+  //               // update th old user Profiles
+  //               const oldUserProfileList = await platform.getChildren('HasUserProfile');
+  //               // await updateAppUserProfile(oldUserProfileList, platform, updateParams.jsonData.userProfileList, "userProfile")
 
-                // update the old app profiles
-                const oldAppProfileList = await platform.getChildren('HasAppProfile');
-                // await updateAppUserProfile(oldAppProfileList, platform, updateParams.jsonData.appProfileList, "appProfile")
+  //               // update the old app profiles
+  //               const oldAppProfileList = await platform.getChildren('HasAppProfile');
+  //               // await updateAppUserProfile(oldAppProfileList, platform, updateParams.jsonData.appProfileList, "appProfile")
 
-                platform.info.idPlatformOfAdmin.set(
-                  updateParams.idPlatformOfAdmin
-                );
-                platform.info.TokenAdminBos.set(updateParams.TokenAdminBos);
-                // await this.logService.createLog(platform, 'PlatformLogs', 'PushData', 'Push Data', "Push Data Valid ");
-              }
-            } else {
-              // await this.logService.createLog(platform, 'PlatformLogs', 'PushData', 'Push Data Not Valid', "Push Data Not Valid Empty Json Data");
-              throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
-            }
+  //               platform.info.idPlatformOfAdmin.set(
+  //                 updateParams.idPlatformOfAdmin
+  //               );
+  //               platform.info.TokenAdminBos.set(updateParams.TokenAdminBos);
+  //               // await this.logService.createLog(platform, 'PlatformLogs', 'PushData', 'Push Data', "Push Data Valid ");
+  //             }
+  //           } else {
+  //             // await this.logService.createLog(platform, 'PlatformLogs', 'PushData', 'Push Data Not Valid', "Push Data Not Valid Empty Json Data");
+  //             throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
+  //           }
 
-          }
-        }
-      }
-    }
-  }
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
 
   public async getPlateformLogs(id: string): Promise<IPlatformLogs[]> {
     var logArrayList: IPlatformLogs[] = [];

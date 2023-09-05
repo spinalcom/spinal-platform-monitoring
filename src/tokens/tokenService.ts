@@ -325,6 +325,3 @@ export class TokensService {
     }
   }
 }
-
-  // 'UNKNOWN_TOKEN'
-  // 'TOKEN_EXPIRED'

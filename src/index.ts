@@ -32,7 +32,7 @@ import Server from './server';
 import SpinalMiddleware from './spinalMiddleware';
 import { LOG_LIST, MONITORING_SERVICE_TOKEN_CATEGORY_RELATION_NAME, MONITORING_SERVICE_USER_RELATION_NAME, MONITORING_SERVICE_INFO_RELATION_NAME, MONITORING_SERVICE_LOG_CATEGORY_RELATION_NAME } from './constant'
 import { AuthGraphService } from './services/authGraphService';
-import { OrganService } from './organ/organService';
+// import { OrganService } from './organ/organService';
 import { notificationGoogleChat } from "./utilities/notificationGoogleChat";
 
 async function main() {

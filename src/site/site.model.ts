@@ -59,3 +59,8 @@ export interface IAddPlatform {
   siteId: string;
   platformId: string;
 }
+
+export interface LinkParamSiteToBuilding {
+  siteId: string;
+  buildingId: string;
+}

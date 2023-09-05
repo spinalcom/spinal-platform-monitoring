@@ -31,6 +31,7 @@ export type OperationErrorMessage =
   | 'INVALID_EMAIL'
   | 'USERNAME_IS_ALREADY_USED'
   | 'NOT_CREATED'
+  | 'HUB_NOT_CREATED'
   | 'UNAUTHORIZED ROLE'
   | 'ERROR_PASSWORD'
   | 'UNKNOWN_TOKEN'

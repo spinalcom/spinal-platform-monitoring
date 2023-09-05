@@ -43,7 +43,8 @@ import {
   ISiteCreationParams,
   ISiteUpdateParams,
   ISlaCreationParams,
-  IAddPlatform
+  IAddPlatform,
+  LinkParamSiteToBuilding
 } from './site.model';
 import { SiteService } from './siteServices';
 
@@ -69,6 +70,17 @@ export class SiteController extends Controller {
     new SiteService().addPlatform(requestBody);
     this.setStatus(201); // set return status 201rt
   }
+
+  @Security('jwt')
+  @SuccessResponse('201', 'Created') // Custom success response
+  @Post('linkSiteToBuilding')
+  public async linkSiteToBuilding(
+    @Body() requestBody: LinkParamSiteToBuilding,
+  ): Promise<void> {
+    new SiteService().linkSiteToBuilding(requestBody);
+    this.setStatus(201); // set return status 201rt
+  }
+
 
 
 

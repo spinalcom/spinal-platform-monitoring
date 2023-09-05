@@ -27,7 +27,7 @@ export interface IOrgan {
   name?: string;
   type?: string;
   mac_adress?: string;
-  IP_adress?: string;
+  ip_adress?: string;
   organType?: string;
   platformId?: string;
 }
@@ -38,7 +38,7 @@ export interface IOrganHub {
   name?: string;
   type?: string;
   mac_adress?: string;
-  IP_adress?: string;
+  ip_adress?: string;
   URL: string;
   port: number;
   login: string;
@@ -46,12 +46,26 @@ export interface IOrganHub {
   organType?: string;
   platformId?: string;
 }
+
+export interface IOrganHubCreationParams {
+  bosId: string;
+  name?: string;
+  mac_adress?: string;
+  ip_adress?: string;
+  url: string;
+  port: number;
+  login: string;
+  password: string;
+  organType?: string;
+  platformId?: string;
+}
+
 export interface IOrganCreationParams {
   bosId: string;
   name?: string;
   type?: string;
   mac_adress: string;
-  IP_adress: string;
+  ip_adress: string;
   organType?: string;
   platformId?: string;
 }
@@ -60,7 +74,18 @@ export interface IOrganUpdateParams {
   name?: string;
   organType?: string;
   mac_adress: string;
-  IP_adress: string;
+  ip_adress: string;
+}
+
+export interface IOrganHubUpdateParams {
+  name?: string;
+  mac_adress?: string;
+  ip_adress?: string;
+  URL: string;
+  port: number;
+  login: string;
+  password: string;
+  organType?: string;
 }
 
 

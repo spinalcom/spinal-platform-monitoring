@@ -99,6 +99,7 @@ export const LOG_LIST = 'logList';
 export const NOTIFICATION_LIST = 'notificationList'
 export const SERVER_LIST = 'serverList'
 export const ORGAN_LIST = 'organList'
+export const ORGAN_GROUP = 'organGroup'
 export const CUSTOMER_LIST = "customerList";
 export const SITE_LIST = "siteList";
 export const BUILDING_LIST = "buildingList";

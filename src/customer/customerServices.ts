@@ -28,13 +28,17 @@ import {
   MONITORING_SERVICE_RELATION_TYPE_PTR_LST,
   CATEGORY_NAME,
   MONITORING_SERVICE_CUSTOMER_RELATION_NAME,
+  MONITORING_SERVICE_SITE_RELATION_NAME,
   MONITORING_SERVICE_CONTACT_RELATION_NAME,
   CONTACT_TYPE,
-  MONITORING_SERVICE_PLATFORM_RELATION_NAME
+  MONITORING_SERVICE_PLATFORM_RELATION_NAME,
+
+  SITE_LIST
 } from '../constant';
 import {
   SpinalGraphService,
   SpinalGraph,
+  SpinalNode,
 } from 'spinal-env-viewer-graph-service';
 import { OperationError } from '../utilities/operation-error';
 import { HttpStatusCode } from '../utilities/http-status-code';
@@ -43,7 +47,8 @@ import {
   ICustomerCreationParams,
   ICustomerUpdateParams,
   IContactCreationParams,
-  IAddPlatform
+  IAddPlatform,
+  LinkParamCustomerToSite
 } from './customer.model';
 
 import SpinalMiddleware from '../spinalMiddleware';
@@ -279,6 +284,8 @@ export class CustomerService {
           MONITORING_SERVICE_PLATFORM_RELATION_NAME,
           MONITORING_SERVICE_RELATION_TYPE_PTR_LST
         );
+        console.log(addchild);
+
         if (addchild) {
           // const category = await serviceDocumentation.addCategoryAttribute(customer, CATEGORY_NAME)
           // await serviceDocumentation.addAttributeByCategoryName(resContact, category.nameCat, key, value)
@@ -329,8 +336,41 @@ export class CustomerService {
         return customerObject
       }
     }
+  }
 
-
+  public async linkCustomerToSite(requestBody: LinkParamCustomerToSite): Promise<void> {
+    var foundCustomer: SpinalNode;
+    var foundSite: SpinalNode;
+    const customerContext = SpinalGraphService.getContext(CUSTOMER_LIST)
+    const siteContext = SpinalGraphService.getContext(SITE_LIST)
+    const customers = await customerContext.getChildren(
+      MONITORING_SERVICE_CUSTOMER_RELATION_NAME
+    );
+    const sites = await siteContext.getChildren(
+      MONITORING_SERVICE_SITE_RELATION_NAME
+    );
+    for (const customer of customers) {
+      console.log(customer.getId().get());
+      if (customer.getId().get() === requestBody.customerId) {
+        foundCustomer = customer;
+        // @ts-ignore
+        SpinalGraphService._addNode(customer);
+      }
+    }
+    for (const site of sites) {
+      if (site.getId().get() === requestBody.siteId) {
+        foundSite = site;
+        // @ts-ignore
+        SpinalGraphService._addNode(site);
+      }
+    }
+    if (foundCustomer === undefined || foundSite === undefined) {
+      throw new OperationError(
+        'NOT_FOUND',
+        HttpStatusCode.FORBIDDEN
+      );
+    }
+    await SpinalGraphService.addChild(foundCustomer.getId().get(), foundSite.getId().get(), MONITORING_SERVICE_SITE_RELATION_NAME, MONITORING_SERVICE_RELATION_TYPE_PTR_LST)
   }
 
 }

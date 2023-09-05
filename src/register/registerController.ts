@@ -59,10 +59,11 @@ export class RegisterController extends Controller {
   }
 
   @SuccessResponse('201', 'Updated') // Custom success response
-  @Put()
-  public async updatePlatform(@Body() object): Promise<any> {
-    let platform = new PlatformService().updateNewPlatform(object);
-    this.setStatus(201); // set return status 201rt
-    return platform;
+  @Put('{platformId}')
+  public async updatePlateform(
+    @Path() platformId: string,
+    @Body() requestBody: any
+  ): Promise<IPlatform> {
+    return new PlatformService().updatePlatform(platformId, requestBody);
   }
 }
