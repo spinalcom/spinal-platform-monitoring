@@ -45,6 +45,7 @@ import SpinalMiddleware from '../spinalMiddleware';
 import serviceDocumentation from "spinal-env-viewer-plugin-documentation-service"
 import { InputDataEndpoint, InputDataEndpointDataType, InputDataEndpointType } from 'spinal-model-bmsnetwork';
 import getInstance from '../utilities/NetworkService';
+import spinalServiceTimeSeries from '../utilities/spinalTimeSeries';
 
 export class ServerService {
   public spinalMiddleware: SpinalMiddleware = SpinalMiddleware.getInstance();
@@ -303,6 +304,61 @@ export class ServerService {
         await server.removeFromGraph()
       }
     }
+  }
+
+  public async pushDataServer(requestBody: any) {
+    const context = SpinalGraphService.getContext('serverList')
+    const servers = await context.getChildren(
+      MONITORING_SERVICE_SERVER_RELATION_NAME
+    );
+    for (const server of servers) {
+      const endpoints = await server.getChildren('hasBmsEndpoint')
+      for (const endpoint of endpoints) {
+        if (endpoint.getName().get() === 'reboot_history') {
+          // @ts-ignore
+          SpinalGraphService._addNode(endpoint);
+          var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
+          await timeseries.insert(requestBody.reboot, Date.now());
+        } else if (endpoint.getName().get() === 'swap_history') {
+          // @ts-ignore
+          SpinalGraphService._addNode(endpoint);
+          var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
+          await timeseries.insert(requestBody.swap, Date.now());
+        } else if (endpoint.getName().get() === 'ram_history') {
+          // @ts-ignore
+          SpinalGraphService._addNode(endpoint);
+          var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
+          await timeseries.insert(requestBody.ram, Date.now());
+        } else if (endpoint.getName().get() === 'DD_history') {
+          // @ts-ignore
+          SpinalGraphService._addNode(endpoint);
+          var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
+          await timeseries.insert(requestBody.DD, Date.now());
+        } else if (endpoint.getName().get() === 'swap_history') {
+          // @ts-ignore
+          SpinalGraphService._addNode(endpoint);
+          var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
+          await timeseries.insert(requestBody.swap, Date.now());
+        } else if (endpoint.getName().get() === 'cache_history') {
+          // @ts-ignore
+          SpinalGraphService._addNode(endpoint);
+          var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
+          await timeseries.insert(requestBody.cache, Date.now());
+        } else if (endpoint.getName().get() === 'used_proc_history') {
+          // @ts-ignore
+          SpinalGraphService._addNode(endpoint);
+          var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
+          await timeseries.insert(requestBody.used_proc, Date.now());
+        }
+        else if (endpoint.getName().get() === 'flux_history') {
+          // @ts-ignore
+          SpinalGraphService._addNode(endpoint);
+          var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
+          await timeseries.insert(requestBody.flux, Date.now());
+        }
+      }
+    }
+    console.log(requestBody);
   }
 
 }

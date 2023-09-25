@@ -235,6 +235,21 @@ const models: TsoaRoute.Models = {
             "ip_adress": {"dataType":"string"},
             "organType": {"dataType":"string"},
             "platformId": {"dataType":"string"},
+            "status": {"dataType":"string"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IOrganCreationParams": {
+        "dataType": "refObject",
+        "properties": {
+            "bosId": {"dataType":"string","required":true},
+            "name": {"dataType":"string"},
+            "type": {"dataType":"string"},
+            "mac_adress": {"dataType":"string","required":true},
+            "ip_adress": {"dataType":"string","required":true},
+            "organType": {"dataType":"string"},
+            "platformId": {"dataType":"string"},
         },
         "additionalProperties": false,
     },
@@ -254,6 +269,7 @@ const models: TsoaRoute.Models = {
             "password": {"dataType":"string","required":true},
             "organType": {"dataType":"string"},
             "platformId": {"dataType":"string"},
+            "status": {"dataType":"string"},
         },
         "additionalProperties": false,
     },
@@ -633,7 +649,7 @@ export function RegisterRoutes(app: Router) {
 
 
               const promise = controller.addPlatform.apply(controller, validatedArgs as any);
-              promiseHandler(controller, promise, response, 201, next);
+              promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);
             }
@@ -1083,7 +1099,8 @@ export function RegisterRoutes(app: Router) {
 
             function OrgansController_createOrgan(request: any, response: any, next: any) {
             const args = {
-                    requestBody: {"in":"body","name":"requestBody","required":true,"dataType":"any"},
+                    test: {"in":"header","name":"x-access-token","required":true,"dataType":"string"},
+                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"IOrganCreationParams"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -1585,6 +1602,31 @@ export function RegisterRoutes(app: Router) {
 
               const promise = controller.deleteServer.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/servers/pushDataServer',
+            ...(fetchMiddlewares<RequestHandler>(ServersController)),
+            ...(fetchMiddlewares<RequestHandler>(ServersController.prototype.pushDataServer)),
+
+            function ServersController_pushDataServer(request: any, response: any, next: any) {
+            const args = {
+                    requestBody: {"in":"body","name":"requestBody","required":true,"dataType":"any"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new ServersController();
+
+
+              const promise = controller.pushDataServer.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, 201, next);
             } catch (err) {
                 return next(err);
             }

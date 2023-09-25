@@ -65,13 +65,11 @@ export class CustomerController extends Controller {
 
 
   @Security('jwt')
-  @SuccessResponse('201', 'Created') // Custom success response
   @Post('addPlatform')
   public async addPlatform(
     @Body() requestBody: IAddPlatform,
   ): Promise<void> {
     new CustomerService().addPlatform(requestBody);
-    this.setStatus(201); // set return status 201rt
   }
 
   @Security('jwt')

@@ -30,6 +30,7 @@ export interface IOrgan {
   ip_adress?: string;
   organType?: string;
   platformId?: string;
+  status?: string;
 }
 
 export interface IOrganHub {
@@ -45,6 +46,7 @@ export interface IOrganHub {
   password: string;
   organType?: string;
   platformId?: string;
+  status?: string;
 }
 
 export interface IOrganHubCreationParams {

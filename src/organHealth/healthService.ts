@@ -30,6 +30,10 @@ import {
   SpinalContext,
   SpinalNode,
 } from 'spinal-env-viewer-graph-service';
+import { InputDataEndpoint, InputDataEndpointDataType, InputDataEndpointType } from 'spinal-model-bmsnetwork';
+import getInstance from '../utilities/NetworkService';
+import spinalServiceTimeSeries from '../utilities/spinalTimeSeries';
+
 export class HealthService {
   public spinalMiddleware: SpinalMiddleware = SpinalMiddleware.getInstance();
   public graph: SpinalGraph<any>;
@@ -42,27 +46,47 @@ export class HealthService {
   public async createHealth(requestBody: any): Promise<any> {
     const contextPlatform = await SpinalGraphService.getContext('platformList');
     const platforms = await contextPlatform.getChildren('HasPlatform')
-
     for (const platform of platforms) {
       if (platform.info.TokenBosRegister.get() === requestBody.TokenBosRegister) {
         const organs = await platform.getChildren('HasOrgan');
         for (const organ of organs) {
           for (const infoOrgan of requestBody.infoOrgans) {
             if (organ.info.bosId.get() === infoOrgan.genericOrganData.id) {
-
               let state: string = "";
               if (isWithinTwoMinutes(infoOrgan.genericOrganData.lastHealthTime)) {
                 state = "online"
               } else {
                 state = "stop"
               }
-              // organ.info.bootTimestamp.set(infoOrgan.genericOrganData.bootTimestamp);
-              // organ.info.lastHealthTime.set(infoOrgan.genericOrganData.lastHealthTime);
-              // organ.info.ramHeapUsed.set(infoOrgan.genericOrganData.ramHeapUsed);
-              organ.info.statusOrgan.set(state);
-              organ.info.ipAdress.set(infoOrgan.specificOrganData.ipAdress);
-              organ.info.port.set(infoOrgan.specificOrganData.port);
-              organ.info.protocol.set(infoOrgan.specificOrganData.protocol);
+              const endpoints = await organ.getChildren('hasBmsEndpoint')
+              for (const endpoint of endpoints) {
+                if (endpoint.getName().get() === 'health_history') {
+                  // @ts-ignore
+                  SpinalGraphService._addNode(endpoint);
+                  var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
+                  await timeseries.insert(infoOrgan.genericOrganData.lastHealthTime, Date.now());
+                } else if (endpoint.getName().get() === 'reboot_history') {
+                  // @ts-ignore
+                  SpinalGraphService._addNode(endpoint);
+                  var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
+                  await timeseries.insert(infoOrgan.genericOrganData.bootTimestamp, Date.now());
+                } else if (endpoint.getName().get() === 'ram_history') {
+                  // @ts-ignore
+                  SpinalGraphService._addNode(endpoint);
+                  const chaine = infoOrgan.genericOrganData.ramRssUsed;
+                  const regex = /([\d.]+)\s*MB/;
+                  const match = chaine.match(regex);
+                  if (match) {
+                    const resRegex = parseFloat(match[1]);
+                    var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
+                    await timeseries.insert(resRegex, Date.now());
+                    console.log(resRegex);
+                  }
+                }
+              }
+
+              // organ.info.ipAdress.set(infoOrgan.specificOrganData.ipAdress);
+              // organ.info.mac_adress.set(infoOrgan.specificOrganData.mac_adress);
             }
           }
         }

@@ -48,7 +48,8 @@ import {
   IPlatformUpdateParams,
   IRegisterParams,
   IRegisterKeyObject,
-  IPlatformLogs
+  IPlatformLogs,
+  IPlatformPushDataParams
 } from './platform.model';
 import serviceDocumentation from "spinal-env-viewer-plugin-documentation-service"
 import SpinalMiddleware from '../spinalMiddleware';
@@ -220,8 +221,8 @@ export class PlatformService {
           if (organList.length !== 0) {
             for (const organ of organList) {
               let infoOrgan = {
-                id: organ.getId(),
-                name: organ.getName(),
+                id: organ.getId().get(),
+                name: organ.getName().get(),
               }
               _organList.push(infoOrgan);
             }
@@ -619,107 +620,58 @@ export class PlatformService {
       throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
     }
   }
+
+
+
+  public async pushDataPlatform(
+    requestBody: IPlatformPushDataParams
+  ): Promise<any> {
+    const contexts = await this.graph.getChildren('hasContext');
+    for (const context of contexts) {
+      if (context.getName().get() === PLATFORM_LIST) {
+        const platforms = await context.getChildren(
+          MONITORING_SERVICE_PLATFORM_RELATION_NAME
+        );
+        for (const platform of platforms) {
+          if (platform.getId().get() === requestBody.id) {
+            const attrs = await serviceDocumentation.getAttributesByCategory(platform, CATEGORY_NAME);
+            for (const attr of attrs) {
+              if (attr.label.get() === 'name') serviceDocumentation.setAttributeById(platform, attr._server_id, 'name', requestBody.name, attr.type.get(), attr.unit.get())
+              else if (attr.label.get() === 'platformType') serviceDocumentation.setAttributeById(platform, attr._server_id, 'platformType', requestBody.platformType, attr.type.get(), attr.unit.get())
+              else if (attr.label.get() === 'ipAdress') serviceDocumentation.setAttributeById(platform, attr._server_id, 'ipAdress', requestBody.ipAdress, attr.type.get(), attr.unit.get())
+              else if (attr.label.get() === 'url') serviceDocumentation.setAttributeById(platform, attr._server_id, 'url', requestBody.url, attr.type.get(), attr.unit.get())
+              else if (attr.label.get() === 'loginAdmin') serviceDocumentation.setAttributeById(platform, attr._server_id, 'loginAdmin', requestBody.loginAdmin, attr.type.get(), attr.unit.get())
+              else if (attr.label.get() === 'passwordAdmin') serviceDocumentation.setAttributeById(platform, attr._server_id, 'passwordAdmin', requestBody.passwordAdmin, attr.type.get(), attr.unit.get())
+            }
+            const organList = await platform.getChildren('HasOrgan');
+            let _organList = [];
+            if (organList.length !== 0) {
+              for (const organ of organList) {
+                let infoOrgan = {
+                  id: organ.getId(),
+                  name: organ.getName(),
+                }
+                _organList.push(infoOrgan);
+              }
+            }
+
+            // await this.logService.createLog(platform, 'PlatformLogs', 'Edit', 'Edit Valid', "Edit Valid");
+            return {
+              id: platform.getId().get(),
+              type: platform.getType().get(),
+              name: platform.getName().get(),
+              TokenBosRegister: platform.info.TokenBosRegister.get(),
+              url: platform.info.url.get(),
+              ipAdress: platform.info.ipAdress.get(),
+              loginAdmin: platform.info.loginAdmin.get(),
+              passwordAdmin: platform.info.passwordAdmin.get(),
+              platformType: platform.info.platformType.get(),
+              organList: _organList
+            };
+          }
+        }
+      }
+    }
+  }
 }
-// async function updateOrganProfile(oldOrgans: SpinalNode<any>[], platform: SpinalNode<any>, newList: any[]) {
-//   var arrayDelete = [];
-//   var arrayCreate = [];
-//   for (const oldOrgan of oldOrgans) {
-//     const resSome = newList.some(it => {
-//       return it.label === oldOrgan.getId().get();
-//     });
-//     if (resSome === false) {
-//       arrayDelete.push(oldOrgan);
-//     }
-//   }
-//   for (const newOrgan of newList) {
-//     const resSome = oldOrgans.some(it => {
-//       return it.getId().get() === newOrgan.label;
-//     });
-
-//     if (resSome === false) {
-//       arrayCreate.push(newOrgan);
-//     }
-//   }
-//   for (const organ of arrayDelete) {
-//     await organ.removeFromGraph();
-//   }
-//   const organService = new OrganService();
-//   for (const organ of arrayCreate) {
-//     organService.createOrgan({
-//       name: organ.label,
-//       organType: organ.type,
-//       statusOrgan: 'online',
-//       platformId: platform.getId().get(),
-//     });
-//   }
-// }
-
-// async function updateAppUserProfile(oldList: SpinalNode<any>[], platform: SpinalNode<any>, newList: any[], type: string) {
-//   const profileServices = new ProfileServices();
-
-//   var arrayDelete = [];
-//   var arrayCreate = [];
-//   if (type === "userProfile") {
-//     for (const olditem of oldList) {
-//       const resSome = newList.some(it => {
-//         return it.userProfileId === olditem.info.userProfileId.get();
-//       });
-//       if (resSome === false) {
-//         arrayDelete.push(olditem);
-//       }
-//     }
-//     for (const newItem of newList) {
-//       const resSome = oldList.some(it => {
-//         return it.info.userProfileId.get() === newItem.userProfileId;
-//       });
-
-//       if (resSome === false) {
-//         arrayCreate.push(newItem);
-//       }
-//     }
-//     for (const item of arrayDelete) {
-//       await item.removeFromGraph();
-//     }
-
-//     for (const item of arrayCreate) {
-//       profileServices.createUserProfileService({
-//         userProfileId: item.userProfileId,
-//         name: item.label,
-//         platformId: platform.getId().get(),
-//       })
-//     }
-
-
-
-//   } else if (type === "appProfile") {
-
-//     for (const olditem of oldList) {
-//       const resSome = newList.some(it => {
-//         return it.appProfileId === olditem.info.appProfileId.get();
-//       });
-//       if (resSome === false) {
-//         arrayDelete.push(olditem);
-//       }
-//     }
-//     for (const newItem of newList) {
-//       const resSome = oldList.some(it => {
-//         return it.info.appProfileId.get() === newItem.appProfileId;
-//       });
-
-//       if (resSome === false) {
-//         arrayCreate.push(newItem);
-//       }
-//     }
-//     for (const item of arrayDelete) {
-//       await item.removeFromGraph();
-//     }
-//     for (const item of arrayCreate) {
-//       profileServices.createAppProfileService({
-//         appProfileId: item.appProfileId,
-//         name: item.label,
-//         platformId: platform.getId().get(),
-//       });
-//     }
-//   }
-// }
 

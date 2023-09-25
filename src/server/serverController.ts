@@ -41,6 +41,7 @@ import {
   IServerUpdateParams
 } from './server.model'
 import { ServerService } from './serverServices';
+import { log } from 'console';
 
 @Route('servers')
 export class ServersController extends Controller {
@@ -83,5 +84,16 @@ export class ServersController extends Controller {
     @Path() serverId: string,
   ): Promise<void> {
     return new ServerService().deleteServer(serverId);
+  }
+
+
+
+  @SuccessResponse('201', 'Created') // Custom success response
+  @Post('pushDataServer')
+  public async pushDataServer(
+    @Body() requestBody: any
+  ): Promise<any> {
+    this.setStatus(201); // set return status 201rt
+    return new ServerService().pushDataServer(requestBody)
   }
 }

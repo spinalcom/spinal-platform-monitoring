@@ -68,12 +68,16 @@ export class OrganService {
     organCreationParms: IOrganCreationParams
   ): Promise<IOrgan> {
     const oragnListContext = SpinalGraphService.getContext('organList');
+
     const organObject = {
       name: organCreationParms.name,
       type: ORGAN_TYPE,
       bosId: organCreationParms.bosId,
       organType: organCreationParms.organType,
+      mac_adress: organCreationParms.mac_adress,
+      ip_adress: organCreationParms.ip_adress,
       platformId: organCreationParms.platformId,
+      status: "",
       [Symbol.iterator]: function* () {
         let properties = Object.keys(this);
         for (let i of properties) {
@@ -150,8 +154,11 @@ export class OrganService {
         bosId: res.info.bosId.get(),
         name: res.getName().get(),
         type: res.getType().get(),
+        mac_adress: res.info.mac_adress.get(),
+        ip_adress: res.info.ip_adress.get(),
         organType: res.info.organType.get(),
         platformId: res.info.platformId.get(),
+        status: res.info.status === undefined ? "" : res.info.status.get()
       };
     }
   }
@@ -173,6 +180,7 @@ export class OrganService {
       password: organCreationParms.password,
       organType: organCreationParms.organType,
       platformId: platformId,
+      status: "",
       [Symbol.iterator]: function* () {
         let properties = Object.keys(this);
         for (let i of properties) {
@@ -255,6 +263,7 @@ export class OrganService {
         password: res.info.password.get(),
         organType: res.info.organType.get(),
         platformId: res.info.platformId.get(),
+        status: res.info.status === undefined ? "" : res.info.status.get()
       };
     }
   }
@@ -282,6 +291,7 @@ export class OrganService {
           else if (attr.label.get() === 'password') Object.assign(organObject, { password: attr.value.get() });
           else if (attr.label.get() === 'organType') Object.assign(organObject, { organType: attr.value.get() });
           else if (attr.label.get() === 'platformId') Object.assign(organObject, { platformId: attr.value.get() });
+          else if (attr.label.get() === 'status') Object.assign(organObject, { status: attr.value.get() });
         }
         organsObjectList.push(organObject);
       }
@@ -314,6 +324,7 @@ export class OrganService {
             else if (attr.label.get() === 'password') Object.assign(organObject, { password: attr.value.get() });
             else if (attr.label.get() === 'organType') Object.assign(organObject, { organType: attr.value.get() });
             else if (attr.label.get() === 'platformId') Object.assign(organObject, { platformId: attr.value.get() });
+            else if (attr.label.get() === 'status') Object.assign(organObject, { status: attr.value.get() });
           }
         }
       }
@@ -356,6 +367,7 @@ export class OrganService {
             else if (attr.label.get() === 'ip_adress') Object.assign(organObject, { ip_adress: attr.value.get() });
             else if (attr.label.get() === 'organType') Object.assign(organObject, { organType: attr.value.get() });
             else if (attr.label.get() === 'platformId') Object.assign(organObject, { platformId: attr.value.get() });
+            else if (attr.label.get() === 'status') Object.assign(organObject, { status: attr.value.get() });
           }
         }
       }

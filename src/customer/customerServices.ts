@@ -33,7 +33,8 @@ import {
   CONTACT_TYPE,
   MONITORING_SERVICE_PLATFORM_RELATION_NAME,
 
-  SITE_LIST
+  SITE_LIST,
+  PLATFORM_LIST
 } from '../constant';
 import {
   SpinalGraphService,
@@ -270,29 +271,43 @@ export class CustomerService {
 
 
   public async addPlatform(requestBody: IAddPlatform): Promise<void> {
-    const context = SpinalGraphService.getContext(CUSTOMER_LIST)
-    const customers = await context.getChildren(
+
+    var foundCustomer: SpinalNode;
+    var foundPlatform: SpinalNode;
+    const customerContext = SpinalGraphService.getContext(CUSTOMER_LIST)
+    const platformContext = SpinalGraphService.getContext(PLATFORM_LIST)
+    const customers = await customerContext.getChildren(
       MONITORING_SERVICE_CUSTOMER_RELATION_NAME
+    );
+    const platforms = await platformContext.getChildren(
+      MONITORING_SERVICE_PLATFORM_RELATION_NAME
     );
     for (const customer of customers) {
       if (customer.getId().get() === requestBody.customerId) {
+        foundCustomer = customer;
         // @ts-ignore
-        SpinalGraphService._addNode(customer)
-        var addchild = await SpinalGraphService.addChild(
-          customer.getId().get(),
-          requestBody.platformId,
-          MONITORING_SERVICE_PLATFORM_RELATION_NAME,
-          MONITORING_SERVICE_RELATION_TYPE_PTR_LST
-        );
-        console.log(addchild);
-
-        if (addchild) {
-          // const category = await serviceDocumentation.addCategoryAttribute(customer, CATEGORY_NAME)
-          // await serviceDocumentation.addAttributeByCategoryName(resContact, category.nameCat, key, value)
-          console.error("platform not added")
-        }
+        SpinalGraphService._addNode(customer);
       }
     }
+    for (const platform of platforms) {
+      if (platform.getId().get() === requestBody.platformId) {
+        foundPlatform = platform;
+        // @ts-ignore
+        SpinalGraphService._addNode(platform);
+      }
+    }
+    if (foundCustomer === undefined || foundPlatform === undefined) {
+      throw new OperationError(
+        'NOT_FOUND',
+        HttpStatusCode.FORBIDDEN
+      );
+    }
+    console.log(foundCustomer.getName().get());
+    console.log(foundPlatform.getName().get());
+
+    const res = await SpinalGraphService.addChild(foundCustomer.getId().get(), foundPlatform.getId().get(), MONITORING_SERVICE_PLATFORM_RELATION_NAME, MONITORING_SERVICE_RELATION_TYPE_PTR_LST);
+    console.log(res);
+
   }
 
 

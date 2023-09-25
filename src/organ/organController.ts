@@ -33,6 +33,7 @@ import {
   Route,
   Security,
   SuccessResponse,
+  Header
 } from 'tsoa';
 import {
   IOrganCreationParams,
@@ -50,9 +51,12 @@ export class OrgansController extends Controller {
   @Security('jwt')
   @SuccessResponse('201', 'Created') // Custom success response
   @Post()
+
   public async createOrgan(
-    @Body() requestBody: any
+    @Header('x-access-token') test: string,
+    @Body() requestBody: IOrganCreationParams
   ): Promise<IOrgan> {
+
     let organ = new OrganService().createOrgan(requestBody);
     this.setStatus(201); // set return status 201rt
     return organ;

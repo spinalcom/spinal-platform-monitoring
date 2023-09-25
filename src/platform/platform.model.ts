@@ -67,7 +67,6 @@ export interface IPlatformUpdateParams {
   url: string;
   loginAdmin: string;
   passwordAdmin: string;
-  hubOrgan: IOrgan;
   organList?: {
     organId: string;
     organName: string;
@@ -93,4 +92,22 @@ export interface IPlatformLogs {
     actorId: string;
     actorName: string;
   }
+}
+
+
+
+export interface IPlatformPushDataParams {
+  id: string;
+  name: string;
+  type: string;
+  platformType: string;
+  TokenBosRegister?: string;
+  ipAdress: string;
+  url: string;
+  loginAdmin: string;
+  passwordAdmin: string;
+  organList?: {
+    organId: string;
+    organName: string;
+  }[]
 }
