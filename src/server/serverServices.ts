@@ -318,47 +318,47 @@ export class ServerService {
           // @ts-ignore
           SpinalGraphService._addNode(endpoint);
           var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
-          await timeseries.insert(requestBody.reboot, Date.now());
+          await timeseries.insert(requestBody.infoServer.reboot, Date.now());
         } else if (endpoint.getName().get() === 'swap_history') {
           // @ts-ignore
           SpinalGraphService._addNode(endpoint);
           var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
-          await timeseries.insert(requestBody.swap, Date.now());
+          await timeseries.insert(requestBody.infoServer.swap, Date.now());
         } else if (endpoint.getName().get() === 'ram_history') {
           // @ts-ignore
           SpinalGraphService._addNode(endpoint);
           var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
-          await timeseries.insert(requestBody.ram, Date.now());
+          await timeseries.insert(requestBody.infoServer.ram, Date.now());
         } else if (endpoint.getName().get() === 'DD_history') {
           // @ts-ignore
           SpinalGraphService._addNode(endpoint);
           var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
-          await timeseries.insert(requestBody.DD, Date.now());
+          await timeseries.insert(requestBody.infoServer.DD, Date.now());
         } else if (endpoint.getName().get() === 'swap_history') {
           // @ts-ignore
           SpinalGraphService._addNode(endpoint);
           var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
-          await timeseries.insert(requestBody.swap, Date.now());
+          await timeseries.insert(requestBody.infoServer.swap, Date.now());
         } else if (endpoint.getName().get() === 'cache_history') {
           // @ts-ignore
           SpinalGraphService._addNode(endpoint);
           var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
-          await timeseries.insert(requestBody.cache, Date.now());
-        } else if (endpoint.getName().get() === 'used_proc_history') {
-          // @ts-ignore
-          SpinalGraphService._addNode(endpoint);
-          var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
-          await timeseries.insert(requestBody.used_proc, Date.now());
+          await timeseries.insert(requestBody.infoServer.cache, Date.now());
         }
+        // else if (endpoint.getName().get() === 'used_proc_history') {
+        //   // @ts-ignore
+        //   SpinalGraphService._addNode(endpoint);
+        //   var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
+        //   await timeseries.insert(requestBody.infoServer.used_proc, Date.now());
+        // }
         else if (endpoint.getName().get() === 'flux_history') {
           // @ts-ignore
           SpinalGraphService._addNode(endpoint);
           var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
-          await timeseries.insert(requestBody.flux, Date.now());
+          await timeseries.insert(requestBody.infoServer.flux, Date.now());
         }
       }
     }
-    console.log(requestBody);
   }
 
 }

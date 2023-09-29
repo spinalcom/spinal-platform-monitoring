@@ -168,7 +168,7 @@ export class TokensService {
             createdToken: token.info.createdToken.get(),
             expieredToken: token.info.expieredToken.get(),
             userId: token.info.userId.get(),
-            userType: token.info.userType.get(),
+            userType: ""
           };
           tokenList.push(info);
         }

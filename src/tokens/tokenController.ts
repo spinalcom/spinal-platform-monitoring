@@ -47,7 +47,7 @@ export class TokensController extends Controller {
     return new TokensService().getTokens();
   }
 
-  @Security('jwt')
+  // @Security('jwt')
   @Get('/UserToken')
   public async getUserTokens(): Promise<IToken[]> {
     this.setStatus(201); // set return status 201
