@@ -358,6 +358,7 @@ const models: TsoaRoute.Models = {
             "boot_timestamp": {"dataType":"string"},
             "last_health_time": {"dataType":"string"},
             "serverType": {"dataType":"string"},
+            "serverManagerId": {"dataType":"string"},
         },
         "additionalProperties": false,
     },

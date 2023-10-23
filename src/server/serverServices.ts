@@ -59,6 +59,11 @@ export class ServerService {
   public async createServer(serverCreationParms: IServerCreationParams
   ): Promise<IServer> {
     const context = SpinalGraphService.getContext('serverList');
+    const generator = require('generate-password');
+    const serverManagerId = generator.generate({
+      length: 30,
+      numbers: true,
+    });
     const serverObject: IServerCreationParams = {
       type: SERVER_TYPE,
       name: serverCreationParms.name,
@@ -69,6 +74,7 @@ export class ServerService {
       boot_timestamp: serverCreationParms.boot_timestamp,
       last_health_time: serverCreationParms.last_health_time,
       serverType: serverCreationParms.serverType,
+      serverManagerId: serverManagerId,
       [Symbol.iterator]: function* () {
         let properties = Object.keys(this);
         for (let i of properties) {
@@ -77,7 +83,6 @@ export class ServerService {
       }
     };
     const ServerId = SpinalGraphService.createNode(serverObject, undefined);
-
     var res = await SpinalGraphService.addChildInContext(
       context.getId().get(),
       ServerId,
@@ -105,7 +110,7 @@ export class ServerService {
       name: "ram_history",
       path: "",
       currentValue: 0,
-      unit: 'mgo',
+      unit: 'GB',
       nodeTypeName: 'BmsEndpoint',
       dataType: InputDataEndpointDataType.Integer,
       type: InputDataEndpointType.Other,
@@ -115,17 +120,17 @@ export class ServerService {
       name: "usedProc_history",
       path: "",
       currentValue: 0,
-      unit: 'pourcentage',
+      unit: 'percentage',
       nodeTypeName: 'BmsEndpoint',
       dataType: InputDataEndpointDataType.Integer,
       type: InputDataEndpointType.Other,
     };
     const cacheObj: InputDataEndpoint = {
       id: "0",
-      name: "usedProc_history",
+      name: "cache_history",
       path: "",
       currentValue: 0,
-      unit: 'cache',
+      unit: 'GB',
       nodeTypeName: 'BmsEndpoint',
       dataType: InputDataEndpointDataType.Integer,
       type: InputDataEndpointType.Other,
@@ -135,7 +140,7 @@ export class ServerService {
       name: "swap_history",
       path: "",
       currentValue: 0,
-      unit: 'swap',
+      unit: 'GB',
       nodeTypeName: 'BmsEndpoint',
       dataType: InputDataEndpointDataType.Date,
       type: InputDataEndpointType.Other,
@@ -145,7 +150,7 @@ export class ServerService {
       name: "DD_history",
       path: "",
       currentValue: 0,
-      unit: 'DD',
+      unit: 'GB',
       nodeTypeName: 'BmsEndpoint',
       dataType: InputDataEndpointDataType.Date,
       type: InputDataEndpointType.Other,
@@ -179,6 +184,7 @@ export class ServerService {
         boot_timestamp: res.info.boot_timestamp.get(),
         last_health_time: res.info.last_health_time.get(),
         serverType: res.info.serverType.get(),
+        serverManagerId: res.info.serverManagerId.get(),
       };
     }
   }
@@ -203,6 +209,8 @@ export class ServerService {
           else if (attr.label.get() === 'boot_timestamp') serviceDocumentation.setAttributeById(server, attr._server_id, 'boot_timestamp', requestBody.boot_timestamp, attr.type.get(), attr.unit.get())
           else if (attr.label.get() === 'last_health_time') serviceDocumentation.setAttributeById(server, attr._server_id, 'last_health_time', requestBody.last_health_time, attr.type.get(), attr.unit.get())
           else if (attr.label.get() === 'serverType') serviceDocumentation.setAttributeById(server, attr._server_id, 'serverType', requestBody.serverType, attr.type.get(), attr.unit.get())
+          else if (attr.label.get() === 'serverManagerId') serviceDocumentation.setAttributeById(server, attr._server_id, 'serverManagerId', requestBody.serverManagerId, attr.type.get(), attr.unit.get())
+
         }
 
         const attrsres = await serviceDocumentation.getAttributesByCategory(server, CATEGORY_NAME);
@@ -218,6 +226,7 @@ export class ServerService {
           else if (attr.label.get() === 'boot_timestamp') Object.assign(customerObject, { boot_timestamp: attr.value.get() });
           else if (attr.label.get() === 'last_health_time') Object.assign(customerObject, { last_health_time: attr.value.get() });
           else if (attr.label.get() === 'serverType') Object.assign(customerObject, { serverType: attr.value.get() });
+          else if (attr.label.get() === 'serverManagerId') Object.assign(customerObject, { serverManagerId: attr.value.get() });
         }
       }
     }
@@ -238,9 +247,6 @@ export class ServerService {
         MONITORING_SERVICE_SERVER_RELATION_NAME
       );
       const arrayServer: IServer[] = []
-
-
-
       for (const server of servers) {
         let serverObject: any = {}
         const attrs = await serviceDocumentation.getAttributesByCategory(server, CATEGORY_NAME);
@@ -255,6 +261,7 @@ export class ServerService {
           else if (attr.label.get() === 'boot_timestamp') Object.assign(serverObject, { boot_timestamp: attr.value.get() });
           else if (attr.label.get() === 'last_health_time') Object.assign(serverObject, { last_health_time: attr.value.get() });
           else if (attr.label.get() === 'serverType') Object.assign(serverObject, { serverType: attr.value.get() });
+          else if (attr.label.get() === 'serverManagerId') Object.assign(serverObject, { serverManagerId: attr.value.get() });
         }
         arrayServer.push(serverObject);
       }
@@ -285,6 +292,7 @@ export class ServerService {
             else if (attr.label.get() === 'boot_timestamp') Object.assign(serverObject, { boot_timestamp: attr.value.get() });
             else if (attr.label.get() === 'last_health_time') Object.assign(serverObject, { last_health_time: attr.value.get() });
             else if (attr.label.get() === 'serverType') Object.assign(serverObject, { serverType: attr.value.get() });
+            else if (attr.label.get() === 'serverManagerId') Object.assign(serverObject, { serverManagerId: attr.value.get() });
           }
         }
       }
@@ -307,58 +315,71 @@ export class ServerService {
   }
 
   public async pushDataServer(requestBody: any) {
+
+    const contextInfo = SpinalGraphService.getContext('infoMonitoring');
+    const childrenContextInfo = await contextInfo.getChildren("HasRegisterKey");
+    const registerKey = childrenContextInfo[0].info.value.get();
     const context = SpinalGraphService.getContext('serverList')
     const servers = await context.getChildren(
       MONITORING_SERVICE_SERVER_RELATION_NAME
     );
-    for (const server of servers) {
-      const endpoints = await server.getChildren('hasBmsEndpoint')
-      for (const endpoint of endpoints) {
-        if (endpoint.getName().get() === 'reboot_history') {
-          // @ts-ignore
-          SpinalGraphService._addNode(endpoint);
-          var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
-          await timeseries.insert(requestBody.infoServer.reboot, Date.now());
-        } else if (endpoint.getName().get() === 'swap_history') {
-          // @ts-ignore
-          SpinalGraphService._addNode(endpoint);
-          var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
-          await timeseries.insert(requestBody.infoServer.swap, Date.now());
-        } else if (endpoint.getName().get() === 'ram_history') {
-          // @ts-ignore
-          SpinalGraphService._addNode(endpoint);
-          var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
-          await timeseries.insert(requestBody.infoServer.ram, Date.now());
-        } else if (endpoint.getName().get() === 'DD_history') {
-          // @ts-ignore
-          SpinalGraphService._addNode(endpoint);
-          var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
-          await timeseries.insert(requestBody.infoServer.DD, Date.now());
-        } else if (endpoint.getName().get() === 'swap_history') {
-          // @ts-ignore
-          SpinalGraphService._addNode(endpoint);
-          var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
-          await timeseries.insert(requestBody.infoServer.swap, Date.now());
-        } else if (endpoint.getName().get() === 'cache_history') {
-          // @ts-ignore
-          SpinalGraphService._addNode(endpoint);
-          var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
-          await timeseries.insert(requestBody.infoServer.cache, Date.now());
-        }
-        // else if (endpoint.getName().get() === 'used_proc_history') {
-        //   // @ts-ignore
-        //   SpinalGraphService._addNode(endpoint);
-        //   var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
-        //   await timeseries.insert(requestBody.infoServer.used_proc, Date.now());
-        // }
-        else if (endpoint.getName().get() === 'flux_history') {
-          // @ts-ignore
-          SpinalGraphService._addNode(endpoint);
-          var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
-          await timeseries.insert(requestBody.infoServer.flux, Date.now());
+    if (requestBody.registerKey === registerKey) {
+      for (const server of servers) {
+        if (server.info.serverManagerId.get() === requestBody.infoServer.serverManagerId) {
+          const attrs = await serviceDocumentation.getAttributesByCategory(server, CATEGORY_NAME);
+          for (const attr of attrs) {
+            if (attr.label.get() === 'macAdress') serviceDocumentation.setAttributeById(server, attr._server_id, 'macAdress', requestBody.infoServer.mac, attr.type.get(), attr.unit.get())
+            else if (attr.label.get() === 'boot_timestamp') serviceDocumentation.setAttributeById(server, attr._server_id, 'boot_timestamp', requestBody.infoServer.reboot, attr.type.get(), attr.unit.get())
+            else if (attr.label.get() === 'last_health_time') serviceDocumentation.setAttributeById(server, attr._server_id, 'last_health_time', Date.now().toString(), attr.type.get(), attr.unit.get())
+          }
+          const endpoints = await server.getChildren('hasBmsEndpoint')
+          for (const endpoint of endpoints) {
+            if (endpoint.getName().get() === 'reboot_history') {
+              // @ts-ignore
+              SpinalGraphService._addNode(endpoint);
+              var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
+              await timeseries.insert(requestBody.infoServer.reboot, Date.now());
+            } else if (endpoint.getName().get() === 'swap_history') {
+              // @ts-ignore
+              SpinalGraphService._addNode(endpoint);
+              var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
+              await timeseries.insert(requestBody.infoServer.swap, Date.now());
+            } else if (endpoint.getName().get() === 'ram_history') {
+              // @ts-ignore
+              SpinalGraphService._addNode(endpoint);
+              var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
+              await timeseries.insert(requestBody.infoServer.ram, Date.now());
+            } else if (endpoint.getName().get() === 'DD_history') {
+              // @ts-ignore
+              SpinalGraphService._addNode(endpoint);
+              var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
+              await timeseries.insert(requestBody.infoServer.DD, Date.now());
+            } else if (endpoint.getName().get() === 'swap_history') {
+              // @ts-ignore
+              SpinalGraphService._addNode(endpoint);
+              var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
+              await timeseries.insert(requestBody.infoServer.swap, Date.now());
+            } else if (endpoint.getName().get() === 'cache_history') {
+              // @ts-ignore
+              SpinalGraphService._addNode(endpoint);
+              var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
+              await timeseries.insert(requestBody.infoServer.cache, Date.now());
+            }
+            // else if (endpoint.getName().get() === 'used_proc_history') {
+            //   // @ts-ignore
+            //   SpinalGraphService._addNode(endpoint);
+            //   var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
+            //   await timeseries.insert(requestBody.infoServer.used_proc, Date.now());
+            // }
+            else if (endpoint.getName().get() === 'flux_history') {
+              // @ts-ignore
+              SpinalGraphService._addNode(endpoint);
+              var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
+              await timeseries.insert(requestBody.infoServer.flux, Date.now());
+            }
+          }
         }
       }
     }
   }
-
 }

@@ -35,6 +35,7 @@ export interface IServer {
   boot_timestamp?: string;
   last_health_time?: string;
   serverType?: string;
+  serverManagerId?: string;
 }
 export interface IServerCreationParams {
   type?: string;
@@ -46,6 +47,7 @@ export interface IServerCreationParams {
   boot_timestamp?: string;
   last_health_time?: string;
   serverType?: string;
+  serverManagerId?: string;
   [Symbol.iterator](): Iterator<any>;
 }
 
@@ -59,4 +61,5 @@ export interface IServerUpdateParams {
   boot_timestamp?: string;
   last_health_time?: string;
   serverType?: string;
+  serverManagerId?: string;
 }
