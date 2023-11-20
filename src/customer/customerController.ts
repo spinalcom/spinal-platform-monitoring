@@ -42,6 +42,7 @@ import {
   ICustomerCreationParams,
   ICustomerUpdateParams,
   IContactCreationParams,
+  IContactUpdateParams,
   IAddPlatform,
   LinkParamCustomerToSite
 } from './customer.model';
@@ -73,7 +74,7 @@ export class CustomerController extends Controller {
   }
 
   @Security('jwt')
-  @SuccessResponse('201', 'Created') // Custom success response
+  @SuccessResponse('201', 'Success') // Custom success response
   @Post('linkCustomerToSite')
   public async linkCustomerToSite(
     @Body() requestBody: LinkParamCustomerToSite,
@@ -94,6 +95,19 @@ export class CustomerController extends Controller {
     this.setStatus(201); // set return status 201rt
     return contact;
   }
+
+  @Security('jwt')
+  @SuccessResponse('201', 'Updated') // Custom success response
+  @Put('{contactId}/updateContact')
+  public async updateContact(
+    @Body() requestBody: IContactUpdateParams,
+    @Path() contactId: string
+  ): Promise<IContact> {
+    let contact = new CustomerService().updateContact(contactId, requestBody);
+    this.setStatus(201); // set return status 201rt
+    return contact;
+  }
+
 
   @Security('jwt')
   @SuccessResponse('201', 'Created') // Custom success response
@@ -129,5 +143,12 @@ export class CustomerController extends Controller {
     return new CustomerService().deleteCustomer(customerId);
   }
 
+  @Security('jwt')
+  @Delete('{contactId}/deleteContact')
+  public async deleteContact(
+    @Path() contactId: string,
+  ): Promise<void> {
+    return new CustomerService().deleteContact(contactId);
+  }
 
 }

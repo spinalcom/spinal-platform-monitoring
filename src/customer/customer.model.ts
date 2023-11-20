@@ -38,7 +38,7 @@ export interface IContact {
   name?: string;
   type?: string;
   email?: string;
-  telephone?: number;
+  telephone?: string;
   category?: string;
 }
 export interface ICustomerCreationParams {
@@ -58,7 +58,15 @@ export interface IContactCreationParams {
   name?: string;
   type?: string;
   email?: string;
-  telephone?: number;
+  telephone?: string;
+  category?: string;
+  [Symbol.iterator](): Iterator<any>;
+}
+
+export interface IContactUpdateParams {
+  name?: string;
+  email?: string;
+  telephone?: string;
   category?: string;
   [Symbol.iterator](): Iterator<any>;
 }

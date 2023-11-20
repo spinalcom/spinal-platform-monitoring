@@ -78,7 +78,7 @@ const models: TsoaRoute.Models = {
             "name": {"dataType":"string"},
             "type": {"dataType":"string"},
             "email": {"dataType":"string"},
-            "telephone": {"dataType":"double"},
+            "telephone": {"dataType":"string"},
             "category": {"dataType":"string"},
         },
         "additionalProperties": false,
@@ -102,7 +102,7 @@ const models: TsoaRoute.Models = {
             "name": {"dataType":"string"},
             "type": {"dataType":"string"},
             "email": {"dataType":"string"},
-            "telephone": {"dataType":"double"},
+            "telephone": {"dataType":"string"},
             "category": {"dataType":"string"},
         },
         "additionalProperties": false,
@@ -133,6 +133,17 @@ const models: TsoaRoute.Models = {
         "properties": {
             "customerId": {"dataType":"string","required":true},
             "siteId": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IContactUpdateParams": {
+        "dataType": "refObject",
+        "properties": {
+            "name": {"dataType":"string"},
+            "email": {"dataType":"string"},
+            "telephone": {"dataType":"string"},
+            "category": {"dataType":"string"},
         },
         "additionalProperties": false,
     },
@@ -709,6 +720,33 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.put('/customers/:contactId/updateContact',
+            authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(CustomerController)),
+            ...(fetchMiddlewares<RequestHandler>(CustomerController.prototype.updateContact)),
+
+            function CustomerController_updateContact(request: any, response: any, next: any) {
+            const args = {
+                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"IContactUpdateParams"},
+                    contactId: {"in":"path","name":"contactId","required":true,"dataType":"string"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new CustomerController();
+
+
+              const promise = controller.updateContact.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, 201, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/customers/:customerId',
             authenticateMiddleware([{"jwt":[]}]),
             ...(fetchMiddlewares<RequestHandler>(CustomerController)),
@@ -807,6 +845,32 @@ export function RegisterRoutes(app: Router) {
 
 
               const promise = controller.deleteCustomer.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.delete('/customers/:contactId/deleteContact',
+            authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(CustomerController)),
+            ...(fetchMiddlewares<RequestHandler>(CustomerController.prototype.deleteContact)),
+
+            function CustomerController_deleteContact(request: any, response: any, next: any) {
+            const args = {
+                    contactId: {"in":"path","name":"contactId","required":true,"dataType":"string"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new CustomerController();
+
+
+              const promise = controller.deleteContact.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);

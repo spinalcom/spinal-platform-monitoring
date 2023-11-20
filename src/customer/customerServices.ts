@@ -32,7 +32,6 @@ import {
   MONITORING_SERVICE_CONTACT_RELATION_NAME,
   CONTACT_TYPE,
   MONITORING_SERVICE_PLATFORM_RELATION_NAME,
-
   SITE_LIST,
   PLATFORM_LIST
 } from '../constant';
@@ -48,14 +47,13 @@ import {
   ICustomerCreationParams,
   ICustomerUpdateParams,
   IContactCreationParams,
+  IContactUpdateParams,
   IAddPlatform,
   LinkParamCustomerToSite
 } from './customer.model';
 
 import SpinalMiddleware from '../spinalMiddleware';
 import serviceDocumentation from "spinal-env-viewer-plugin-documentation-service"
-import { InputDataEndpoint, InputDataEndpointDataType, InputDataEndpointType } from 'spinal-model-bmsnetwork';
-import getInstance from '../utilities/NetworkService';
 
 
 export class CustomerService {
@@ -82,7 +80,7 @@ export class CustomerService {
       }
     }
 
-    const customerId = SpinalGraphService.createNode(customerObject, undefined)
+    const customerId = SpinalGraphService.createNode({ type: CUSTOMER_TYPE }, undefined)
     var res = await SpinalGraphService.addChildInContext(
       context.getId().get(),
       customerId,
@@ -111,7 +109,7 @@ export class CustomerService {
           }
         }
 
-        const contactId = SpinalGraphService.createNode(contactObj, undefined)
+        const contactId = SpinalGraphService.createNode({ type: CONTACT_TYPE }, undefined)
         var resContact = await SpinalGraphService.addChildInContext(
           customerId,
           contactId,
@@ -161,7 +159,7 @@ export class CustomerService {
           }
         }
 
-        const contactId = SpinalGraphService.createNode(contactObj, undefined)
+        const contactId = SpinalGraphService.createNode({ type: CONTACT_TYPE }, undefined)
         var resContact = await SpinalGraphService.addChildInContext(
           customer.getId().get(),
           contactId,
@@ -174,13 +172,63 @@ export class CustomerService {
         for (const [key, value] of contactObj) {
           await serviceDocumentation.addAttributeByCategoryName(resContact, category.nameCat, key, value)
         }
-        return {
-          id: resContact.getId().get(),
-          name: resContact.getName().get(),
-          type: resContact.getType().get(),
-          email: resContact.info.email.get(),
-          telephone: resContact.info.telephone.get(),
-          category: resContact.info.category.get(),
+        const attrsres = await serviceDocumentation.getAttributesByCategory(resContact, CATEGORY_NAME);
+        var contactObject: IContact = {}
+        for (const attr of attrsres) {
+          if (attr.label.get() === 'id') Object.assign(contactObject, { id: attr.value.get() });
+          else if (attr.label.get() === 'name') Object.assign(contactObject, { name: attr.value.get() });
+          else if (attr.label.get() === 'type') Object.assign(contactObject, { type: attr.value.get() });
+          else if (attr.label.get() === 'email') Object.assign(contactObject, { email: attr.value.get() });
+          else if (attr.label.get() === 'telephone') Object.assign(contactObject, { telephone: attr.value.get() });
+          else if (attr.label.get() === 'category') Object.assign(contactObject, { category: attr.value.get() });
+        }
+        return contactObject
+      }
+    }
+  }
+
+  public async deleteContact(contactId: string): Promise<void> {
+    const context = SpinalGraphService.getContext(CUSTOMER_LIST)
+    const customers = await context.getChildren(
+      MONITORING_SERVICE_CUSTOMER_RELATION_NAME
+    );
+    for (const customer of customers) {
+      const contacts = await customer.getChildren(MONITORING_SERVICE_CONTACT_RELATION_NAME)
+      for (const contact of contacts) {
+        if (contact.getId().get() === contactId) {
+          await contact.removeFromGraph()
+        }
+      }
+    }
+  }
+
+  public async updateContact(contactId: string, requestBody: IContactUpdateParams): Promise<IContact> {
+    const context = SpinalGraphService.getContext(CUSTOMER_LIST)
+    const customers = await context.getChildren(
+      MONITORING_SERVICE_CUSTOMER_RELATION_NAME
+    );
+    for (const customer of customers) {
+      const contacts = await customer.getChildren(MONITORING_SERVICE_CONTACT_RELATION_NAME)
+      for (const contact of contacts) {
+        if (contact.getId().get() === contactId) {
+          const attrs = await serviceDocumentation.getAttributesByCategory(contact, CATEGORY_NAME);
+          for (const attr of attrs) {
+            if (attr.label.get() === 'name') serviceDocumentation.setAttributeById(contact, attr._server_id, 'name', requestBody.name, attr.type.get(), attr.unit.get())
+            else if (attr.label.get() === 'email') serviceDocumentation.setAttributeById(contact, attr._server_id, 'email', requestBody.email, attr.type.get(), attr.unit.get())
+            else if (attr.label.get() === 'telephone') serviceDocumentation.setAttributeById(contact, attr._server_id, 'telephone', requestBody.telephone, attr.type.get(), attr.unit.get())
+            else if (attr.label.get() === 'category') serviceDocumentation.setAttributeById(contact, attr._server_id, 'category', requestBody.category, attr.type.get(), attr.unit.get())
+          }
+          const attrsres = await serviceDocumentation.getAttributesByCategory(contact, CATEGORY_NAME);
+          var contactObject: IContact = {}
+          for (const attr of attrsres) {
+            if (attr.label.get() === 'id') Object.assign(contactObject, { id: attr.value.get() });
+            else if (attr.label.get() === 'name') Object.assign(contactObject, { name: attr.value.get() });
+            else if (attr.label.get() === 'type') Object.assign(contactObject, { type: attr.value.get() });
+            else if (attr.label.get() === 'email') Object.assign(contactObject, { email: attr.value.get() });
+            else if (attr.label.get() === 'telephone') Object.assign(contactObject, { telephone: attr.value.get() });
+            else if (attr.label.get() === 'category') Object.assign(contactObject, { category: attr.value.get() });
+          }
+          return contactObject
         }
       }
     }
@@ -197,14 +245,17 @@ export class CustomerService {
       let arrayContact = []
       const contacts = await customer.getChildren(MONITORING_SERVICE_CONTACT_RELATION_NAME)
       for (const contact of contacts) {
-        arrayContact.push({
-          id: contact.getId().get(),
-          name: contact.getName().get(),
-          type: contact.getType().get(),
-          email: contact.info.email.get(),
-          telephone: contact.info.telephone.get(),
-          category: contact.info.category?.get()
-        })
+        const attrsres = await serviceDocumentation.getAttributesByCategory(contact, CATEGORY_NAME);
+        var contactObject: IContact = {}
+        for (const attr of attrsres) {
+          if (attr.label.get() === 'id') Object.assign(contactObject, { id: attr.value.get() });
+          else if (attr.label.get() === 'name') Object.assign(contactObject, { name: attr.value.get() });
+          else if (attr.label.get() === 'type') Object.assign(contactObject, { type: attr.value.get() });
+          else if (attr.label.get() === 'email') Object.assign(contactObject, { email: attr.value.get() });
+          else if (attr.label.get() === 'telephone') Object.assign(contactObject, { telephone: attr.value.get() });
+          else if (attr.label.get() === 'category') Object.assign(contactObject, { category: attr.value.get() });
+        }
+        arrayContact.push(contactObject)
       }
       let customerObject: any = {}
       const attrs = await serviceDocumentation.getAttributesByCategory(customer, CATEGORY_NAME);
@@ -231,18 +282,20 @@ export class CustomerService {
         let arrayContact = []
         const contacts = await customer.getChildren(MONITORING_SERVICE_CONTACT_RELATION_NAME)
         for (const contact of contacts) {
-          arrayContact.push({
-            id: contact.getId().get(),
-            name: contact.getName().get(),
-            type: contact.getType().get(),
-            email: contact.info.email.get(),
-            telephone: contact.info.telephone.get(),
-            category: contact.info.category?.get()
-          })
+          const attrsres = await serviceDocumentation.getAttributesByCategory(contact, CATEGORY_NAME);
+          var contactObject: IContact = {}
+          for (const attr of attrsres) {
+            if (attr.label.get() === 'id') Object.assign(contactObject, { id: attr.value.get() });
+            else if (attr.label.get() === 'name') Object.assign(contactObject, { name: attr.value.get() });
+            else if (attr.label.get() === 'type') Object.assign(contactObject, { type: attr.value.get() });
+            else if (attr.label.get() === 'email') Object.assign(contactObject, { email: attr.value.get() });
+            else if (attr.label.get() === 'telephone') Object.assign(contactObject, { telephone: attr.value.get() });
+            else if (attr.label.get() === 'category') Object.assign(contactObject, { category: attr.value.get() });
+          }
+          arrayContact.push(contactObject)
         }
-
-        const attrs = await serviceDocumentation.getAttributesByCategory(customer, CATEGORY_NAME);
         var customerObject: any = {}
+        const attrs = await serviceDocumentation.getAttributesByCategory(customer, CATEGORY_NAME);
         for (const attr of attrs) {
           if (attr.label.get() === 'id') Object.assign(customerObject, { id: attr.value.get() });
           else if (attr.label.get() === 'type') Object.assign(customerObject, { type: attr.value.get() });
@@ -302,12 +355,7 @@ export class CustomerService {
         HttpStatusCode.FORBIDDEN
       );
     }
-    console.log(foundCustomer.getName().get());
-    console.log(foundPlatform.getName().get());
-
-    const res = await SpinalGraphService.addChild(foundCustomer.getId().get(), foundPlatform.getId().get(), MONITORING_SERVICE_PLATFORM_RELATION_NAME, MONITORING_SERVICE_RELATION_TYPE_PTR_LST);
-    console.log(res);
-
+    await SpinalGraphService.addChild(foundCustomer.getId().get(), foundPlatform.getId().get(), MONITORING_SERVICE_PLATFORM_RELATION_NAME, MONITORING_SERVICE_RELATION_TYPE_PTR_LST);
   }
 
 
@@ -323,22 +371,21 @@ export class CustomerService {
           if (attr.label.get() === 'name') serviceDocumentation.setAttributeById(customer, attr._server_id, 'name', requestBody.name, attr.type.get(), attr.unit.get())
           else if (attr.label.get() === 'service') serviceDocumentation.setAttributeById(customer, attr._server_id, 'service', requestBody.service, attr.type.get(), attr.unit.get())
         }
-
-
-
         let arrayContact = []
         const contacts = await customer.getChildren(MONITORING_SERVICE_CONTACT_RELATION_NAME)
         for (const contact of contacts) {
-          arrayContact.push({
-            id: contact.getId().get(),
-            name: contact.getName().get(),
-            type: contact.getType().get(),
-            email: contact.info.email.get(),
-            telephone: contact.info.telephone.get(),
-            category: contact.info.category?.get()
-          })
+          const attrsres = await serviceDocumentation.getAttributesByCategory(contact, CATEGORY_NAME);
+          var contactObject: IContact = {}
+          for (const attr of attrsres) {
+            if (attr.label.get() === 'id') Object.assign(contactObject, { id: attr.value.get() });
+            else if (attr.label.get() === 'name') Object.assign(contactObject, { name: attr.value.get() });
+            else if (attr.label.get() === 'type') Object.assign(contactObject, { type: attr.value.get() });
+            else if (attr.label.get() === 'email') Object.assign(contactObject, { email: attr.value.get() });
+            else if (attr.label.get() === 'telephone') Object.assign(contactObject, { telephone: attr.value.get() });
+            else if (attr.label.get() === 'category') Object.assign(contactObject, { category: attr.value.get() });
+          }
+          arrayContact.push(contactObject)
         }
-
         const attrsres = await serviceDocumentation.getAttributesByCategory(customer, CATEGORY_NAME);
         var customerObject: any = {}
         for (const attr of attrsres) {
@@ -387,6 +434,5 @@ export class CustomerService {
     }
     await SpinalGraphService.addChild(foundCustomer.getId().get(), foundSite.getId().get(), MONITORING_SERVICE_SITE_RELATION_NAME, MONITORING_SERVICE_RELATION_TYPE_PTR_LST)
   }
-
 }
 

@@ -24,6 +24,10 @@
 
 import { IHealth, IHealthCreationParams } from "./health.model";
 import SpinalMiddleware from '../spinalMiddleware';
+
+import {
+  CATEGORY_NAME
+} from '../constant';
 import {
   SpinalGraphService,
   SpinalGraph,
@@ -33,25 +37,40 @@ import {
 import { InputDataEndpoint, InputDataEndpointDataType, InputDataEndpointType } from 'spinal-model-bmsnetwork';
 import getInstance from '../utilities/NetworkService';
 import spinalServiceTimeSeries from '../utilities/spinalTimeSeries';
+import { OrganService } from '../organ/organService'
+import serviceDocumentation from "spinal-env-viewer-plugin-documentation-service"
+
+
 
 export class HealthService {
   public spinalMiddleware: SpinalMiddleware = SpinalMiddleware.getInstance();
   public graph: SpinalGraph<any>;
-  // public logService: LogsService;
+  public organService: OrganService;
   constructor() {
     this.spinalMiddleware.init();
     this.graph = this.spinalMiddleware.getGraph();
+    this.organService = new OrganService();
   }
 
   public async createHealth(requestBody: any): Promise<any> {
     const contextPlatform = await SpinalGraphService.getContext('platformList');
     const platforms = await contextPlatform.getChildren('HasPlatform')
     for (const platform of platforms) {
-      if (platform.info.TokenBosRegister.get() === requestBody.TokenBosRegister) {
+      const attrs = await serviceDocumentation.getAttributesByCategory(platform, CATEGORY_NAME);
+      let TokenBosRegister: string | boolean | number;
+      for (const attr of attrs) {
+        if (attr.label.get() === 'TokenBosRegister') TokenBosRegister = attr.value.get()
+      }
+      if (TokenBosRegister === requestBody.TokenBosRegister) {
         const organs = await platform.getChildren('HasOrgan');
+        let res = compareTabs(requestBody.infoOrgans, organs)
+
+        console.log(requestBody.infoHub);
+        console.log(res);
+
         for (const organ of organs) {
           for (const infoOrgan of requestBody.infoOrgans) {
-            if (organ.info.bosId.get() === infoOrgan.genericOrganData.id) {
+            if (organ.info.name.get() === infoOrgan.genericOrganData.name) {
               let state: string = "";
               if (isWithinTwoMinutes(infoOrgan.genericOrganData.lastHealthTime)) {
                 state = "online"
@@ -84,9 +103,7 @@ export class HealthService {
                   }
                 }
               }
-
-              // organ.info.ipAdress.set(infoOrgan.specificOrganData.ipAdress);
-              // organ.info.mac_adress.set(infoOrgan.specificOrganData.mac_adress);
+              organ.info.mac_adress.set(infoOrgan.specificOrganData.mac_adress);
             }
           }
         }
@@ -101,3 +118,22 @@ function isWithinTwoMinutes(timestamp: number) {
   var twoMinutesAgo = Date.now() - (2 * 60 * 1000); // calculate timestamp for 2 minutes ago
   return (timestamp >= twoMinutesAgo && timestamp <= Date.now()); // check if timestamp is within 2 minutes
 }
+
+function compareTabs(organMonit, organBos: SpinalNode[]) {
+  let resultat = [];
+  organMonit.forEach(requestObj => {
+    let estPresent = organBos.some(organNode => {
+      // Comparaison des objets (à ajuster selon les besoins)
+      return JSON.stringify(requestObj.genericOrganData.name) === organNode.getName().get();
+    });
+
+    if (!estPresent) {
+      resultat.push(requestObj);
+    }
+  });
+
+
+
+  return resultat;
+}
+
