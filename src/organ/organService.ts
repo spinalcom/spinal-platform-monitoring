@@ -30,7 +30,7 @@ import {
   MONITORING_SERVICE_PLATFORM_RELATION_NAME,
   CATEGORY_NAME,
   ORGAN_LIST,
-  ORGAN_GROUP
+  ORGAN_GROUP,
 } from '../constant';
 import {
   SpinalGraphService,
@@ -46,10 +46,14 @@ import {
   IOrganHub,
 } from './organ.model';
 import SpinalMiddleware from '../spinalMiddleware';
-import serviceDocumentation from "spinal-env-viewer-plugin-documentation-service"
-import { InputDataEndpoint, InputDataEndpointDataType, InputDataEndpointType } from 'spinal-model-bmsnetwork';
+import serviceDocumentation from 'spinal-env-viewer-plugin-documentation-service';
+import spinalServiceTimeSeries from '../utilities/spinalTimeSeries';
+import {
+  InputDataEndpoint,
+  InputDataEndpointDataType,
+  InputDataEndpointType,
+} from 'spinal-model-bmsnetwork';
 import getInstance from '../utilities/NetworkService';
-
 
 export class OrganService {
   public spinalMiddleware: SpinalMiddleware = SpinalMiddleware.getInstance();
@@ -77,13 +81,13 @@ export class OrganService {
       mac_adress: organCreationParms.mac_adress,
       ip_adress: organCreationParms.ip_adress,
       platformId: organCreationParms.platformId,
-      status: "",
+      status: '',
       [Symbol.iterator]: function* () {
         let properties = Object.keys(this);
         for (let i of properties) {
           yield [i, this[i]];
         }
-      }
+      },
     };
     const OrganId = SpinalGraphService.createNode(organObject, undefined);
     var res = await SpinalGraphService.addChildInContext(
@@ -94,15 +98,23 @@ export class OrganService {
       MONITORING_SERVICE_RELATION_TYPE_PTR_LST
     );
 
-    const category = await serviceDocumentation.addCategoryAttribute(res, CATEGORY_NAME)
+    const category = await serviceDocumentation.addCategoryAttribute(
+      res,
+      CATEGORY_NAME
+    );
     for (const [key, value] of organObject) {
-      await serviceDocumentation.addAttributeByCategoryName(res, category.nameCat, key, value)
+      await serviceDocumentation.addAttributeByCategoryName(
+        res,
+        category.nameCat,
+        key,
+        value
+      );
     }
 
     const rebootObj: InputDataEndpoint = {
-      id: "0",
-      name: "reboot_history",
-      path: "",
+      id: '0',
+      name: 'reboot_history',
+      path: '',
       currentValue: 0,
       unit: 'timestamp',
       nodeTypeName: 'BmsEndpoint',
@@ -110,20 +122,20 @@ export class OrganService {
       type: InputDataEndpointType.Other,
     };
     const healthObj: InputDataEndpoint = {
-      id: "0",
-      name: "health_history",
-      path: "",
-      currentValue: 0,
-      unit: 'timestamp',
+      id: '0',
+      name: 'health_history',
+      path: '',
+      currentValue: 1,
+      unit: '',
       nodeTypeName: 'BmsEndpoint',
       dataType: InputDataEndpointDataType.Date,
       type: InputDataEndpointType.Other,
     };
 
     const RamObj: InputDataEndpoint = {
-      id: "0",
-      name: "ram_history",
-      path: "",
+      id: '0',
+      name: 'ram_history',
+      path: '',
       currentValue: 0,
       unit: 'mgo',
       nodeTypeName: 'BmsEndpoint',
@@ -135,17 +147,18 @@ export class OrganService {
     await getInstance().createNewBmsEndpointWithoutContext(OrganId, healthObj);
     await getInstance().createNewBmsEndpointWithoutContext(OrganId, RamObj);
 
-
-
     const platformListContext = SpinalGraphService.getContext('platformList');
     const platforms = await platformListContext.getChildren('HasPlatform');
     for (const platform of platforms) {
       if (platform.getId().get() === organCreationParms.platformId) {
         //@ts-ignore
         SpinalGraphService._addNode(platform);
-        await SpinalGraphService.addChild(platform.getId().get(),
-          OrganId, MONITORING_SERVICE_ORGAN_RELATION_NAME,
-          MONITORING_SERVICE_RELATION_TYPE_PTR_LST);
+        await SpinalGraphService.addChild(
+          platform.getId().get(),
+          OrganId,
+          MONITORING_SERVICE_ORGAN_RELATION_NAME,
+          MONITORING_SERVICE_RELATION_TYPE_PTR_LST
+        );
       }
     }
     if (res !== undefined) {
@@ -158,7 +171,7 @@ export class OrganService {
         ip_adress: res.info.ip_adress.get(),
         organType: res.info.organType.get(),
         platformId: res.info.platformId.get(),
-        status: res.info.status === undefined ? "" : res.info.status.get()
+        status: res.info.status === undefined ? '' : res.info.status.get(),
       };
     }
   }
@@ -180,13 +193,13 @@ export class OrganService {
       password: organCreationParms.password,
       organType: organCreationParms.organType,
       platformId: platformId,
-      status: "",
+      status: '',
       [Symbol.iterator]: function* () {
         let properties = Object.keys(this);
         for (let i of properties) {
           yield [i, this[i]];
         }
-      }
+      },
     };
     const OrganId = SpinalGraphService.createNode(organhubObject, undefined);
     var res = await SpinalGraphService.addChildInContext(
@@ -197,15 +210,23 @@ export class OrganService {
       MONITORING_SERVICE_RELATION_TYPE_PTR_LST
     );
 
-    const category = await serviceDocumentation.addCategoryAttribute(res, CATEGORY_NAME)
+    const category = await serviceDocumentation.addCategoryAttribute(
+      res,
+      CATEGORY_NAME
+    );
     for (const [key, value] of organhubObject) {
-      await serviceDocumentation.addAttributeByCategoryName(res, category.nameCat, key, value)
+      await serviceDocumentation.addAttributeByCategoryName(
+        res,
+        category.nameCat,
+        key,
+        value
+      );
     }
 
     const rebootObj: InputDataEndpoint = {
-      id: "0",
-      name: "reboot_history",
-      path: "",
+      id: '0',
+      name: 'reboot_history',
+      path: '',
       currentValue: 0,
       unit: 'timestamp',
       nodeTypeName: 'BmsEndpoint',
@@ -213,9 +234,9 @@ export class OrganService {
       type: InputDataEndpointType.Other,
     };
     const healthObj: InputDataEndpoint = {
-      id: "0",
-      name: "health_history",
-      path: "",
+      id: '0',
+      name: 'health_history',
+      path: '',
       currentValue: 0,
       unit: 'timestamp',
       nodeTypeName: 'BmsEndpoint',
@@ -224,9 +245,9 @@ export class OrganService {
     };
 
     const RamObj: InputDataEndpoint = {
-      id: "0",
-      name: "ram_history",
-      path: "",
+      id: '0',
+      name: 'ram_history',
+      path: '',
       currentValue: 0,
       unit: 'mgo',
       nodeTypeName: 'BmsEndpoint',
@@ -244,9 +265,12 @@ export class OrganService {
       if (platform.getId().get() === platformId) {
         //@ts-ignore
         SpinalGraphService._addNode(platform);
-        await SpinalGraphService.addChild(platform.getId().get(),
-          OrganId, MONITORING_SERVICE_ORGAN_RELATION_NAME,
-          MONITORING_SERVICE_RELATION_TYPE_PTR_LST);
+        await SpinalGraphService.addChild(
+          platform.getId().get(),
+          OrganId,
+          MONITORING_SERVICE_ORGAN_RELATION_NAME,
+          MONITORING_SERVICE_RELATION_TYPE_PTR_LST
+        );
       }
     }
     if (res !== undefined) {
@@ -256,42 +280,90 @@ export class OrganService {
         name: res.getName().get(),
         type: res.getType().get(),
         mac_adress: res.info.get(),
-        ip_adress: res.info.ip_adress !== undefined ? res.info.ip_adress.get() : "",
+        ip_adress:
+          res.info.ip_adress !== undefined ? res.info.ip_adress.get() : '',
         URL: res.info.url.get(),
         port: res.info.port.get(),
         login: res.info.login.get(),
         password: res.info.password.get(),
         organType: res.info.organType.get(),
         platformId: res.info.platformId.get(),
-        status: res.info.status === undefined ? "" : res.info.status.get()
+        status: res.info.status === undefined ? '' : res.info.status.get(),
       };
+    }
+  }
+
+  public async getOrganHealth(organId: string, begin: number, end: number) {
+    try {
+      const context = SpinalGraphService.getContext('organList');
+      const organs = await context.getChildren(
+        MONITORING_SERVICE_ORGAN_RELATION_NAME
+      );
+      for (const organ of organs) {
+        if (organ.getId().get() === organId) {
+          const endpoints = await organ.getChildren('hasBmsEndpoint');
+          for (const endpoint of endpoints) {
+            if (endpoint.getName().get() === 'health_history') {
+              // @ts-ignore
+              SpinalGraphService._addNode(endpoint);
+              const timeSeriesIntervalDate = {
+                start: begin,
+                end: end,
+              };
+              const timeseries = await spinalServiceTimeSeries().getData(
+                endpoint.getId().get(),
+                timeSeriesIntervalDate
+              );
+              return timeseries;
+            }
+          }
+        }
+      }
+    } catch (error) {
+      return error;
     }
   }
 
   public async getOrgans(): Promise<IOrgan[]> {
     try {
       var organsObjectList = [];
-      const context = SpinalGraphService.getContext('organList')
+      const context = SpinalGraphService.getContext('organList');
       const organs = await context.getChildren(
         MONITORING_SERVICE_ORGAN_RELATION_NAME
       );
       for (const organ of organs) {
-        let organObject: any = {}
-        const attrs = await serviceDocumentation.getAttributesByCategory(organ, CATEGORY_NAME);
+        let organObject: any = {};
+        const attrs = await serviceDocumentation.getAttributesByCategory(
+          organ,
+          CATEGORY_NAME
+        );
         for (const attr of attrs) {
-          if (attr.label.get() === 'id') Object.assign(organObject, { id: attr.value.get() });
-          else if (attr.label.get() === 'bosId') Object.assign(organObject, { bosId: attr.value.get() });
-          else if (attr.label.get() === 'name') Object.assign(organObject, { name: attr.value.get() });
-          else if (attr.label.get() === 'type') Object.assign(organObject, { type: attr.value.get() });
-          else if (attr.label.get() === 'mac_adress') Object.assign(organObject, { mac_adress: attr.value.get() });
-          else if (attr.label.get() === 'ip_adress') Object.assign(organObject, { ip_adress: attr.value.get() });
-          else if (attr.label.get() === 'url') Object.assign(organObject, { url: attr.value.get() });
-          else if (attr.label.get() === 'port') Object.assign(organObject, { port: attr.value.get() });
-          else if (attr.label.get() === 'login') Object.assign(organObject, { login: attr.value.get() });
-          else if (attr.label.get() === 'password') Object.assign(organObject, { password: attr.value.get() });
-          else if (attr.label.get() === 'organType') Object.assign(organObject, { organType: attr.value.get() });
-          else if (attr.label.get() === 'platformId') Object.assign(organObject, { platformId: attr.value.get() });
-          else if (attr.label.get() === 'status') Object.assign(organObject, { status: attr.value.get() });
+          if (attr.label.get() === 'id')
+            Object.assign(organObject, { id: attr.value.get() });
+          else if (attr.label.get() === 'bosId')
+            Object.assign(organObject, { bosId: attr.value.get() });
+          else if (attr.label.get() === 'name')
+            Object.assign(organObject, { name: attr.value.get() });
+          else if (attr.label.get() === 'type')
+            Object.assign(organObject, { type: attr.value.get() });
+          else if (attr.label.get() === 'mac_adress')
+            Object.assign(organObject, { mac_adress: attr.value.get() });
+          else if (attr.label.get() === 'ip_adress')
+            Object.assign(organObject, { ip_adress: attr.value.get() });
+          else if (attr.label.get() === 'url')
+            Object.assign(organObject, { url: attr.value.get() });
+          else if (attr.label.get() === 'port')
+            Object.assign(organObject, { port: attr.value.get() });
+          else if (attr.label.get() === 'login')
+            Object.assign(organObject, { login: attr.value.get() });
+          else if (attr.label.get() === 'password')
+            Object.assign(organObject, { password: attr.value.get() });
+          else if (attr.label.get() === 'organType')
+            Object.assign(organObject, { organType: attr.value.get() });
+          else if (attr.label.get() === 'platformId')
+            Object.assign(organObject, { platformId: attr.value.get() });
+          else if (attr.label.get() === 'status')
+            Object.assign(organObject, { status: attr.value.get() });
         }
         organsObjectList.push(organObject);
       }
@@ -303,36 +375,49 @@ export class OrganService {
 
   public async getOrgan(organId: string): Promise<IOrgan> {
     try {
-      const context = SpinalGraphService.getContext('organList')
+      const context = SpinalGraphService.getContext('organList');
       const organs = await context.getChildren(
         MONITORING_SERVICE_ORGAN_RELATION_NAME
       );
       for (const organ of organs) {
         if (organ.getId().get() === organId) {
-          var organObject: any = {}
-          const attrs = await serviceDocumentation.getAttributesByCategory(organ, CATEGORY_NAME);
+          var organObject: any = {};
+          const attrs = await serviceDocumentation.getAttributesByCategory(
+            organ,
+            CATEGORY_NAME
+          );
           for (const attr of attrs) {
-            if (attr.label.get() === 'id') Object.assign(organObject, { id: attr.value.get() });
-            else if (attr.label.get() === 'bosId') Object.assign(organObject, { bosId: attr.value.get() });
-            else if (attr.label.get() === 'name') Object.assign(organObject, { name: attr.value.get() });
-            else if (attr.label.get() === 'type') Object.assign(organObject, { type: attr.value.get() });
-            else if (attr.label.get() === 'mac_adress') Object.assign(organObject, { mac_adress: attr.value.get() });
-            else if (attr.label.get() === 'ip_adress') Object.assign(organObject, { ip_adress: attr.value.get() });
-            else if (attr.label.get() === 'url') Object.assign(organObject, { url: attr.value.get() });
-            else if (attr.label.get() === 'port') Object.assign(organObject, { port: attr.value.get() });
-            else if (attr.label.get() === 'login') Object.assign(organObject, { login: attr.value.get() });
-            else if (attr.label.get() === 'password') Object.assign(organObject, { password: attr.value.get() });
-            else if (attr.label.get() === 'organType') Object.assign(organObject, { organType: attr.value.get() });
-            else if (attr.label.get() === 'platformId') Object.assign(organObject, { platformId: attr.value.get() });
-            else if (attr.label.get() === 'status') Object.assign(organObject, { status: attr.value.get() });
+            if (attr.label.get() === 'id')
+              Object.assign(organObject, { id: attr.value.get() });
+            else if (attr.label.get() === 'bosId')
+              Object.assign(organObject, { bosId: attr.value.get() });
+            else if (attr.label.get() === 'name')
+              Object.assign(organObject, { name: attr.value.get() });
+            else if (attr.label.get() === 'type')
+              Object.assign(organObject, { type: attr.value.get() });
+            else if (attr.label.get() === 'mac_adress')
+              Object.assign(organObject, { mac_adress: attr.value.get() });
+            else if (attr.label.get() === 'ip_adress')
+              Object.assign(organObject, { ip_adress: attr.value.get() });
+            else if (attr.label.get() === 'url')
+              Object.assign(organObject, { url: attr.value.get() });
+            else if (attr.label.get() === 'port')
+              Object.assign(organObject, { port: attr.value.get() });
+            else if (attr.label.get() === 'login')
+              Object.assign(organObject, { login: attr.value.get() });
+            else if (attr.label.get() === 'password')
+              Object.assign(organObject, { password: attr.value.get() });
+            else if (attr.label.get() === 'organType')
+              Object.assign(organObject, { organType: attr.value.get() });
+            else if (attr.label.get() === 'platformId')
+              Object.assign(organObject, { platformId: attr.value.get() });
+            else if (attr.label.get() === 'status')
+              Object.assign(organObject, { status: attr.value.get() });
           }
         }
       }
       if (organObject) return organObject;
-      else throw new OperationError(
-        'NOT_FOUND',
-        HttpStatusCode.FORBIDDEN
-      );
+      else throw new OperationError('NOT_FOUND', HttpStatusCode.FORBIDDEN);
     } catch (error) {
       return error;
     }
@@ -342,32 +427,78 @@ export class OrganService {
     organId: string,
     requestBody: IOrganUpdateParams
   ): Promise<IOrgan> {
-
-    const context = SpinalGraphService.getContext('organList')
+    const context = SpinalGraphService.getContext('organList');
     const organs = await context.getChildren(
       MONITORING_SERVICE_ORGAN_RELATION_NAME
     );
     for (const organ of organs) {
       if (organ.getId().get() === organId) {
-        const attrs = await serviceDocumentation.getAttributesByCategory(organ, CATEGORY_NAME);
+        const attrs = await serviceDocumentation.getAttributesByCategory(
+          organ,
+          CATEGORY_NAME
+        );
         for (const attr of attrs) {
-          if (attr.label.get() === 'name') serviceDocumentation.setAttributeById(organ, attr._server_id, 'name', requestBody.name, attr.type.get(), attr.unit.get())
-          else if (attr.label.get() === 'organType') serviceDocumentation.setAttributeById(organ, attr._server_id, 'organType', requestBody.organType, attr.type.get(), attr.unit.get())
-          else if (attr.label.get() === 'mac_adress') serviceDocumentation.setAttributeById(organ, attr._server_id, 'mac_adress', requestBody.mac_adress, attr.type.get(), attr.unit.get())
-          else if (attr.label.get() === 'ip_adress') serviceDocumentation.setAttributeById(organ, attr._server_id, 'ip_adress', requestBody.ip_adress, attr.type.get(), attr.unit.get())
+          if (attr.label.get() === 'name')
+            serviceDocumentation.setAttributeById(
+              organ,
+              attr._server_id,
+              'name',
+              requestBody.name,
+              attr.type.get(),
+              attr.unit.get()
+            );
+          else if (attr.label.get() === 'organType')
+            serviceDocumentation.setAttributeById(
+              organ,
+              attr._server_id,
+              'organType',
+              requestBody.organType,
+              attr.type.get(),
+              attr.unit.get()
+            );
+          else if (attr.label.get() === 'mac_adress')
+            serviceDocumentation.setAttributeById(
+              organ,
+              attr._server_id,
+              'mac_adress',
+              requestBody.mac_adress,
+              attr.type.get(),
+              attr.unit.get()
+            );
+          else if (attr.label.get() === 'ip_adress')
+            serviceDocumentation.setAttributeById(
+              organ,
+              attr._server_id,
+              'ip_adress',
+              requestBody.ip_adress,
+              attr.type.get(),
+              attr.unit.get()
+            );
 
-          const attrsres = await serviceDocumentation.getAttributesByCategory(organ, CATEGORY_NAME);
-          var organObject: any = {}
+          const attrsres = await serviceDocumentation.getAttributesByCategory(
+            organ,
+            CATEGORY_NAME
+          );
+          var organObject: any = {};
           for (const attr of attrsres) {
-            if (attr.label.get() === 'id') Object.assign(organObject, { id: attr.value.get() });
-            else if (attr.label.get() === 'bosId') Object.assign(organObject, { bosId: attr.value.get() });
-            else if (attr.label.get() === 'name') Object.assign(organObject, { name: attr.value.get() });
-            else if (attr.label.get() === 'type') Object.assign(organObject, { type: attr.value.get() });
-            else if (attr.label.get() === 'mac_adress') Object.assign(organObject, { mac_adress: attr.value.get() });
-            else if (attr.label.get() === 'ip_adress') Object.assign(organObject, { ip_adress: attr.value.get() });
-            else if (attr.label.get() === 'organType') Object.assign(organObject, { organType: attr.value.get() });
-            else if (attr.label.get() === 'platformId') Object.assign(organObject, { platformId: attr.value.get() });
-            else if (attr.label.get() === 'status') Object.assign(organObject, { status: attr.value.get() });
+            if (attr.label.get() === 'id')
+              Object.assign(organObject, { id: attr.value.get() });
+            else if (attr.label.get() === 'bosId')
+              Object.assign(organObject, { bosId: attr.value.get() });
+            else if (attr.label.get() === 'name')
+              Object.assign(organObject, { name: attr.value.get() });
+            else if (attr.label.get() === 'type')
+              Object.assign(organObject, { type: attr.value.get() });
+            else if (attr.label.get() === 'mac_adress')
+              Object.assign(organObject, { mac_adress: attr.value.get() });
+            else if (attr.label.get() === 'ip_adress')
+              Object.assign(organObject, { ip_adress: attr.value.get() });
+            else if (attr.label.get() === 'organType')
+              Object.assign(organObject, { organType: attr.value.get() });
+            else if (attr.label.get() === 'platformId')
+              Object.assign(organObject, { platformId: attr.value.get() });
+            else if (attr.label.get() === 'status')
+              Object.assign(organObject, { status: attr.value.get() });
           }
         }
       }
@@ -375,6 +506,7 @@ export class OrganService {
       else throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
     }
   }
+
   public async deleteOrgan(organId: string): Promise<void> {
     const organListContext = SpinalGraphService.getContext('organList');
     const organs = await organListContext.getChildren(
@@ -382,9 +514,8 @@ export class OrganService {
     );
     for (const organ of organs) {
       if (organ.getId().get() === organId) {
-        await organ.removeFromGraph()
+        await organ.removeFromGraph();
       }
     }
   }
-
 }

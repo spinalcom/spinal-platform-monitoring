@@ -77,6 +77,17 @@ export class OrgansController extends Controller {
     return new OrganService().getOrgan(organId);
   }
 
+  @Header('x-access-token')
+  @Security('jwt')
+  @Get('{organId}/health/{begin}/{end}')
+  public async getOrganHealth(
+    @Path() organId: string,
+    @Path() begin: number,
+    @Path() end: number,
+  ): Promise<any> {
+    this.setStatus(200); // set return status 201
+    return new OrganService().getOrganHealth(organId,begin, end);
+  }
 
   @Security('jwt')
   @Put('{organId}')

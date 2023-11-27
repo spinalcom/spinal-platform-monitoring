@@ -1235,6 +1235,34 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/organs/:organId/health/:begin/:end',
+            authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(OrgansController)),
+            ...(fetchMiddlewares<RequestHandler>(OrgansController.prototype.getOrganHealth)),
+
+            function OrgansController_getOrganHealth(request: any, response: any, next: any) {
+            const args = {
+                    organId: {"in":"path","name":"organId","required":true,"dataType":"string"},
+                    begin: {"in":"path","name":"begin","required":true,"dataType":"double"},
+                    end: {"in":"path","name":"end","required":true,"dataType":"double"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new OrgansController();
+
+
+              const promise = controller.getOrganHealth.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/organs/:organId',
             authenticateMiddleware([{"jwt":[]}]),
             ...(fetchMiddlewares<RequestHandler>(OrgansController)),

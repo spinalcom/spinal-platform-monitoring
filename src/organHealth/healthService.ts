@@ -38,6 +38,7 @@ import { InputDataEndpoint, InputDataEndpointDataType, InputDataEndpointType } f
 import getInstance from '../utilities/NetworkService';
 import spinalServiceTimeSeries from '../utilities/spinalTimeSeries';
 import { OrganService } from '../organ/organService'
+import { IOrganCreationParams } from '../organ/organ.model';
 import serviceDocumentation from "spinal-env-viewer-plugin-documentation-service"
 
 
@@ -61,34 +62,50 @@ export class HealthService {
       for (const attr of attrs) {
         if (attr.label.get() === 'TokenBosRegister') TokenBosRegister = attr.value.get()
       }
+      // find the platform with the same registery token as the one in api call
       if (TokenBosRegister === requestBody.TokenBosRegister) {
+        
         const organs = await platform.getChildren('HasOrgan');
         let res = compareTabs(requestBody.infoOrgans, organs)
 
-        console.log(requestBody.infoHub);
-        console.log(res);
+        //console.log(requestBody.infoHub);
+        //console.log(res);
 
-        for (const organ of organs) {
-          for (const infoOrgan of requestBody.infoOrgans) {
-            if (organ.info.name.get() === infoOrgan.genericOrganData.name) {
-              let state: string = "";
-              if (isWithinTwoMinutes(infoOrgan.genericOrganData.lastHealthTime)) {
-                state = "online"
-              } else {
-                state = "stop"
-              }
-              const endpoints = await organ.getChildren('hasBmsEndpoint')
+        for(const infoOrgan of requestBody.infoOrgans){
+          let organNode = organs.find(organ => organ.info.name.get() === infoOrgan.genericOrganData.name)
+          if(!organNode){
+            const organCreationParms : IOrganCreationParams = {
+              bosId: "",
+              name: infoOrgan.genericOrganData.name,
+              type: '',
+              mac_adress: infoOrgan.genericOrganData.macAdress,
+              ip_adress: infoOrgan.genericOrganData.idAdress,
+              organType: infoOrgan.genericOrganData.type,
+              platformId: platform.getId().get()
+            }
+
+            const organNodeInfo = await this.organService.createOrgan(organCreationParms);
+            console.log("Created unknown organ : ", infoOrgan.genericOrganData.name);
+            organNode = SpinalGraphService.getRealNode(organNodeInfo.id);
+          }
+          console.log("Updating endpoints of ", organNode.info.name.get());
+          const endpoints = await organNode.getChildren('hasBmsEndpoint')
               for (const endpoint of endpoints) {
                 if (endpoint.getName().get() === 'health_history') {
                   // @ts-ignore
                   SpinalGraphService._addNode(endpoint);
                   var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
-                  await timeseries.insert(infoOrgan.genericOrganData.lastHealthTime, Date.now());
+                  await timeseries.insert(1,parseInt(infoOrgan.genericOrganData.lastHealthTime));
+                  const model = await endpoint.element.load();
+                  model.currentValue.set(1);
+
                 } else if (endpoint.getName().get() === 'reboot_history') {
                   // @ts-ignore
                   SpinalGraphService._addNode(endpoint);
                   var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
                   await timeseries.insert(infoOrgan.genericOrganData.bootTimestamp, Date.now());
+                  const model = await endpoint.element.load();
+                  model.currentValue.set(infoOrgan.genericOrganData.bootTimestamp);
                 } else if (endpoint.getName().get() === 'ram_history') {
                   // @ts-ignore
                   SpinalGraphService._addNode(endpoint);
@@ -99,19 +116,23 @@ export class HealthService {
                     const resRegex = parseFloat(match[1]);
                     var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
                     await timeseries.insert(resRegex, Date.now());
-                    console.log(resRegex);
+                    const model = await endpoint.element.load();
+                    model.currentValue.set(resRegex);
                   }
                 }
               }
-              organ.info.mac_adress.set(infoOrgan.specificOrganData.mac_adress);
-            }
-          }
+              organNode.info.mac_adress.set(infoOrgan.specificOrganData.mac_adress);
+
         }
       }
     }
     return requestBody;
   }
 }
+
+
+
+
 
 
 function isWithinTwoMinutes(timestamp: number) {
