@@ -74,10 +74,13 @@ function Server(): express.Express {
   app.get('/', function (req, res) {
     res.sendFile(path.resolve(__dirname, '../vue-client/dist', 'index.html'));
   });
-
-  app.listen(config.api.port, () =>
-    console.log(`app listening at http://localhost:${config.api.port} ....`)
-  );
+  
+  app.listen(config.api.port, () => {
+    console.log(`app listening at http://localhost:${config.api.port} ....`);
+    console.log(
+      `Access the swagger ui at http://localhost:${config.api.port}/api-docs ....`
+    );
+  });
 
   return;
 }

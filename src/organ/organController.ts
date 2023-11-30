@@ -51,7 +51,6 @@ export class OrgansController extends Controller {
   @Security('jwt')
   @SuccessResponse('201', 'Created') // Custom success response
   @Post()
-
   public async createOrgan(
     @Header('x-access-token') test: string,
     @Body() requestBody: IOrganCreationParams
@@ -77,10 +76,11 @@ export class OrgansController extends Controller {
     return new OrganService().getOrgan(organId);
   }
 
-  @Header('x-access-token')
+  
   @Security('jwt')
   @Get('{organId}/health/{begin}/{end}')
   public async getOrganHealth(
+    @Header('x-access-token') test:string,
     @Path() organId: string,
     @Path() begin: number,
     @Path() end: number,
@@ -90,8 +90,20 @@ export class OrgansController extends Controller {
   }
 
   @Security('jwt')
+  @Get('{organId}/reboot/{begin}/{end}')
+  public async getOrganReboot(
+    @Header('x-access-token') test:string,
+    @Path() organId: string,
+    @Path() begin: number,
+    @Path() end: number,
+  ): Promise<any> {
+    this.setStatus(200); // set return status 201
+    return new OrganService().getOrganReboot(organId,begin, end);
+  }
+
+  @Security('jwt')
   @Put('{organId}')
-  public async updatePlateform(
+  public async updateOrgan(
     @Path() organId: string,
     @Body() requestBody: any
   ): Promise<IOrgan> {

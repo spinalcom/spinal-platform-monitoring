@@ -103,9 +103,9 @@ export class HealthService {
                   // @ts-ignore
                   SpinalGraphService._addNode(endpoint);
                   var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
-                  await timeseries.insert(infoOrgan.genericOrganData.bootTimestamp, Date.now());
+                  await timeseries.insert(1,parseInt(infoOrgan.genericOrganData.bootTimestamp));
                   const model = await endpoint.element.load();
-                  model.currentValue.set(infoOrgan.genericOrganData.bootTimestamp);
+                  model.currentValue.set(1);
                 } else if (endpoint.getName().get() === 'ram_history') {
                   // @ts-ignore
                   SpinalGraphService._addNode(endpoint);

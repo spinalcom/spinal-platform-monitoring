@@ -116,7 +116,7 @@ export class OrganService {
       name: 'reboot_history',
       path: '',
       currentValue: 0,
-      unit: 'timestamp',
+      unit: '',
       nodeTypeName: 'BmsEndpoint',
       dataType: InputDataEndpointDataType.Date,
       type: InputDataEndpointType.Other,
@@ -228,9 +228,9 @@ export class OrganService {
       name: 'reboot_history',
       path: '',
       currentValue: 0,
-      unit: 'timestamp',
+      unit: '',
       nodeTypeName: 'BmsEndpoint',
-      dataType: InputDataEndpointDataType.Date,
+      dataType: InputDataEndpointDataType.Integer,
       type: InputDataEndpointType.Other,
     };
     const healthObj: InputDataEndpoint = {
@@ -238,9 +238,9 @@ export class OrganService {
       name: 'health_history',
       path: '',
       currentValue: 0,
-      unit: 'timestamp',
+      unit: '',
       nodeTypeName: 'BmsEndpoint',
-      dataType: InputDataEndpointDataType.Date,
+      dataType: InputDataEndpointDataType.Integer,
       type: InputDataEndpointType.Other,
     };
 
@@ -304,6 +304,37 @@ export class OrganService {
           const endpoints = await organ.getChildren('hasBmsEndpoint');
           for (const endpoint of endpoints) {
             if (endpoint.getName().get() === 'health_history') {
+              // @ts-ignore
+              SpinalGraphService._addNode(endpoint);
+              const timeSeriesIntervalDate = {
+                start: begin,
+                end: end,
+              };
+              const timeseries = await spinalServiceTimeSeries().getData(
+                endpoint.getId().get(),
+                timeSeriesIntervalDate
+              );
+              return timeseries;
+            }
+          }
+        }
+      }
+    } catch (error) {
+      return error;
+    }
+  }
+
+  public async getOrganReboot(organId: string, begin: number, end: number) {
+    try {
+      const context = SpinalGraphService.getContext('organList');
+      const organs = await context.getChildren(
+        MONITORING_SERVICE_ORGAN_RELATION_NAME
+      );
+      for (const organ of organs) {
+        if (organ.getId().get() === organId) {
+          const endpoints = await organ.getChildren('hasBmsEndpoint');
+          for (const endpoint of endpoints) {
+            if (endpoint.getName().get() === 'reboot_history') {
               // @ts-ignore
               SpinalGraphService._addNode(endpoint);
               const timeSeriesIntervalDate = {

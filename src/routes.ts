@@ -1242,6 +1242,7 @@ export function RegisterRoutes(app: Router) {
 
             function OrgansController_getOrganHealth(request: any, response: any, next: any) {
             const args = {
+                    test: {"in":"header","name":"x-access-token","required":true,"dataType":"string"},
                     organId: {"in":"path","name":"organId","required":true,"dataType":"string"},
                     begin: {"in":"path","name":"begin","required":true,"dataType":"double"},
                     end: {"in":"path","name":"end","required":true,"dataType":"double"},
@@ -1263,12 +1264,41 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/organs/:organId/reboot/:begin/:end',
+            authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(OrgansController)),
+            ...(fetchMiddlewares<RequestHandler>(OrgansController.prototype.getOrganReboot)),
+
+            function OrgansController_getOrganReboot(request: any, response: any, next: any) {
+            const args = {
+                    test: {"in":"header","name":"x-access-token","required":true,"dataType":"string"},
+                    organId: {"in":"path","name":"organId","required":true,"dataType":"string"},
+                    begin: {"in":"path","name":"begin","required":true,"dataType":"double"},
+                    end: {"in":"path","name":"end","required":true,"dataType":"double"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new OrgansController();
+
+
+              const promise = controller.getOrganReboot.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/organs/:organId',
             authenticateMiddleware([{"jwt":[]}]),
             ...(fetchMiddlewares<RequestHandler>(OrgansController)),
-            ...(fetchMiddlewares<RequestHandler>(OrgansController.prototype.updatePlateform)),
+            ...(fetchMiddlewares<RequestHandler>(OrgansController.prototype.updateOrgan)),
 
-            function OrgansController_updatePlateform(request: any, response: any, next: any) {
+            function OrgansController_updateOrgan(request: any, response: any, next: any) {
             const args = {
                     organId: {"in":"path","name":"organId","required":true,"dataType":"string"},
                     requestBody: {"in":"body","name":"requestBody","required":true,"dataType":"any"},
@@ -1283,7 +1313,7 @@ export function RegisterRoutes(app: Router) {
                 const controller = new OrgansController();
 
 
-              const promise = controller.updatePlateform.apply(controller, validatedArgs as any);
+              const promise = controller.updateOrgan.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);
