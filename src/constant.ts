@@ -34,6 +34,7 @@ export const APPLICATION_TYPE = 'MonitoringServiceApplication';
 export const APPLICATION_TOKEN_CATEGORY_TYPE = 'MonitoringServiceApplicationCategory';
 export const PLATFORM_TYPE = 'MonitoringServicePlatform';
 export const ORGAN_TYPE = 'MonitoringServiceOrgan';
+export const HUB_ORGAN_TYPE = 'HubOrgan';
 export const SERVER_TYPE = 'MonitoringServiceServer';
 export const CUSTOMER_TYPE = "MonitoringServiceCustomer";
 export const SITE_TYPE = "MonitoringServiceSite";

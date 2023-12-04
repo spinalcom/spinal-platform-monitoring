@@ -30,6 +30,7 @@ import {
   MONITORING_SERVICE_PLATFORM_RELATION_NAME,
   CATEGORY_NAME,
   ORGAN_LIST,
+  HUB_ORGAN_TYPE,
   ORGAN_GROUP,
 } from '../constant';
 import {
@@ -191,7 +192,7 @@ export class OrganService {
       port: organCreationParms.port,
       login: organCreationParms.login,
       password: organCreationParms.password,
-      organType: organCreationParms.organType,
+      organType: HUB_ORGAN_TYPE,
       platformId: platformId,
       status: '',
       [Symbol.iterator]: function* () {
@@ -233,9 +234,32 @@ export class OrganService {
       dataType: InputDataEndpointDataType.Integer,
       type: InputDataEndpointType.Other,
     };
-    const healthObj: InputDataEndpoint = {
+
+    const ramResObj: InputDataEndpoint = {
       id: '0',
-      name: 'health_history',
+      name: 'ram_res',
+      path: '',
+      currentValue: 0,
+      unit: '',
+      nodeTypeName: 'BmsEndpoint',
+      dataType: InputDataEndpointDataType.Real,
+      type: InputDataEndpointType.Other,
+    };
+
+    const ramVirtObj: InputDataEndpoint = {
+      id: '0',
+      name: 'ram_virt',
+      path: '',
+      currentValue: 0,
+      unit: '',
+      nodeTypeName: 'BmsEndpoint',
+      dataType: InputDataEndpointDataType.Real,
+      type: InputDataEndpointType.Other,
+    };
+
+    const countSessionsObj : InputDataEndpoint = {
+      id: '0',
+      name: 'count_session',
       path: '',
       currentValue: 0,
       unit: '',
@@ -244,20 +268,25 @@ export class OrganService {
       type: InputDataEndpointType.Other,
     };
 
-    const RamObj: InputDataEndpoint = {
+    const countUsersObj : InputDataEndpoint = {
       id: '0',
-      name: 'ram_history',
+      name: 'count_users',
       path: '',
       currentValue: 0,
-      unit: 'mgo',
+      unit: '',
       nodeTypeName: 'BmsEndpoint',
       dataType: InputDataEndpointDataType.Integer,
       type: InputDataEndpointType.Other,
     };
 
+
+
+
     await getInstance().createNewBmsEndpointWithoutContext(OrganId, rebootObj);
-    await getInstance().createNewBmsEndpointWithoutContext(OrganId, healthObj);
-    await getInstance().createNewBmsEndpointWithoutContext(OrganId, RamObj);
+    await getInstance().createNewBmsEndpointWithoutContext(OrganId, ramResObj);
+    await getInstance().createNewBmsEndpointWithoutContext(OrganId, ramVirtObj);
+    await getInstance().createNewBmsEndpointWithoutContext(OrganId, countSessionsObj);
+    await getInstance().createNewBmsEndpointWithoutContext(OrganId, countUsersObj);
 
     const platformListContext = SpinalGraphService.getContext('platformList');
     const platforms = await platformListContext.getChildren('HasPlatform');
