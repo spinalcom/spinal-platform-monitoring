@@ -38,6 +38,13 @@ import { InputDataEndpoint, InputDataEndpointDataType, InputDataEndpointType } f
 import getInstance from '../utilities/NetworkService';
 import spinalServiceTimeSeries from '../utilities/spinalTimeSeries';
 import { OrganService } from '../organ/organService'
+import {
+  IOrganCreationParams,
+  IOrganUpdateParams,
+  IOrgan,
+  IOrganHubCreationParams,
+  IOrganHub,
+} from '../organ/organ.model';
 import serviceDocumentation from "spinal-env-viewer-plugin-documentation-service"
 
 
@@ -63,15 +70,28 @@ export class HealthService {
       }
       if (TokenBosRegister === requestBody.TokenBosRegister) {
         const organs = await platform.getChildren('HasOrgan');
-        let res = compareTabs(requestBody.infoOrgans, organs)
+        let newOrgans = compareTabs(requestBody.infoOrgans, organs)
+        if (newOrgans) {
+          for (const newOrgan of newOrgans) {
+            const objCreationOrgan: IOrganCreationParams = {
+              bosId: newOrgan.genericOrganData.id,
+              name: newOrgan.genericOrganData.name,
+              type: "",
+              mac_adress: newOrgan.genericOrganData.macAdress,
+              ip_adress: newOrgan.genericOrganData.serverName,
+              organType: newOrgan.genericOrganData.type,
+              platformId: platform.getId().get(),
+            }
+            console.log(objCreationOrgan);
 
-        console.log(requestBody.infoHub);
-        console.log(res);
-
+            // let res = await new OrganService().createOrgan(objCreationOrgan);
+            // console.log("=====", res);
+          }
+        }
         for (const organ of organs) {
           for (const infoOrgan of requestBody.infoOrgans) {
             if (organ.info.name.get() === infoOrgan.genericOrganData.name) {
-              let state: string = "";
+              var state: string = "";
               if (isWithinTwoMinutes(infoOrgan.genericOrganData.lastHealthTime)) {
                 state = "online"
               } else {
@@ -99,11 +119,13 @@ export class HealthService {
                     const resRegex = parseFloat(match[1]);
                     var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(endpoint.getId().get());
                     await timeseries.insert(resRegex, Date.now());
-                    console.log(resRegex);
                   }
                 }
               }
-              organ.info.mac_adress.set(infoOrgan.specificOrganData.mac_adress);
+              const attrs = await serviceDocumentation.getAttributesByCategory(organ, CATEGORY_NAME);
+              for (const attr of attrs) {
+                if (attr.label.get() === 'mac_adress') serviceDocumentation.setAttributeById(organ, attr._server_id, 'mac_adress', infoOrgan.genericOrganData.macAdress, attr.type.get(), attr.unit.get())
+              }
             }
           }
         }
@@ -131,9 +153,6 @@ function compareTabs(organMonit, organBos: SpinalNode[]) {
       resultat.push(requestObj);
     }
   });
-
-
-
   return resultat;
 }
 
