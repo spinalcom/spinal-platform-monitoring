@@ -55,7 +55,7 @@ import {
   InputDataEndpointType,
 } from 'spinal-model-bmsnetwork';
 import getInstance from '../utilities/NetworkService';
-
+import { spinalControlPointService } from "spinal-env-viewer-plugin-control-endpoint-service";
 export class OrganService {
   public spinalMiddleware: SpinalMiddleware = SpinalMiddleware.getInstance();
   public graph: SpinalGraph<any>;
@@ -144,9 +144,21 @@ export class OrganService {
       type: InputDataEndpointType.Other,
     };
 
+    const Status: InputDataEndpoint = {
+      id: '0',
+      name: 'status',
+      path: '',
+      currentValue: 0,
+      unit: '',
+      nodeTypeName: 'BmsEndpoint',
+      dataType: InputDataEndpointDataType.Integer,
+      type: InputDataEndpointType.Other,
+    }
+
     await getInstance().createNewBmsEndpointWithoutContext(OrganId, rebootObj);
     await getInstance().createNewBmsEndpointWithoutContext(OrganId, healthObj);
     await getInstance().createNewBmsEndpointWithoutContext(OrganId, RamObj);
+    await getInstance().createNewBmsEndpointWithoutContext(OrganId, Status);
 
     const platformListContext = SpinalGraphService.getContext('platformList');
     const platforms = await platformListContext.getChildren('HasPlatform');
@@ -278,7 +290,16 @@ export class OrganService {
       dataType: InputDataEndpointDataType.Integer,
       type: InputDataEndpointType.Other,
     };
-
+    const Status: InputDataEndpoint = {
+      id: '0',
+      name: 'status',
+      path: '',
+      currentValue: 0,
+      unit: '',
+      nodeTypeName: 'BmsEndpoint',
+      dataType: InputDataEndpointDataType.Integer,
+      type: InputDataEndpointType.Other,
+    }
 
 
 
@@ -287,6 +308,7 @@ export class OrganService {
     await getInstance().createNewBmsEndpointWithoutContext(OrganId, ramVirtObj);
     await getInstance().createNewBmsEndpointWithoutContext(OrganId, countSessionsObj);
     await getInstance().createNewBmsEndpointWithoutContext(OrganId, countUsersObj);
+    await getInstance().createNewBmsEndpointWithoutContext(OrganId, Status);
 
     const platformListContext = SpinalGraphService.getContext('platformList');
     const platforms = await platformListContext.getChildren('HasPlatform');
@@ -384,6 +406,37 @@ export class OrganService {
     }
   }
 
+  public async getOrganStatus(organId: string, begin: number, end: number) {
+    try {
+      const context = SpinalGraphService.getContext('organList');
+      const organs = await context.getChildren(
+        MONITORING_SERVICE_ORGAN_RELATION_NAME
+      );
+      for (const organ of organs) {
+        if (organ.getId().get() === organId) {
+          const endpoints = await organ.getChildren('hasBmsEndpoint');
+          for (const endpoint of endpoints) {
+            if (endpoint.getName().get() === 'status') {
+              // @ts-ignore
+              SpinalGraphService._addNode(endpoint);
+              const timeSeriesIntervalDate = {
+                start: begin,
+                end: end,
+              };
+              const timeseries = await spinalServiceTimeSeries().getData(
+                endpoint.getId().get(),
+                timeSeriesIntervalDate
+              );
+              return timeseries;
+            }
+          }
+        }
+      }
+    } catch (error) {
+      return error;
+    }
+  }
+
   public async getOrgans(): Promise<IOrgan[]> {
     try {
       var organsObjectList = [];
@@ -422,8 +475,15 @@ export class OrganService {
             Object.assign(organObject, { organType: attr.value.get() });
           else if (attr.label.get() === 'platformId')
             Object.assign(organObject, { platformId: attr.value.get() });
-          else if (attr.label.get() === 'status')
-            Object.assign(organObject, { status: attr.value.get() });
+        }
+        const endpoints = await organ.getChildren('hasBmsEndpoint');
+        const status = endpoints.find((endpoint) => {
+          return endpoint.getName().get() === 'status';
+        });
+        if ( status ) {
+          const element = await status.element.load();
+          const value = await element.currentValue.get();
+          Object.assign(organObject, { status: value });
         }
         organsObjectList.push(organObject);
       }

@@ -96,61 +96,72 @@ export class HealthService {
             organNode = SpinalGraphService.getRealNode(organNodeInfo.id);
           }
           console.log('Updating endpoints of ', organNode.info.name.get());
-          const endpoints = await organNode.getChildren('hasBmsEndpoint');
-          for (const endpoint of endpoints) {
-            if (endpoint.getName().get() === 'health_history') {
-              // @ts-ignore
-              SpinalGraphService._addNode(endpoint);
-              var timeseries =
-                await spinalServiceTimeSeries().getOrCreateTimeSeries(
-                  endpoint.getId().get()
-                );
-              await timeseries.insert(
-                1,
-                parseInt(infoOrgan.genericOrganData.lastHealthTime)
-              );
-              const model = await endpoint.element.load();
-              model.currentValue.set(1);
-            } else if (endpoint.getName().get() === 'reboot_history') {
-              // @ts-ignore
-              SpinalGraphService._addNode(endpoint);
-              var timeseries =
-                await spinalServiceTimeSeries().getOrCreateTimeSeries(
-                  endpoint.getId().get()
-                );
-              await timeseries.insert(
-                1,
-                parseInt(infoOrgan.genericOrganData.bootTimestamp)
-              );
-              const model = await endpoint.element.load();
-              model.currentValue.set(1);
-            } else if (endpoint.getName().get() === 'ram_history') {
-              // @ts-ignore
-              SpinalGraphService._addNode(endpoint);
-              const chaine = infoOrgan.genericOrganData.ramRssUsed;
-              const regex = /([\d.]+)\s*MB/;
-              const match = chaine.match(regex);
-              if (match) {
-                const resRegex = parseFloat(match[1]);
-                var timeseries =
-                  await spinalServiceTimeSeries().getOrCreateTimeSeries(
-                    endpoint.getId().get()
-                  );
-                await timeseries.insert(resRegex, Date.now());
-                const model = await endpoint.element.load();
-                model.currentValue.set(resRegex);
-              }
-            }
-          }
+          await updateOrganEndpoints(organNode, infoOrgan);
           organNode.info.mac_adress.set(infoOrgan.specificOrganData.mac_adress);
         }
         // Updating Hub Organ
         const hubOrganNode = organs.find(
           (organ) => organ.info.organType.get() === HUB_ORGAN_TYPE
         );
-        const endpoints = await hubOrganNode.getChildren('hasBmsEndpoint');
+        if (hubOrganNode) {
+          await updateHubOrganEndpoints(hubOrganNode, requestBody.infoHub);
+        }
+      }
+    }
+    return requestBody;
+  }
+}
+
+async function updateOrganEndpoints(organNode, infoOrgan) {
+  const endpoints = await organNode.getChildren('hasBmsEndpoint');
+  for (const endpoint of endpoints) {
+    if (endpoint.getName().get() === 'health_history') {
+      // @ts-ignore
+      SpinalGraphService._addNode(endpoint);
+      var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(
+        endpoint.getId().get()
+      );
+      await timeseries.insert(
+        1,
+        parseInt(infoOrgan.genericOrganData.lastHealthTime)
+      );
+      const model = await endpoint.element.load();
+      model.currentValue.set(1);
+    } else if (endpoint.getName().get() === 'reboot_history') {
+      // @ts-ignore
+      SpinalGraphService._addNode(endpoint);
+      var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(
+        endpoint.getId().get()
+      );
+      await timeseries.insert(
+        1,
+        parseInt(infoOrgan.genericOrganData.bootTimestamp)
+      );
+      const model = await endpoint.element.load();
+      model.currentValue.set(1);
+    } else if (endpoint.getName().get() === 'ram_history') {
+      // @ts-ignore
+      SpinalGraphService._addNode(endpoint);
+      const chaine = infoOrgan.genericOrganData.ramRssUsed;
+      const regex = /([\d.]+)\s*MB/;
+      const match = chaine.match(regex);
+      if (match) {
+        const resRegex = parseFloat(match[1]);
+        var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(
+          endpoint.getId().get()
+        );
+        await timeseries.insert(resRegex, Date.now());
+        const model = await endpoint.element.load();
+        model.currentValue.set(resRegex);
+      }
+    }
+  }
+}
+
+async function updateHubOrganEndpoints(hubOrganNode, infoHub) {
+  const endpoints = await hubOrganNode.getChildren('hasBmsEndpoint');
         for (const endpoint of endpoints) {
-           if (endpoint.getName().get() === 'reboot_history') {
+          if (endpoint.getName().get() === 'reboot_history') {
             // @ts-ignore
             SpinalGraphService._addNode(endpoint);
             var timeseries =
@@ -159,11 +170,10 @@ export class HealthService {
               );
             await timeseries.insert(
               1,
-              parseInt(requestBody.infoHub.bootTimestamp)
+              parseInt(infoHub.bootTimestamp)
             );
             const model = await endpoint.element.load();
             model.currentValue.set(1);
-
           } else if (endpoint.getName().get() === 'ram_res') {
             // @ts-ignore
             SpinalGraphService._addNode(endpoint);
@@ -172,12 +182,11 @@ export class HealthService {
                 endpoint.getId().get()
               );
             await timeseries.insert(
-              requestBody.infoHub.ramUsageRes,
+              infoHub.ramUsageRes,
               Date.now()
             );
             const model = await endpoint.element.load();
-            model.currentValue.set(requestBody.infoHub.ramUsageRes);
-            
+            model.currentValue.set(infoHub.ramUsageRes);
           } else if (endpoint.getName().get() === 'ram_virt') {
             // @ts-ignore
             SpinalGraphService._addNode(endpoint);
@@ -186,11 +195,11 @@ export class HealthService {
                 endpoint.getId().get()
               );
             await timeseries.insert(
-              requestBody.infoHub.ramUsageVirt,
+              infoHub.ramUsageVirt,
               Date.now()
             );
             const model = await endpoint.element.load();
-            model.currentValue.set(requestBody.infoHub.ramUsageVirt);
+            model.currentValue.set(infoHub.ramUsageVirt);
           } else if (endpoint.getName().get() === 'count_session') {
             // @ts-ignore
             SpinalGraphService._addNode(endpoint);
@@ -199,11 +208,11 @@ export class HealthService {
                 endpoint.getId().get()
               );
             await timeseries.insert(
-              parseInt(requestBody.infoHub.countSessions),
+              parseInt(infoHub.countSessions),
               Date.now()
             );
             const model = await endpoint.element.load();
-            model.currentValue.set(parseInt(requestBody.infoHub.countSessions));
+            model.currentValue.set(parseInt(infoHub.countSessions));
           } else if (endpoint.getName().get() === 'count_users') {
             // @ts-ignore
             SpinalGraphService._addNode(endpoint);
@@ -212,18 +221,16 @@ export class HealthService {
                 endpoint.getId().get()
               );
             await timeseries.insert(
-              parseInt(requestBody.infoHub.countUsers),
+              parseInt(infoHub.countUsers),
               Date.now()
             );
             const model = await endpoint.element.load();
-            model.currentValue.set(parseInt(requestBody.infoHub.countUsers));
+            model.currentValue.set(parseInt(infoHub.countUsers));
           }
         }
-      }
-    }
-    return requestBody;
-  }
+
 }
+
 
 function isWithinTwoMinutes(timestamp: number) {
   var twoMinutesAgo = Date.now() - 2 * 60 * 1000; // calculate timestamp for 2 minutes ago
