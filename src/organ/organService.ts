@@ -485,6 +485,16 @@ export class OrganService {
           const value = await element.currentValue.get();
           Object.assign(organObject, { status: value });
         }
+
+        const lastHealthTime = endpoints.find((endpoint) => {
+          return endpoint.getName().get() === 'health_history';
+        });
+        if ( lastHealthTime ) {
+          const timeseries = await spinalServiceTimeSeries().getTimeSeries(lastHealthTime.getId().get())
+          const lastHealth = timeseries[timeseries.length - 1];
+          Object.assign(organObject, { lastHealth: lastHealth });
+
+        }
         organsObjectList.push(organObject);
       }
       return organsObjectList;
