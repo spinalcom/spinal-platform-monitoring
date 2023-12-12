@@ -119,7 +119,7 @@ export class OrganService {
       currentValue: 0,
       unit: '',
       nodeTypeName: 'BmsEndpoint',
-      dataType: InputDataEndpointDataType.Date,
+      dataType: InputDataEndpointDataType.Integer,
       type: InputDataEndpointType.Other,
     };
     const healthObj: InputDataEndpoint = {
@@ -129,7 +129,7 @@ export class OrganService {
       currentValue: 1,
       unit: '',
       nodeTypeName: 'BmsEndpoint',
-      dataType: InputDataEndpointDataType.Date,
+      dataType: InputDataEndpointDataType.Integer,
       type: InputDataEndpointType.Other,
     };
 
@@ -155,10 +155,22 @@ export class OrganService {
       type: InputDataEndpointType.Other,
     }
 
+    const LastPing: InputDataEndpoint = {
+      id: '0',
+      name: 'last_ping',
+      path: '',
+      currentValue: 0,
+      unit: 'Timestamp',
+      nodeTypeName: 'BmsEndpoint',
+      dataType: InputDataEndpointDataType.Date,
+      type: InputDataEndpointType.Other,
+    }
+
     await getInstance().createNewBmsEndpointWithoutContext(OrganId, rebootObj);
     await getInstance().createNewBmsEndpointWithoutContext(OrganId, healthObj);
     await getInstance().createNewBmsEndpointWithoutContext(OrganId, RamObj);
     await getInstance().createNewBmsEndpointWithoutContext(OrganId, Status);
+    await getInstance().createNewBmsEndpointWithoutContext(OrganId, LastPing);
 
     const platformListContext = SpinalGraphService.getContext('platformList');
     const platforms = await platformListContext.getChildren('HasPlatform');
@@ -301,6 +313,17 @@ export class OrganService {
       type: InputDataEndpointType.Other,
     }
 
+    const LastPing: InputDataEndpoint = {
+      id: '0',
+      name: 'last_ping',
+      path: '',
+      currentValue: 0,
+      unit: 'Timestamp',
+      nodeTypeName: 'BmsEndpoint',
+      dataType: InputDataEndpointDataType.Date,
+      type: InputDataEndpointType.Other,
+    }
+
 
 
     await getInstance().createNewBmsEndpointWithoutContext(OrganId, rebootObj);
@@ -309,6 +332,7 @@ export class OrganService {
     await getInstance().createNewBmsEndpointWithoutContext(OrganId, countSessionsObj);
     await getInstance().createNewBmsEndpointWithoutContext(OrganId, countUsersObj);
     await getInstance().createNewBmsEndpointWithoutContext(OrganId, Status);
+    await getInstance().createNewBmsEndpointWithoutContext(OrganId, LastPing);
 
     const platformListContext = SpinalGraphService.getContext('platformList');
     const platforms = await platformListContext.getChildren('HasPlatform');
@@ -487,12 +511,11 @@ export class OrganService {
         }
 
         const lastHealthTime = endpoints.find((endpoint) => {
-          return endpoint.getName().get() === 'health_history';
+          return endpoint.getName().get() === 'last_ping';
         });
         if ( lastHealthTime ) {
-          const timeseries = await spinalServiceTimeSeries().getTimeSeries(lastHealthTime.getId().get())
-          const lastHealth = timeseries[timeseries.length - 1];
-          Object.assign(organObject, { lastHealth: lastHealth });
+          const element = await lastHealthTime.element.load();
+          Object.assign(organObject, { lastHealth: element?.currentValue?.get() });
 
         }
         organsObjectList.push(organObject);

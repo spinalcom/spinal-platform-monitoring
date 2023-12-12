@@ -40,7 +40,7 @@ import {
 import getInstance from '../utilities/NetworkService';
 import spinalServiceTimeSeries from '../utilities/spinalTimeSeries';
 import { OrganService } from '../organ/organService';
-import { IOrganCreationParams } from '../organ/organ.model';
+import { IOrganCreationParams, IOrganHubCreationParams } from '../organ/organ.model';
 import serviceDocumentation from 'spinal-env-viewer-plugin-documentation-service';
 
 export class HealthService {
@@ -100,12 +100,28 @@ export class HealthService {
           organNode.info.mac_adress.set(infoOrgan.specificOrganData.mac_adress);
         }
         // Updating Hub Organ
-        const hubOrganNode = organs.find(
+        let hubOrganNode = organs.find(
           (organ) => organ.info.organType.get() === HUB_ORGAN_TYPE
         );
-        if (hubOrganNode) {
-          await updateHubOrganEndpoints(hubOrganNode, requestBody.infoHub);
+        if(!hubOrganNode){
+          const hubOrganHub : IOrganHubCreationParams = {
+            bosId: '',
+            name: 'Hub',
+            url :'',
+            port: 0,
+            login: '',
+            password: '',
+            mac_adress: '',
+            ip_adress: '',
+            organType: HUB_ORGAN_TYPE,
+            platformId: platform.getId().get(),
+          } 
+          const organHubInfo = await this.organService.createHubOrgan(hubOrganHub,platform.getId().get());
+          hubOrganNode = SpinalGraphService.getRealNode(organHubInfo.id);
         }
+        
+        await updateHubOrganEndpoints(hubOrganNode, requestBody.infoHub);
+        
       }
     }
     return requestBody;
@@ -154,6 +170,11 @@ async function updateOrganEndpoints(organNode, infoOrgan) {
         const model = await endpoint.element.load();
         model.currentValue.set(resRegex);
       }
+    } else if (endpoint.getName().get() === 'last_ping') {
+      // @ts-ignore
+      SpinalGraphService._addNode(endpoint);
+      const model = await endpoint.element.load();
+      model.currentValue.set(parseInt(infoOrgan.genericOrganData.lastHealthTime));
     }
   }
 }
@@ -226,6 +247,12 @@ async function updateHubOrganEndpoints(hubOrganNode, infoHub) {
             );
             const model = await endpoint.element.load();
             model.currentValue.set(parseInt(infoHub.countUsers));
+          }
+          else if (endpoint.getName().get() === 'last_ping') {
+            // @ts-ignore
+            SpinalGraphService._addNode(endpoint);
+            const model = await endpoint.element.load();
+            model.currentValue.set(Date.now());
           }
         }
 
