@@ -122,11 +122,12 @@ export class OrganService {
       dataType: InputDataEndpointDataType.Integer,
       type: InputDataEndpointType.Other,
     };
+
     const healthObj: InputDataEndpoint = {
       id: '0',
       name: 'health_history',
       path: '',
-      currentValue: 1,
+      currentValue: 0,
       unit: '',
       nodeTypeName: 'BmsEndpoint',
       dataType: InputDataEndpointDataType.Integer,
@@ -259,6 +260,17 @@ export class OrganService {
       type: InputDataEndpointType.Other,
     };
 
+    const healthObj: InputDataEndpoint = {
+      id: '0',
+      name: 'health_history',
+      path: '',
+      currentValue: 0,
+      unit: '',
+      nodeTypeName: 'BmsEndpoint',
+      dataType: InputDataEndpointDataType.Integer,
+      type: InputDataEndpointType.Other,
+    };
+
     const ramResObj: InputDataEndpoint = {
       id: '0',
       name: 'ram_res',
@@ -327,6 +339,7 @@ export class OrganService {
 
 
     await getInstance().createNewBmsEndpointWithoutContext(OrganId, rebootObj);
+    await getInstance().createNewBmsEndpointWithoutContext(OrganId, healthObj);
     await getInstance().createNewBmsEndpointWithoutContext(OrganId, ramResObj);
     await getInstance().createNewBmsEndpointWithoutContext(OrganId, ramVirtObj);
     await getInstance().createNewBmsEndpointWithoutContext(OrganId, countSessionsObj);

@@ -56,6 +56,8 @@ export class HealthService {
   public async createHealth(requestBody: any): Promise<any> {
     const contextPlatform = await SpinalGraphService.getContext('platformList');
     const platforms = await contextPlatform.getChildren('HasPlatform');
+    let maxHealthTime = 0;
+
     for (const platform of platforms) {
       const attrs = await serviceDocumentation.getAttributesByCategory(
         platform,
@@ -72,6 +74,9 @@ export class HealthService {
 
         // Creating / Updating organs
         for (const infoOrgan of requestBody.infoOrgans) {
+          if(infoOrgan.genericOrganData.lastHealthTime > maxHealthTime){
+            maxHealthTime = infoOrgan.genericOrganData.lastHealthTime;
+          }
           let organNode = organs.find(
             (organ) => organ.info.name.get() === infoOrgan.genericOrganData.name
           );
@@ -119,7 +124,8 @@ export class HealthService {
           const organHubInfo = await this.organService.createHubOrgan(hubOrganHub,platform.getId().get());
           hubOrganNode = SpinalGraphService.getRealNode(organHubInfo.id);
         }
-        
+
+        requestBody.infoHub.lastHealthTime = maxHealthTime;
         await updateHubOrganEndpoints(hubOrganNode, requestBody.infoHub);
         
       }
@@ -195,7 +201,19 @@ async function updateHubOrganEndpoints(hubOrganNode, infoHub) {
             );
             const model = await endpoint.element.load();
             model.currentValue.set(1);
-          } else if (endpoint.getName().get() === 'ram_res') {
+          } else if (endpoint.getName().get() === 'health_history') {
+            // @ts-ignore
+            SpinalGraphService._addNode(endpoint);
+            var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(
+              endpoint.getId().get()
+            );
+            await timeseries.insert(
+              1,
+              infoHub.lastHealthTime
+            );
+            const model = await endpoint.element.load();
+            model.currentValue.set(1);
+            } else if (endpoint.getName().get() === 'ram_res') {
             // @ts-ignore
             SpinalGraphService._addNode(endpoint);
             var timeseries =
@@ -204,7 +222,7 @@ async function updateHubOrganEndpoints(hubOrganNode, infoHub) {
               );
             await timeseries.insert(
               infoHub.ramUsageRes,
-              Date.now()
+              infoHub.lastHealthTime
             );
             const model = await endpoint.element.load();
             model.currentValue.set(infoHub.ramUsageRes);
@@ -217,7 +235,7 @@ async function updateHubOrganEndpoints(hubOrganNode, infoHub) {
               );
             await timeseries.insert(
               infoHub.ramUsageVirt,
-              Date.now()
+              infoHub.lastHealthTime
             );
             const model = await endpoint.element.load();
             model.currentValue.set(infoHub.ramUsageVirt);
@@ -230,7 +248,7 @@ async function updateHubOrganEndpoints(hubOrganNode, infoHub) {
               );
             await timeseries.insert(
               parseInt(infoHub.countSessions),
-              Date.now()
+              infoHub.lastHealthTime
             );
             const model = await endpoint.element.load();
             model.currentValue.set(parseInt(infoHub.countSessions));
@@ -243,7 +261,7 @@ async function updateHubOrganEndpoints(hubOrganNode, infoHub) {
               );
             await timeseries.insert(
               parseInt(infoHub.countUsers),
-              Date.now()
+              infoHub.lastHealthTime
             );
             const model = await endpoint.element.load();
             model.currentValue.set(parseInt(infoHub.countUsers));
@@ -252,7 +270,7 @@ async function updateHubOrganEndpoints(hubOrganNode, infoHub) {
             // @ts-ignore
             SpinalGraphService._addNode(endpoint);
             const model = await endpoint.element.load();
-            model.currentValue.set(Date.now());
+            model.currentValue.set(infoHub.lastHealthTime);
           }
         }
 
