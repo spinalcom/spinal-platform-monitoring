@@ -117,17 +117,6 @@ export class PlatformService {
         if (res === undefined) {
           throw new OperationError('NOT_CREATED', HttpStatusCode.BAD_REQUEST);
         }
-        const organHub = await new OrganService().createHubOrgan(platformCreationParms.hubOrgan, PlatformId);
-        if (organHub === undefined) {
-          await res.removeFromGraph();
-          throw new OperationError('HUB_NOT_CREATED', HttpStatusCode.BAD_REQUEST);
-        }
-        // if (platformCreationParms.organList.length !== 0) {
-        //   for (const organ of platformCreationParms.organList) {
-        //     await SpinalGraphService.addChild(res.getId().get(), organ.organId, 'HasOrgan', MONITORING_SERVICE_RELATION_TYPE_PTR_LST);
-        //   }
-        // }
-
         const errorHistory: InputDataEndpoint = {
           id: "0",
           name: "error_history",

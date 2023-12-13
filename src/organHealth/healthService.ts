@@ -75,7 +75,7 @@ export class HealthService {
         // Creating / Updating organs
         for (const infoOrgan of requestBody.infoOrgans) {
           if(infoOrgan.genericOrganData.lastHealthTime > maxHealthTime){
-            maxHealthTime = infoOrgan.genericOrganData.lastHealthTime;
+            maxHealthTime = parseInt(infoOrgan.genericOrganData.lastHealthTime);
           }
           let organNode = organs.find(
             (organ) => organ.info.name.get() === infoOrgan.genericOrganData.name
