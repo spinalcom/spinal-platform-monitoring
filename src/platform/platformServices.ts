@@ -32,7 +32,7 @@ import {
   INFO_MONITORING_TYPE,
   MONITORING_SERVICE_INFO_RELATION_NAME,
   INFO_MONITORING,
-  CATEGORY_NAME
+  CATEGORY_NAME,
 } from '../constant';
 import {
   SpinalGraphService,
@@ -49,13 +49,17 @@ import {
   IRegisterParams,
   IRegisterKeyObject,
   IPlatformLogs,
-  IPlatformPushDataParams
+  IPlatformPushDataParams,
 } from './platform.model';
-import serviceDocumentation from "spinal-env-viewer-plugin-documentation-service"
+import serviceDocumentation from 'spinal-env-viewer-plugin-documentation-service';
 import SpinalMiddleware from '../spinalMiddleware';
 import jwt = require('jsonwebtoken');
-import { OrganService } from '../organ/organService'
-import { InputDataEndpoint, InputDataEndpointDataType, InputDataEndpointType } from 'spinal-model-bmsnetwork';
+import { OrganService } from '../organ/organService';
+import {
+  InputDataEndpoint,
+  InputDataEndpointDataType,
+  InputDataEndpointType,
+} from 'spinal-model-bmsnetwork';
 import getInstance from '../utilities/NetworkService';
 
 /**
@@ -85,7 +89,9 @@ export class PlatformService {
           type: PLATFORM_TYPE,
           name: platformCreationParms.name,
           platformType: platformCreationParms.platformType,
-          TokenBosRegister: this.generateTokenBosAdmin(platformCreationParms.name),
+          TokenBosRegister: this.generateTokenBosAdmin(
+            platformCreationParms.name
+          ),
           ipAdress: platformCreationParms.ipAdress,
           url: platformCreationParms.url,
           loginAdmin: platformCreationParms.loginAdmin,
@@ -95,7 +101,7 @@ export class PlatformService {
             for (let i of properties) {
               yield [i, this[i]];
             }
-          }
+          },
         };
         const PlatformId = SpinalGraphService.createNode(
           platformObject,
@@ -110,24 +116,35 @@ export class PlatformService {
         );
         // @ts-ignore
         SpinalGraphService._addNode(res);
-        const category = await serviceDocumentation.addCategoryAttribute(res, CATEGORY_NAME)
+        const category = await serviceDocumentation.addCategoryAttribute(
+          res,
+          CATEGORY_NAME
+        );
         for (const [key, value] of platformObject) {
-          await serviceDocumentation.addAttributeByCategoryName(res, category.nameCat, key, value)
+          await serviceDocumentation.addAttributeByCategoryName(
+            res,
+            category.nameCat,
+            key,
+            value
+          );
         }
         if (res === undefined) {
           throw new OperationError('NOT_CREATED', HttpStatusCode.BAD_REQUEST);
         }
         const errorHistory: InputDataEndpoint = {
-          id: "0",
-          name: "error_history",
-          path: "",
+          id: '0',
+          name: 'error_history',
+          path: '',
           currentValue: 0,
           unit: 'timestamp',
           nodeTypeName: 'BmsEndpoint',
           dataType: InputDataEndpointDataType.Date,
           type: InputDataEndpointType.Other,
         };
-        await getInstance().createNewBmsEndpointWithoutContext(PlatformId, errorHistory);
+        await getInstance().createNewBmsEndpointWithoutContext(
+          PlatformId,
+          errorHistory
+        );
 
         // let _organList = []
         // const _organs = await res.getChildren('HasOrgan')
@@ -149,7 +166,6 @@ export class PlatformService {
           loginAdmin: res.info.loginAdmin.get(),
           passwordAdmin: res.info.passwordAdmin.get(),
         };
-
       }
     }
   }
@@ -170,6 +186,22 @@ export class PlatformService {
                 let infoOrgan = {
                   id: organ.getId(),
                   name: organ.getName(),
+                };
+                const endpoints = await organ.getChildren('hasBmsEndpoint');
+                const status = endpoints.find((endpoint) => {
+                  return endpoint.getName().get() === 'status';
+                });
+                if (status) {
+                  const element = await status.element.load();
+                  infoOrgan['status'] = await element?.currentValue?.get();
+                }
+
+                const lastHealthTime = endpoints.find((endpoint) => {
+                  return endpoint.getName().get() === 'last_ping';
+                });
+                if (lastHealthTime) {
+                  const element = await lastHealthTime.element.load();
+                  infoOrgan['lastHealth'] = element?.currentValue?.get();
                 }
                 _organList.push(infoOrgan);
               }
@@ -184,7 +216,7 @@ export class PlatformService {
               loginAdmin: platform.info.loginAdmin.get(),
               passwordAdmin: platform.info.passwordAdmin.get(),
               platformType: platform.info.platformType.get(),
-              organList: _organList
+              organList: _organList,
             };
           }
         }
@@ -212,6 +244,22 @@ export class PlatformService {
               let infoOrgan = {
                 id: organ.getId().get(),
                 name: organ.getName().get(),
+              };
+              const endpoints = await organ.getChildren('hasBmsEndpoint');
+              const status = endpoints.find((endpoint) => {
+                return endpoint.getName().get() === 'status';
+              });
+              if (status) {
+                const element = await status.element.load();
+                infoOrgan['status'] = await element?.currentValue?.get();
+              }
+
+              const lastHealthTime = endpoints.find((endpoint) => {
+                return endpoint.getName().get() === 'last_ping';
+              });
+              if (lastHealthTime) {
+                const element = await lastHealthTime.element.load();
+                infoOrgan['lastHealth'] = element?.currentValue?.get();
               }
               _organList.push(infoOrgan);
             }
@@ -226,7 +274,7 @@ export class PlatformService {
             loginAdmin: platform.info.loginAdmin.get(),
             passwordAdmin: platform.info.passwordAdmin.get(),
             platformType: platform.info.platformType.get(),
-            organList: _organList
+            organList: _organList,
           };
           platformObjectList.push(PlatformObject);
         }
@@ -250,14 +298,65 @@ export class PlatformService {
         );
         for (const platform of platforms) {
           if (platform.getId().get() === id) {
-            const attrs = await serviceDocumentation.getAttributesByCategory(platform, CATEGORY_NAME);
+            const attrs = await serviceDocumentation.getAttributesByCategory(
+              platform,
+              CATEGORY_NAME
+            );
             for (const attr of attrs) {
-              if (attr.label.get() === 'name') serviceDocumentation.setAttributeById(platform, attr._server_id, 'name', requestBody.name, attr.type.get(), attr.unit.get())
-              else if (attr.label.get() === 'platformType') serviceDocumentation.setAttributeById(platform, attr._server_id, 'platformType', requestBody.platformType, attr.type.get(), attr.unit.get())
-              else if (attr.label.get() === 'ipAdress') serviceDocumentation.setAttributeById(platform, attr._server_id, 'ipAdress', requestBody.ipAdress, attr.type.get(), attr.unit.get())
-              else if (attr.label.get() === 'url') serviceDocumentation.setAttributeById(platform, attr._server_id, 'url', requestBody.url, attr.type.get(), attr.unit.get())
-              else if (attr.label.get() === 'loginAdmin') serviceDocumentation.setAttributeById(platform, attr._server_id, 'loginAdmin', requestBody.loginAdmin, attr.type.get(), attr.unit.get())
-              else if (attr.label.get() === 'passwordAdmin') serviceDocumentation.setAttributeById(platform, attr._server_id, 'passwordAdmin', requestBody.passwordAdmin, attr.type.get(), attr.unit.get())
+              if (attr.label.get() === 'name')
+                serviceDocumentation.setAttributeById(
+                  platform,
+                  attr._server_id,
+                  'name',
+                  requestBody.name,
+                  attr.type.get(),
+                  attr.unit.get()
+                );
+              else if (attr.label.get() === 'platformType')
+                serviceDocumentation.setAttributeById(
+                  platform,
+                  attr._server_id,
+                  'platformType',
+                  requestBody.platformType,
+                  attr.type.get(),
+                  attr.unit.get()
+                );
+              else if (attr.label.get() === 'ipAdress')
+                serviceDocumentation.setAttributeById(
+                  platform,
+                  attr._server_id,
+                  'ipAdress',
+                  requestBody.ipAdress,
+                  attr.type.get(),
+                  attr.unit.get()
+                );
+              else if (attr.label.get() === 'url')
+                serviceDocumentation.setAttributeById(
+                  platform,
+                  attr._server_id,
+                  'url',
+                  requestBody.url,
+                  attr.type.get(),
+                  attr.unit.get()
+                );
+              else if (attr.label.get() === 'loginAdmin')
+                serviceDocumentation.setAttributeById(
+                  platform,
+                  attr._server_id,
+                  'loginAdmin',
+                  requestBody.loginAdmin,
+                  attr.type.get(),
+                  attr.unit.get()
+                );
+              else if (attr.label.get() === 'passwordAdmin')
+                serviceDocumentation.setAttributeById(
+                  platform,
+                  attr._server_id,
+                  'passwordAdmin',
+                  requestBody.passwordAdmin,
+                  attr.type.get(),
+                  attr.unit.get()
+                );
             }
             const organList = await platform.getChildren('HasOrgan');
             let _organList = [];
@@ -266,7 +365,7 @@ export class PlatformService {
                 let infoOrgan = {
                   id: organ.getId(),
                   name: organ.getName(),
-                }
+                };
                 _organList.push(infoOrgan);
               }
             }
@@ -282,7 +381,7 @@ export class PlatformService {
               loginAdmin: platform.info.loginAdmin.get(),
               passwordAdmin: platform.info.passwordAdmin.get(),
               platformType: platform.info.platformType.get(),
-              organList: _organList
+              organList: _organList,
             };
           }
         }
@@ -297,11 +396,14 @@ export class PlatformService {
         const platforms = await context.getChildren(
           MONITORING_SERVICE_PLATFORM_RELATION_NAME
         );
-        var platformFound: SpinalNode<any>
+        var platformFound: SpinalNode<any>;
         for (const platform of platforms) {
           if (platform.getId().get() === id) {
-            if (platform.getName().get() === "monitoringPlatform") {
-              throw new OperationError('UNAUTHORIZED ROLE', HttpStatusCode.FORBIDDEN);
+            if (platform.getName().get() === 'monitoringPlatform') {
+              throw new OperationError(
+                'UNAUTHORIZED ROLE',
+                HttpStatusCode.FORBIDDEN
+              );
             } else {
               platformFound = platform;
             }
@@ -316,7 +418,6 @@ export class PlatformService {
         }
       }
     }
-
   }
 
   // public async createOrUpdateMonitoringPlateform(): Promise<IPlatform> {
@@ -404,7 +505,7 @@ export class PlatformService {
             for (let i of properties) {
               yield [i, this[i]];
             }
-          }
+          },
         };
         const regesterKeyId = SpinalGraphService.createNode(
           registerKeyObject,
@@ -418,9 +519,17 @@ export class PlatformService {
           MONITORING_SERVICE_RELATION_TYPE_PTR_LST
         );
 
-        const category = await serviceDocumentation.addCategoryAttribute(res, CATEGORY_NAME)
+        const category = await serviceDocumentation.addCategoryAttribute(
+          res,
+          CATEGORY_NAME
+        );
         for (const [key, value] of registerKeyObject) {
-          await serviceDocumentation.addAttributeByCategoryName(res, category.nameCat, key, value)
+          await serviceDocumentation.addAttributeByCategoryName(
+            res,
+            category.nameCat,
+            key,
+            value
+          );
         }
         return {
           id: res.getId().get(),
@@ -451,11 +560,22 @@ export class PlatformService {
         );
         for (const child of childrens) {
           if (child.getName().get() === 'registerKey') {
-            const newValue = this.generateRegisterKey()
+            const newValue = this.generateRegisterKey();
             child.info.value.set(newValue);
-            const attrs = await serviceDocumentation.getAttributesByCategory(child, CATEGORY_NAME);
+            const attrs = await serviceDocumentation.getAttributesByCategory(
+              child,
+              CATEGORY_NAME
+            );
             for (const attr of attrs) {
-              if (attr.label.get() === 'value') serviceDocumentation.setAttributeById(child, attr._server_id, 'value', newValue, attr.type.get(), attr.unit.get())
+              if (attr.label.get() === 'value')
+                serviceDocumentation.setAttributeById(
+                  child,
+                  attr._server_id,
+                  'value',
+                  newValue,
+                  attr.type.get(),
+                  attr.unit.get()
+                );
             }
             return {
               id: child.getId().get(),
@@ -520,7 +640,6 @@ export class PlatformService {
       }
     }
     if (object.registerKey === registerKey) {
-
       const res = await this.createPlateform(object.platformCreationParms);
       return res;
     } else {
@@ -592,12 +711,11 @@ export class PlatformService {
                 message: log.info.message.get(),
                 actor: {
                   actorId: log.info.actor.actorId.get(),
-                  actorName: log.info.actor.actorName.get()
-                }
-              }
-              logArrayList.push(PlatformObjectLog)
+                  actorName: log.info.actor.actorName.get(),
+                },
+              };
+              logArrayList.push(PlatformObjectLog);
             }
-
           }
         }
       }
@@ -610,8 +728,6 @@ export class PlatformService {
     }
   }
 
-
-
   public async pushDataPlatform(
     requestBody: IPlatformPushDataParams
   ): Promise<any> {
@@ -623,14 +739,65 @@ export class PlatformService {
         );
         for (const platform of platforms) {
           if (platform.getId().get() === requestBody.id) {
-            const attrs = await serviceDocumentation.getAttributesByCategory(platform, CATEGORY_NAME);
+            const attrs = await serviceDocumentation.getAttributesByCategory(
+              platform,
+              CATEGORY_NAME
+            );
             for (const attr of attrs) {
-              if (attr.label.get() === 'name') serviceDocumentation.setAttributeById(platform, attr._server_id, 'name', requestBody.name, attr.type.get(), attr.unit.get())
-              else if (attr.label.get() === 'platformType') serviceDocumentation.setAttributeById(platform, attr._server_id, 'platformType', requestBody.platformType, attr.type.get(), attr.unit.get())
-              else if (attr.label.get() === 'ipAdress') serviceDocumentation.setAttributeById(platform, attr._server_id, 'ipAdress', requestBody.ipAdress, attr.type.get(), attr.unit.get())
-              else if (attr.label.get() === 'url') serviceDocumentation.setAttributeById(platform, attr._server_id, 'url', requestBody.url, attr.type.get(), attr.unit.get())
-              else if (attr.label.get() === 'loginAdmin') serviceDocumentation.setAttributeById(platform, attr._server_id, 'loginAdmin', requestBody.loginAdmin, attr.type.get(), attr.unit.get())
-              else if (attr.label.get() === 'passwordAdmin') serviceDocumentation.setAttributeById(platform, attr._server_id, 'passwordAdmin', requestBody.passwordAdmin, attr.type.get(), attr.unit.get())
+              if (attr.label.get() === 'name')
+                serviceDocumentation.setAttributeById(
+                  platform,
+                  attr._server_id,
+                  'name',
+                  requestBody.name,
+                  attr.type.get(),
+                  attr.unit.get()
+                );
+              else if (attr.label.get() === 'platformType')
+                serviceDocumentation.setAttributeById(
+                  platform,
+                  attr._server_id,
+                  'platformType',
+                  requestBody.platformType,
+                  attr.type.get(),
+                  attr.unit.get()
+                );
+              else if (attr.label.get() === 'ipAdress')
+                serviceDocumentation.setAttributeById(
+                  platform,
+                  attr._server_id,
+                  'ipAdress',
+                  requestBody.ipAdress,
+                  attr.type.get(),
+                  attr.unit.get()
+                );
+              else if (attr.label.get() === 'url')
+                serviceDocumentation.setAttributeById(
+                  platform,
+                  attr._server_id,
+                  'url',
+                  requestBody.url,
+                  attr.type.get(),
+                  attr.unit.get()
+                );
+              else if (attr.label.get() === 'loginAdmin')
+                serviceDocumentation.setAttributeById(
+                  platform,
+                  attr._server_id,
+                  'loginAdmin',
+                  requestBody.loginAdmin,
+                  attr.type.get(),
+                  attr.unit.get()
+                );
+              else if (attr.label.get() === 'passwordAdmin')
+                serviceDocumentation.setAttributeById(
+                  platform,
+                  attr._server_id,
+                  'passwordAdmin',
+                  requestBody.passwordAdmin,
+                  attr.type.get(),
+                  attr.unit.get()
+                );
             }
             const organList = await platform.getChildren('HasOrgan');
             let _organList = [];
@@ -639,7 +806,7 @@ export class PlatformService {
                 let infoOrgan = {
                   id: organ.getId(),
                   name: organ.getName(),
-                }
+                };
                 _organList.push(infoOrgan);
               }
             }
@@ -655,7 +822,7 @@ export class PlatformService {
               loginAdmin: platform.info.loginAdmin.get(),
               passwordAdmin: platform.info.passwordAdmin.get(),
               platformType: platform.info.platformType.get(),
-              organList: _organList
+              organList: _organList,
             };
           }
         }
@@ -663,4 +830,3 @@ export class PlatformService {
     }
   }
 }
-

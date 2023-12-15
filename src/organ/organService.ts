@@ -55,7 +55,7 @@ import {
   InputDataEndpointType,
 } from 'spinal-model-bmsnetwork';
 import getInstance from '../utilities/NetworkService';
-import { spinalControlPointService } from "spinal-env-viewer-plugin-control-endpoint-service";
+import { spinalControlPointService } from 'spinal-env-viewer-plugin-control-endpoint-service';
 export class OrganService {
   public spinalMiddleware: SpinalMiddleware = SpinalMiddleware.getInstance();
   public graph: SpinalGraph<any>;
@@ -154,7 +154,7 @@ export class OrganService {
       nodeTypeName: 'BmsEndpoint',
       dataType: InputDataEndpointDataType.Integer,
       type: InputDataEndpointType.Other,
-    }
+    };
 
     const LastPing: InputDataEndpoint = {
       id: '0',
@@ -165,7 +165,7 @@ export class OrganService {
       nodeTypeName: 'BmsEndpoint',
       dataType: InputDataEndpointDataType.Date,
       type: InputDataEndpointType.Other,
-    }
+    };
 
     await getInstance().createNewBmsEndpointWithoutContext(OrganId, rebootObj);
     await getInstance().createNewBmsEndpointWithoutContext(OrganId, healthObj);
@@ -293,7 +293,7 @@ export class OrganService {
       type: InputDataEndpointType.Other,
     };
 
-    const countSessionsObj : InputDataEndpoint = {
+    const countSessionsObj: InputDataEndpoint = {
       id: '0',
       name: 'count_session',
       path: '',
@@ -304,7 +304,7 @@ export class OrganService {
       type: InputDataEndpointType.Other,
     };
 
-    const countUsersObj : InputDataEndpoint = {
+    const countUsersObj: InputDataEndpoint = {
       id: '0',
       name: 'count_users',
       path: '',
@@ -323,7 +323,7 @@ export class OrganService {
       nodeTypeName: 'BmsEndpoint',
       dataType: InputDataEndpointDataType.Integer,
       type: InputDataEndpointType.Other,
-    }
+    };
 
     const LastPing: InputDataEndpoint = {
       id: '0',
@@ -334,16 +334,20 @@ export class OrganService {
       nodeTypeName: 'BmsEndpoint',
       dataType: InputDataEndpointDataType.Date,
       type: InputDataEndpointType.Other,
-    }
-
-
+    };
 
     await getInstance().createNewBmsEndpointWithoutContext(OrganId, rebootObj);
     await getInstance().createNewBmsEndpointWithoutContext(OrganId, healthObj);
     await getInstance().createNewBmsEndpointWithoutContext(OrganId, ramResObj);
     await getInstance().createNewBmsEndpointWithoutContext(OrganId, ramVirtObj);
-    await getInstance().createNewBmsEndpointWithoutContext(OrganId, countSessionsObj);
-    await getInstance().createNewBmsEndpointWithoutContext(OrganId, countUsersObj);
+    await getInstance().createNewBmsEndpointWithoutContext(
+      OrganId,
+      countSessionsObj
+    );
+    await getInstance().createNewBmsEndpointWithoutContext(
+      OrganId,
+      countUsersObj
+    );
     await getInstance().createNewBmsEndpointWithoutContext(OrganId, Status);
     await getInstance().createNewBmsEndpointWithoutContext(OrganId, LastPing);
 
@@ -517,7 +521,7 @@ export class OrganService {
         const status = endpoints.find((endpoint) => {
           return endpoint.getName().get() === 'status';
         });
-        if ( status ) {
+        if (status) {
           const element = await status.element.load();
           const value = await element.currentValue.get();
           Object.assign(organObject, { status: value });
@@ -526,10 +530,11 @@ export class OrganService {
         const lastHealthTime = endpoints.find((endpoint) => {
           return endpoint.getName().get() === 'last_ping';
         });
-        if ( lastHealthTime ) {
+        if (lastHealthTime) {
           const element = await lastHealthTime.element.load();
-          Object.assign(organObject, { lastHealth: element?.currentValue?.get() });
-
+          Object.assign(organObject, {
+            lastHealth: element?.currentValue?.get(),
+          });
         }
         organsObjectList.push(organObject);
       }
@@ -577,8 +582,25 @@ export class OrganService {
               Object.assign(organObject, { organType: attr.value.get() });
             else if (attr.label.get() === 'platformId')
               Object.assign(organObject, { platformId: attr.value.get() });
-            else if (attr.label.get() === 'status')
-              Object.assign(organObject, { status: attr.value.get() });
+            const endpoints = await organ.getChildren('hasBmsEndpoint');
+            const status = endpoints.find((endpoint) => {
+              return endpoint.getName().get() === 'status';
+            });
+            if (status) {
+              const element = await status.element.load();
+              const value = await element?.currentValue?.get();
+              Object.assign(organObject, { status: value });
+            }
+
+            const lastHealthTime = endpoints.find((endpoint) => {
+              return endpoint.getName().get() === 'last_ping';
+            });
+            if (lastHealthTime) {
+              const element = await lastHealthTime.element.load();
+              Object.assign(organObject, {
+                lastHealth: element?.currentValue?.get(),
+              });
+            }
           }
         }
       }
