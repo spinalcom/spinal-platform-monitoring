@@ -478,6 +478,44 @@ export class OrganService {
     }
   }
 
+
+  public async getOrganRam(organId: string, begin: number, end: number) {
+    try {
+      const context = SpinalGraphService.getContext('organList');
+      const organs = await context.getChildren(
+        MONITORING_SERVICE_ORGAN_RELATION_NAME
+      );
+      for (const organ of organs) {
+        if (organ.getId().get() === organId) {
+            organ.get
+          const endpoints = await organ.getChildren('hasBmsEndpoint');
+          for (const endpoint of endpoints) {
+            //if organ is a hub , return ram_res , else return ram_history
+            if ( ['ram_history','ram_res'].includes(endpoint.getName().get())) {
+              // @ts-ignore
+              SpinalGraphService._addNode(endpoint);
+              const timeSeriesIntervalDate = {
+                start: begin,
+                end: end,
+              };
+              const timeseries = await spinalServiceTimeSeries().getData(
+                endpoint.getId().get(),
+                timeSeriesIntervalDate
+              );
+              return timeseries;
+            }
+          }
+        }
+      }
+    } catch (error) {
+      return error;
+    }
+  }
+
+
+
+
+
   public async getOrgans(): Promise<IOrgan[]> {
     try {
       var organsObjectList = [];

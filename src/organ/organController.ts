@@ -102,6 +102,32 @@ export class OrgansController extends Controller {
   }
 
   @Security('jwt')
+  @Get('{organId}/status/{begin}/{end}')
+  public async getOrganStatus(
+    @Header('x-access-token') test:string,
+    @Path() organId: string,
+    @Path() begin: number,
+    @Path() end: number,
+  ): Promise<any> {
+    this.setStatus(200); // set return status 201
+    return new OrganService().getOrganStatus(organId,begin, end);
+  }
+
+  @Security('jwt')
+  @Get('{organId}/status/{begin}/{end}')
+  public async getOrganRam(
+    @Header('x-access-token') test:string,
+    @Path() organId: string,
+    @Path() begin: number,
+    @Path() end: number,
+  ): Promise<any> {
+    this.setStatus(200); // set return status 201
+    return new OrganService().getOrganRam(organId,begin, end);
+  }
+
+
+
+  @Security('jwt')
   @Put('{organId}')
   public async updateOrgan(
     @Path() organId: string,

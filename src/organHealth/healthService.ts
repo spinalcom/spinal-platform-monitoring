@@ -56,7 +56,6 @@ export class HealthService {
   public async createHealth(requestBody: any): Promise<any> {
     const contextPlatform = await SpinalGraphService.getContext('platformList');
     const platforms = await contextPlatform.getChildren('HasPlatform');
-    let maxHealthTime = 0;
 
     for (const platform of platforms) {
       const attrs = await serviceDocumentation.getAttributesByCategory(
@@ -69,14 +68,12 @@ export class HealthService {
           TokenBosRegister = attr.value.get();
       }
       // find the platform with the same registery token as the one in api call
+
       if (TokenBosRegister === requestBody.TokenBosRegister) {
         const organs = await platform.getChildren('HasOrgan');
 
         // Creating / Updating organs
         for (const infoOrgan of requestBody.infoOrgans) {
-          if(infoOrgan.genericOrganData.lastHealthTime > maxHealthTime){
-            maxHealthTime = parseInt(infoOrgan.genericOrganData.lastHealthTime);
-          }
           let organNode = organs.find(
             (organ) => organ.info.name.get() === infoOrgan.genericOrganData.name
           );
@@ -125,7 +122,7 @@ export class HealthService {
           hubOrganNode = SpinalGraphService.getRealNode(organHubInfo.id);
         }
 
-        requestBody.infoHub.lastHealthTime = maxHealthTime;
+        requestBody.infoHub.lastHealthTime = Date.now();
         await updateHubOrganEndpoints(hubOrganNode, requestBody.infoHub);
         
       }
