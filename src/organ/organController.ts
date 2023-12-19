@@ -114,7 +114,7 @@ export class OrgansController extends Controller {
   }
 
   @Security('jwt')
-  @Get('{organId}/status/{begin}/{end}')
+  @Get('{organId}/ram/{begin}/{end}')
   public async getOrganRam(
     @Header('x-access-token') test:string,
     @Path() organId: string,
