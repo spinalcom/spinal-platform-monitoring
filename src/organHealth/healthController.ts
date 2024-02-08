@@ -49,4 +49,18 @@ export class HealthController extends Controller {
     this.setStatus(201); // set return status 201rt
     return new HealthService().createHealth(requestBody)
   }
+
+  @Post('/dump')
+  public async dumpHealth(
+    @Body() requestBody: any
+  ): Promise<any> {
+    this.setStatus(201); // set return status 201rt
+    console.log('dumpHealth');
+    return new HealthService().dumpHealth(requestBody)
+  }
+
 }
+
+
+
+
