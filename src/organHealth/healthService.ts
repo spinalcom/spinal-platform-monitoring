@@ -153,7 +153,6 @@ export class HealthService {
 
       if (TokenBosRegister === requestBody.TokenBosRegister) {
         const organs = await platform.getChildren('HasOrgan');
-
         // Updating Hub Organ
         let hubOrganNode = organs.find(
           (organ) => organ.info.organType.get() === HUB_ORGAN_TYPE
