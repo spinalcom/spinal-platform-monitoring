@@ -239,7 +239,7 @@ async function createDumpEndpoint(
     name: 'dump_size',
     path: '',
     currentValue: initialValue,
-    unit: '%',
+    unit: 'MB',
     nodeTypeName: 'BmsEndpoint',
     dataType: InputDataEndpointDataType.Real,
     type: InputDataEndpointType.Other,
