@@ -160,19 +160,20 @@ export class HealthService {
         if (hubOrganNode) {
           const endpoints = await hubOrganNode.getChildren('hasBmsEndpoint');
           const dumpEndpoint = endpoints.find(
-            (endpoint) => endpoint.getName().get() === 'dump_size_variation'
+            (endpoint) => endpoint.getName().get() === 'dump_size'
           );
           if (dumpEndpoint) {
-            const model = await dumpEndpoint.element.load();
-            model.currentValue.set(requestBody.dumpSizeVariation);
+            updateDumpEndpoint(hubOrganNode, requestBody.dumpSize);
           } else {
-            createDumpEndpoint(hubOrganNode, requestBody.dumpSizeVariation);
+            createDumpEndpoint(hubOrganNode, requestBody.dumpSize);
           }
         }
       }
     }
     return requestBody;
   }
+
+
 }
 
 async function updateOrganEndpoints(organNode: SpinalNode<any>, infoOrgan) {
@@ -235,7 +236,7 @@ async function createDumpEndpoint(
   SpinalGraphService._addNode(organNode);
   const dumpEndpoint: InputDataEndpoint = {
     id: '0',
-    name: 'dump_size_variation',
+    name: 'dump_size',
     path: '',
     currentValue: initialValue,
     unit: '%',
@@ -249,6 +250,25 @@ async function createDumpEndpoint(
     dumpEndpoint
   );
   console.log("Endpoint created : ", result.name.get() , " with value : ", initialValue);
+}
+
+async function updateDumpEndpoint(
+  organNode: SpinalNode<any>,
+  value: number
+) {
+  const endpoints = await organNode.getChildren('hasBmsEndpoint');
+  const dumpEndpoint = endpoints.find(
+    (endpoint) => endpoint.getName().get() === 'dump_size'
+  );
+  if (dumpEndpoint) {
+    SpinalGraphService._addNode(dumpEndpoint);
+    var timeseries = await spinalServiceTimeSeries().getOrCreateTimeSeries(
+      dumpEndpoint.getId().get()
+    );
+    await timeseries.push(value);
+    const model = await dumpEndpoint.element.load();
+    model.currentValue.set(value);
+  }
 }
 
 async function updateHubOrganEndpoints(hubOrganNode: SpinalNode<any>, infoHub) {
