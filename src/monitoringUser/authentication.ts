@@ -34,7 +34,10 @@ export function expressAuthentication(
     const token =
       request.body.token ||
       request.query.token ||
-      request.headers['x-access-token'];
+      request.headers['x-access-token'] ||
+      request.headers['authorization']?.split(' ')[1];
+
+    
 
     return new Promise((resolve, reject) => {
       if (!token) {

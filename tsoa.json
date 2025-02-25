@@ -7,7 +7,13 @@
   "spec": {
     "outputDirectory": "./dist",
     "host": "localhost:5050",
+    "schemes": ["http"],
     "securityDefinitions": {
+      "jwt": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
       "api_key": {
         "type": "apiKey",
         "name": "access_token",
@@ -21,9 +27,6 @@
           "write:pets": "modify things",
           "read:pets": "read things"
         }
-      },
-      "jwt": {
-        "type": "jwt"
       }
     },
     "yaml": false,
